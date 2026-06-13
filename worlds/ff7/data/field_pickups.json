@@ -1,0 +1,810 @@
+{
+  "anfrst_1": {
+    "Slash-All": 1,
+    "Minerva Band": 1
+  },
+  "anfrst_2": {
+    "Typhon": 1
+  },
+  "anfrst_3": {
+    "Supershot ST": 1,
+    "Spring Gun Clip": 1
+  },
+  "anfrst_5": {
+    "Apocalypse": 1,
+    "Elixir": 1
+  },
+  "blin1": {
+    "Turtle Paradise Flyer #2": 1
+  },
+  "blin2_i": {
+    "Pile Banger": 1,
+    "Master Fist": 1
+  },
+  "blin59": {
+    "KeyItem: Keycard 60": 1
+  },
+  "blin61": {
+    "KeyItem: Keycard 62": 1
+  },
+  "blin62_1": {
+    "Can Advance": 1,
+    "KeyItem: Keycard 65": 1,
+    "Elemental": 1
+  },
+  "blin63_1": {
+    "Initialized the Machine": 1,
+    "KeyItem: A Coupon": 1,
+    "KeyItem: B Coupon": 1,
+    "KeyItem: C Coupon": 1,
+    "Hourglass": 1,
+    "All": 2,
+    "Grow Lance": 1,
+    "Star Pendant": 1,
+    "Four Slots": 1
+  },
+  "blin64": {
+    "Phoenix Down": 1,
+    "Ether": 1,
+    "Hp Shout": 1,
+    "Shinra Gym Special Drink": 1,
+    "Mind Source + Speed Source": 1
+  },
+  "blin65_1": {
+    "KeyItem: Midgar parts": 5,
+    "KeyItem: Keycard 66": 1
+  },
+  "blin67_1": {
+    "Poison": 1
+  },
+  "blin68_1": {
+    "KeyItem: KeyCard 68": 1,
+    "Potion": 4,
+    "Enemy Skill": 1
+  },
+  "blin68_2": {
+    "Enemy Skill": 1
+  },
+  "blinst_2": {
+    "Elixir": 1,
+    "Behemoth Horn": 1
+  },
+  "bonevil": {
+    "Phoenix": 1,
+    "KeyItem: Lunar Harp": 1,
+    "Bahamut Zero": 1,
+    "Buntline": 1,
+    "Mop": 1,
+    "Megalixir": 1,
+    "KeyItem: Key To Sector 5": 1,
+    "W-Item": 1
+  },
+  "bugin1b": {
+    "Bahamut Zero": 1
+  },
+  "canon_1": {
+    "Missing Score": 1
+  },
+  "clsin2_2": {
+    "KeyItem: Keystone": 1
+  },
+  "colne_3": {
+    "Phoenix Down": 1
+  },
+  "colne_4": {
+    "Ether": 1
+  },
+  "colne_6": {
+    "Hyper": 1
+  },
+  "colne_b1": {
+    "Potion": 1,
+    "Steal": 1
+  },
+  "coloin1": {
+    "Omnislash": 1,
+    "W-Summon": 1
+  },
+  "coloss": {
+    "Sprint Shoes": 1
+  },
+  "convil_1": {
+    "KeyItem: Huge Materia: Fort Condor": 1
+  },
+  "convil_2": {
+    "Magic Comb": 1,
+    "Peace Ring": 1,
+    "Megalixir": 1,
+    "Super Ball": 1
+  },
+  "convil_4": {
+    "Phoenix": 1
+  },
+  "cosin1": {
+    "Turtle Paradise Flyer #4": 1
+  },
+  "cosin3": {
+    "Turtle Paradise Flyer #5": 1
+  },
+  "cosmin6": {
+    "Elixir": 1
+  },
+  "cosmin7": {
+    "Full Cure": 1
+  },
+  "crcin_1": {
+    "Rewards From Ester": 1
+  },
+  "crcin_2": {
+    "Ramuh": 1
+  },
+  "datiao_8": {
+    "Steal-As-Well": 1,
+    "Dragoon Lance": 1,
+    "Oritsuru": 1
+  },
+  "delmin1": {
+    "Purchased The House": 1
+  },
+  "delmin12": {
+    "Motor Drive": 1,
+    "Fire Ring": 1,
+    "Power Source": 1
+  },
+  "ealin_1": {
+    "Phoenix Down": 1
+  },
+  "eals_1": {
+    "Ether": 1,
+    "Cover": 1
+  },
+  "elmin1_1": {
+    "Ether": 1
+  },
+  "elmin2_2": {
+    "Ether": 1
+  },
+  "elmin3_2": {
+    "Guard Source": 1
+  },
+  "elmin4_1": {
+    "Ether": 1
+  },
+  "elmin4_2": {
+    "Show Underwater": 1,
+    "Show Master Command": 1,
+    "Show Master Magic": 1,
+    "Show Master Summon": 1,
+    "Show Gold Chocobo": 1
+  },
+  "elminn_1": {
+    "KeyItem: PHS": 1
+  },
+  "elminn_2": {
+    "Megalixir": 1
+  },
+  "elmtow": {
+    "Peacemaker": 1
+  },
+  "farm": {
+    "Choco/Mog": 1,
+    "Chocobo Lure": 1
+  },
+  "gaiin_1": {
+    "Javelin": 1,
+    "Ribbon": 1
+  },
+  "gaiin_3": {
+    "Elixir": 1,
+    "Speed Source": 1
+  },
+  "gaiin_4": {
+    "Enhance Sword": 1
+  },
+  "gaiin_5": {
+    "Fire Armlet": 1,
+    "Elixir": 1
+  },
+  "games_1": {
+    "KeyItem: Gold Ticket": 1,
+    "Gil Plus": 1,
+    "Exp Plus": 1
+  },
+  "games_2": {
+    "30Gp from Mog's House": 1,
+    "Safety Bit": 1,
+    "All": 1,
+    "Crystal Bangle": 1,
+    "Speed Source": 1,
+    "Ink": 1,
+    "T/S Bomb": 1,
+    "Dragon Fang": 1,
+    "Dragon Scales": 1,
+    "Cauldron": 1
+  },
+  "ghotin_1": {
+    "Turtle Paradise Flyer #3": 1
+  },
+  "ghotin_2": {
+    "Elixir": 1
+  },
+  "gidun_1": {
+    "Added Effect": 1
+  },
+  "gidun_2": {
+    "Black M-phone": 1,
+    "Ether": 1
+  },
+  "gidun_4": {
+    "Fairy Ring": 1,
+    "X-Potion": 1,
+    "Turbo Ether": 1
+  },
+  "gldst": {
+    "KeyItem: Gold Ticket": 1
+  },
+  "gninn": {
+    "X-Potion": 1
+  },
+  "gnmk": {
+    "Titan": 1
+  },
+  "gonjun1": {
+    "Deathblow": 1
+  },
+  "goson": {
+    "White M-phone": 1
+  },
+  "hideway1": {
+    "Magic Shuriken": 1
+  },
+  "hideway2": {
+    "Hairpin": 1
+  },
+  "hideway3": {
+    "HP Absorb": 1
+  },
+  "hyou12": {
+    "All": 1
+  },
+  "hyou13_2": {
+    "Alexander": 1
+  },
+  "hyou2": {
+    "Mind Source": 1
+  },
+  "hyou5_1": {
+    "Potion": 1
+  },
+  "hyou5_3": {
+    "Safety Bit": 1
+  },
+  "hyou8_2": {
+    "Elixir": 1
+  },
+  "itmin2": {
+    "Elixir": 1
+  },
+  "itown1b": {
+    "Contain": 1
+  },
+  "jetin1": {
+    "Umbrella": 1,
+    "Flayer": 1
+  },
+  "junmin2": {
+    "Mind Source": 1,
+    "Luck Source": 1,
+    "1/35 soldier": 1
+  },
+  "junmin3": {
+    "Power Source": 1,
+    "Guard Source": 1
+  },
+  "junmin4": {
+    "Speed Source": 1
+  },
+  "junmin5": {
+    "1/35 soldier": 1
+  },
+  "junpb_2": {
+    "Potion": 1,
+    "Enemy Skill": 1
+  },
+  "kuro_1": {
+    "Luck Plus": 1,
+    "Turbo Ether": 1,
+    "Mind Source": 1,
+    "Trident": 1,
+    "Rocket Punch": 1,
+    "Ribbon": 1
+  },
+  "kuro_2": {
+    "Silver Rifle": 1
+  },
+  "kuro_3": {
+    "Morph": 1
+  },
+  "kuro_5": {
+    "Nail Bat": 1
+  },
+  "kuro_6": {
+    "Battle #645": 1,
+    "Battle #649": 1,
+    "Princess Guard": 1,
+    "Trumpet Shell": 1,
+    "Megalixir": 1
+  },
+  "kuro_7": {
+    "Work Glove": 1
+  },
+  "kuro_82": {
+    "Bahamut": 1
+  },
+  "las0_4": {
+    "Speed Source": 1,
+    "Guard Source": 1,
+    "Save Crystal": 1,
+    "Counter": 1,
+    "W-Magic": 1
+  },
+  "las0_5": {
+    "Power Source": 1,
+    "Elixir": 1,
+    "Mind Source": 1,
+    "Magic Source": 1,
+    "Guard Source": 1,
+    "HP Absorb": 1
+  },
+  "las0_6": {
+    "Mind Source": 1,
+    "Hero Drink": 1
+  },
+  "las0_7": {
+    "Megalixir": 1,
+    "Power Source": 1,
+    "Guard Source": 1
+  },
+  "las1_2": {
+    "Elixir": 1,
+    "Mystile": 1,
+    "Speed Source": 1
+  },
+  "las1_3": {
+    "Speed Source": 1,
+    "Tetra Elemental": 1,
+    "Megalixir": 2
+  },
+  "las2_2": {
+    "Magic Source": 1,
+    "Remedy": 1
+  },
+  "las2_3": {
+    "Hero Drink": 1,
+    "Vaccine": 1,
+    "Shield": 1,
+    "Imperial Guard": 1
+  },
+  "las3_1": {
+    "Elixir": 1,
+    "X-Potion": 1,
+    "Remedy": 1
+  },
+  "las3_2": {
+    "Turbo Ether": 1,
+    "Vaccine": 1,
+    "Magic Counter": 1
+  },
+  "las3_3": {
+    "Speed Source": 1,
+    "Turbo Ether": 1,
+    "X-Potion": 1,
+    "Mega All": 1
+  },
+  "las4_0": {
+    "Elixir": 2,
+    "Turbo Ether": 1,
+    "Vaccine": 1,
+    "Speed Source": 1,
+    "Mega All": 1,
+    "Remedy": 2,
+    "Mystile": 1,
+    "Megalixir": 2,
+    "Guard Source": 1,
+    "Mind Source": 1,
+    "Magic Source": 1,
+    "Hero Drink": 1,
+    "Shield": 1,
+    "Counter": 1,
+    "W-Magic": 1,
+    "Imperial Guard": 1
+  },
+  "las4_1": {
+    "Luck Source": 1
+  },
+  "losin1": {
+    "Comet": 1
+  },
+  "losin2": {
+    "Guard Source": 1
+  },
+  "losin3": {
+    "Magic Source": 1
+  },
+  "losinn": {
+    "Elixir": 1,
+    "Enemy Skill": 1
+  },
+  "loslake1": {
+    "Aurora Armlet": 1
+  },
+  "md1stin": {
+    "Potion": 2
+  },
+  "md8_3": {
+    "Potion": 1
+  },
+  "md8_32": {
+    "Mystile": 1,
+    "Elixir": 1
+  },
+  "md8_b1": {
+    "Max Ray": 1,
+    "Aegis Armlet": 1,
+    "Megalixir": 1,
+    "Elixir": 1
+  },
+  "md8_b2": {
+    "Starlight Phone": 1,
+    "Elixir": 1
+  },
+  "mds5_5": {
+    "KeyItem: Key To Sector 5": 1
+  },
+  "mds6_22": {
+    "Sense": 1
+  },
+  "mds7_w2": {
+    "All": 1,
+    "Ether": 1
+  },
+  "mds7st1": {
+    "Hi-Potion": 2,
+    "Echo Screen": 1,
+    "Potion": 2
+  },
+  "mds7st2": {
+    "Potion": 1,
+    "Ether": 1,
+    "Hi-Potion": 1
+  },
+  "min51_2": {
+    "Found hidden draw": 1,
+    "Stole boys 5 gil": 1,
+    "Turbo Ether": 1,
+    "Turtle Paradise Flyer #1": 1
+  },
+  "mkt_ia": {
+    "Premium Heart": 1
+  },
+  "mkt_m": {
+    "KeyItem: Glass Tiara": 1,
+    "KeyItem: Ruby Tiara": 1,
+    "KeyItem: Diamond Tiara": 1
+  },
+  "mkt_mens": {
+    "KeyItem: Wig": 1,
+    "KeyItem: Dyed Wig": 1,
+    "KeyItem: Blonde Wig": 1
+  },
+  "mkt_s1": {
+    "KeyItem: Cotton Dress": 1,
+    "KeyItem: Satin Dress": 1,
+    "KeyItem: Silk Dress": 1
+  },
+  "mkt_s2": {
+    "KeyItem: Pharmacy Coupon": 1
+  },
+  "mkt_s3": {
+    "KeyItem: Disinfectant": 1,
+    "KeyItem: Deodorant": 1,
+    "KeyItem: Digestive": 1
+  },
+  "mkt_w": {
+    "Sneak Glove": 1,
+    "Batteries": 1
+  },
+  "mktpb": {
+    "KeyItem: Cologne": 1,
+    "KeyItem: Flower Cologne": 1,
+    "KeyItem: Sexy Cologne": 1
+  },
+  "move_d": {
+    "Added Cut": 1
+  },
+  "mrkt2": {
+    "KeyItem: Member's Card": 1
+  },
+  "mtcrl_4": {
+    "W Machine Gun": 1,
+    "Transform": 1,
+    "Turbo Ether": 1
+  },
+  "mtcrl_5": {
+    "Star Pendant": 1,
+    "Wizard Staff": 1
+  },
+  "mtcrl_7": {
+    "Mind Source": 1,
+    "Power Source": 1,
+    "Tent": 1
+  },
+  "mtnvl2": {
+    "Rune Blade": 1,
+    "Plus Barrette": 1
+  },
+  "ncoin1": {
+    "Ether": 1
+  },
+  "ncoin3": {
+    "Catastrophe": 1
+  },
+  "ncorel2": {
+    "Ultima": 1
+  },
+  "ncorel3": {
+    "KeyItem: Huge Materia: Corel": 1,
+    "Ultima": 1
+  },
+  "niv_ti1": {
+    "Turbo Ether": 1
+  },
+  "niv_ti2": {
+    "Platinum Fist": 1,
+    "Final Heaven (+other stuff?)": 1,
+    "Played piano during flashback": 1,
+    "Elemental(+other stuff?)": 1
+  },
+  "niv_w": {
+    "Elixir": 1
+  },
+  "nivinn_1": {
+    "Luck Source": 1
+  },
+  "nivl_3": {
+    "Mind Plus": 1
+  },
+  "nmkin_1": {
+    "Phoenix Down": 1
+  },
+  "nmkin_3": {
+    "Potion": 1
+  },
+  "nvdun1": {
+    "Counter": 1,
+    "Powersoul": 1,
+    "All": 1
+  },
+  "nvdun2": {
+    "Elixir": 1
+  },
+  "nvdun3": {
+    "Elemental": 1
+  },
+  "nvdun4": {
+    "Sniper CR": 1
+  },
+  "nvmin1_2": {
+    "Luck Source": 1
+  },
+  "onna_52": {
+    "KeyItem: Bikini briefs": 1,
+    "KeyItem: Lingerie": 1
+  },
+  "prisila": {
+    "Shiva": 1
+  },
+  "psdun_2": {
+    "Mind Source": 1
+  },
+  "psdun_3": {
+    "Ether": 1,
+    "Long Range": 1,
+    "Tent": 1
+  },
+  "psdun_4": {
+    "Hi-Potion": 1,
+    "Elixir": 1
+  },
+  "q_1": {
+    "Heaven's Cloud": 1
+  },
+  "q_3": {
+    "Escort Guard": 1,
+    "Conformer": 1,
+    "Megalixir": 1,
+    "Double Cut": 1
+  },
+  "q_4": {
+    "Hades": 1,
+    "Outsider": 1,
+    "Spirit Lance": 1,
+    "Megalixir": 1,
+    "Highwind": 1
+  },
+  "rckt": {
+    "Yoshiyuki": 1
+  },
+  "rckt2": {
+    "Venus Gospel": 1
+  },
+  "rcktin4": {
+    "KeyItem: Huge Materia: Rocket": 1
+  },
+  "rkt_i": {
+    "Guard Source": 1
+  },
+  "rkt_w": {
+    "Fourth Bracelet": 1
+  },
+  "rktmin2": {
+    "Power Source": 1
+  },
+  "rktsid": {
+    "Drill Arm": 1
+  },
+  "sandun_1": {
+    "Bolt Armlet": 1,
+    "HypnoCrown": 1,
+    "Megalixir": 1,
+    "Magic Plus": 1
+  },
+  "sandun_2": {
+    "Power Source": 1
+  },
+  "sango1": {
+    "Water Ring": 1
+  },
+  "sango3": {
+    "Viper Halberd": 1
+  },
+  "sbwy4_1": {
+    "Ether": 1
+  },
+  "sbwy4_3": {
+    "Potion": 1
+  },
+  "sbwy4_6": {
+    "Tent": 1
+  },
+  "semkin_6": {
+    "Battle Trumpet": 1
+  },
+  "semkin_7": {
+    "KeyItem: Leviathan Scales": 1,
+    "Scimitar": 1
+  },
+  "shpin_2": {
+    "All": 1,
+    "Ether": 1
+  },
+  "shpin_3": {
+    "Wind Slash": 1
+  },
+  "sinin1_2": {
+    "Twin Viper": 1,
+    "Silver M-phone": 1
+  },
+  "sinin2_1": {
+    "KeyItem: Key To Basement": 1,
+    "Odin": 1,
+    "Enemy Launcher": 1
+  },
+  "sinin2_2": {
+    "Magic Source": 1
+  },
+  "sininb42": {
+    "Destruct": 1
+  },
+  "slfrst_2": {
+    "Kujata": 1
+  },
+  "smkin_1": {
+    "Ether": 1
+  },
+  "sninn_2": {
+    "X-Potion": 1
+  },
+  "snmayor": {
+    "Turbo Ether": 1
+  },
+  "snmin1": {
+    "KeyItem: Snowboard": 1
+  },
+  "snmin2": {
+    "KeyItem: Glacier Map": 1,
+    "Hero Drink": 1,
+    "Vaccine": 1
+  },
+  "subin_1a": {
+    "KeyItem: Huge Materia: UnderWater": 1,
+    "KeyItem: Key to Ancients": 1
+  },
+  "subin_1b": {
+    "KeyItem: Huge Materia: UnderWater": 1,
+    "KeyItem: Key to Ancients": 1
+  },
+  "tower5": {
+    "Leviathan": 1
+  },
+  "trnad_1": {
+    "KeyItem: Black Materia": 1
+  },
+  "trnad_2": {
+    "Neo Bahamut": 1
+  },
+  "trnad_3": {
+    "Hero Drink": 1
+  },
+  "trnad_4": {
+    "Poison Ring": 1,
+    "MP Turbo": 1
+  },
+  "tunnel_4": {
+    "W-Item": 1
+  },
+  "tunnel_5": {
+    "Magic Source": 1,
+    "Mind Source": 1,
+    "Power Source": 1,
+    "Guard Source": 1
+  },
+  "ujunon1": {
+    "Shiva": 1
+  },
+  "uta_im": {
+    "HP Absorb": 1
+  },
+  "utapb": {
+    "Rewarded for viewing all Turtle Paradise Flyers": 1
+  },
+  "uttmpin4": {
+    "Swift Bolt": 1,
+    "Elixir": 1
+  },
+  "uutai1": {
+    "Turtle Paradise Flyer #7": 1
+  },
+  "yufy1": {
+    "MP Absorb": 1
+  },
+  "yufy2": {
+    "Turtle Paradise Flyer #6": 1
+  },
+  "zz1": {
+    "KeyItem: Mythril": 1,
+    "Bolt Ring": 1
+  },
+  "zz2": {
+    "Gold Armlet": 1,
+    "Great Gospel": 1
+  },
+  "zz3": {
+    "Enemy Skill": 1
+  },
+  "zz4": {
+    "Chaos": 1
+  },
+  "zz5": {
+    "Mime": 1
+  },
+  "zz6": {
+    "HP <-> MP": 1
+  },
+  "zz7": {
+    "Quadra Magic": 1
+  },
+  "zz8": {
+    "Knights of the Round": 1
+  }
+}

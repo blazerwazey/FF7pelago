@@ -1,0 +1,2849 @@
+[
+  {
+    "name": "Adaman Bangle",
+    "code": 100000,
+    "classification": "filler",
+    "ff7_id": 269
+  },
+  {
+    "name": "Adaman Clip",
+    "code": 100001,
+    "classification": "filler",
+    "ff7_id": 180
+  },
+  {
+    "name": "Aegis Armlet",
+    "code": 100002,
+    "classification": "filler",
+    "ff7_id": 272
+  },
+  {
+    "name": "All Creation",
+    "code": 100003,
+    "classification": "filler",
+    "ff7_id": 92
+  },
+  {
+    "name": "AM Cannon",
+    "code": 100004,
+    "classification": "filler",
+    "ff7_id": 167
+  },
+  {
+    "name": "Amulet",
+    "code": 100005,
+    "classification": "filler",
+    "ff7_id": 293
+  },
+  {
+    "name": "Antarctic Wind",
+    "code": 100006,
+    "classification": "filler",
+    "ff7_id": 32
+  },
+  {
+    "name": "Antidote",
+    "code": 100007,
+    "classification": "filler",
+    "ff7_id": 8
+  },
+  {
+    "name": "Apocalypse",
+    "code": 100008,
+    "classification": "useful",
+    "ff7_id": 140
+  },
+  {
+    "name": "Assault Gun",
+    "code": 100009,
+    "classification": "filler",
+    "ff7_id": 161
+  },
+  {
+    "name": "Atomic Scissors",
+    "code": 100010,
+    "classification": "filler",
+    "ff7_id": 163
+  },
+  {
+    "name": "Aurora Armlet",
+    "code": 100011,
+    "classification": "filler",
+    "ff7_id": 279
+  },
+  {
+    "name": "Aurora Rod",
+    "code": 100012,
+    "classification": "filler",
+    "ff7_id": 195
+  },
+  {
+    "name": "Autograph",
+    "code": 100013,
+    "classification": "filler",
+    "ff7_id": 100
+  },
+  {
+    "name": "Battery",
+    "code": 100014,
+    "classification": "progression",
+    "ff7_id": 85,
+    "count": 3
+  },
+  {
+    "name": "Battle Trumpet",
+    "code": 100015,
+    "classification": "filler",
+    "ff7_id": 239
+  },
+  {
+    "name": "Behemoth Horn",
+    "code": 100016,
+    "classification": "filler",
+    "ff7_id": 187
+  },
+  {
+    "name": "Bird Wing",
+    "code": 100017,
+    "classification": "filler",
+    "ff7_id": 48
+  },
+  {
+    "name": "Black M-phone",
+    "code": 100300,
+    "classification": "filler",
+    "ff7_id": 226
+  },
+  {
+    "name": "Black Mphone",
+    "code": 100018,
+    "classification": "filler",
+    "ff7_id": 235
+  },
+  {
+    "name": "Blue Mphone",
+    "code": 100019,
+    "classification": "filler",
+    "ff7_id": 231
+  },
+  {
+    "name": "Bolt Armlet",
+    "code": 100020,
+    "classification": "filler",
+    "ff7_id": 280
+  },
+  {
+    "name": "Bolt Plume",
+    "code": 100021,
+    "classification": "filler",
+    "ff7_id": 34
+  },
+  {
+    "name": "Bolt Ring",
+    "code": 100022,
+    "classification": "filler",
+    "ff7_id": 309
+  },
+  {
+    "name": "Boomerang",
+    "code": 100023,
+    "classification": "filler",
+    "ff7_id": 216
+  },
+  {
+    "name": "Bronze Bangle",
+    "code": 100024,
+    "classification": "filler",
+    "ff7_id": 256
+  },
+  {
+    "name": "Buntline",
+    "code": 100025,
+    "classification": "filler",
+    "ff7_id": 248
+  },
+  {
+    "name": "Buster Sword",
+    "code": 100026,
+    "classification": "filler",
+    "ff7_id": 128
+  },
+  {
+    "name": "Butterfly Edge",
+    "code": 100027,
+    "classification": "filler",
+    "ff7_id": 131
+  },
+  {
+    "name": "Cannon Ball",
+    "code": 100028,
+    "classification": "filler",
+    "ff7_id": 162
+  },
+  {
+    "name": "Carbon Bangle",
+    "code": 100029,
+    "classification": "filler",
+    "ff7_id": 260
+  },
+  {
+    "name": "Carob Nut",
+    "code": 100030,
+    "classification": "filler",
+    "ff7_id": 78
+  },
+  {
+    "name": "Catastrophe",
+    "code": 100031,
+    "classification": "filler",
+    "ff7_id": 88
+  },
+  {
+    "name": "Cats Bell",
+    "code": 100032,
+    "classification": "filler",
+    "ff7_id": 315
+  },
+  {
+    "name": "Cauldron",
+    "code": 100033,
+    "classification": "filler",
+    "ff7_id": 61
+  },
+  {
+    "name": "Centclip",
+    "code": 100034,
+    "classification": "filler",
+    "ff7_id": 184
+  },
+  {
+    "name": "Chainsaw",
+    "code": 100035,
+    "classification": "filler",
+    "ff7_id": 165
+  },
+  {
+    "name": "Champion Belt",
+    "code": 100036,
+    "classification": "filler",
+    "ff7_id": 294
+  },
+  {
+    "name": "Chaos",
+    "code": 100037,
+    "classification": "filler",
+    "ff7_id": 93
+  },
+  {
+    "name": "Choco Feather",
+    "code": 100039,
+    "classification": "filler",
+    "ff7_id": 292
+  },
+  {
+    "name": "Chocobracelet",
+    "code": 100038,
+    "classification": "filler",
+    "ff7_id": 287
+  },
+  {
+    "name": "Circlet",
+    "code": 100040,
+    "classification": "filler",
+    "ff7_id": 297
+  },
+  {
+    "name": "Combat Diary",
+    "code": 100041,
+    "classification": "filler",
+    "ff7_id": 99
+  },
+  {
+    "name": "Conformer",
+    "code": 100042,
+    "classification": "filler",
+    "ff7_id": 228
+  },
+  {
+    "name": "Cornucopia",
+    "code": 100043,
+    "classification": "filler",
+    "ff7_id": 11
+  },
+  {
+    "name": "Cosmo Memory",
+    "code": 100044,
+    "classification": "filler",
+    "ff7_id": 91
+  },
+  {
+    "name": "Crystal Bangle",
+    "code": 100045,
+    "classification": "filler",
+    "ff7_id": 264
+  },
+  {
+    "name": "Crystal Comb",
+    "code": 100046,
+    "classification": "filler",
+    "ff7_id": 181
+  },
+  {
+    "name": "Crystal Cross",
+    "code": 100047,
+    "classification": "filler",
+    "ff7_id": 220
+  },
+  {
+    "name": "Crystal Glove",
+    "code": 100048,
+    "classification": "filler",
+    "ff7_id": 151
+  },
+  {
+    "name": "Crystal Mphone",
+    "code": 100049,
+    "classification": "filler",
+    "ff7_id": 233
+  },
+  {
+    "name": "Crystal Sword",
+    "code": 100050,
+    "classification": "filler",
+    "ff7_id": 134
+  },
+  {
+    "name": "Curiel Greens",
+    "code": 100051,
+    "classification": "filler",
+    "ff7_id": 65
+  },
+  {
+    "name": "Curse Ring",
+    "code": 100052,
+    "classification": "filler",
+    "ff7_id": 313
+  },
+  {
+    "name": "Dazers",
+    "code": 100053,
+    "classification": "filler",
+    "ff7_id": 59
+  },
+  {
+    "name": "Deadly Waste",
+    "code": 100054,
+    "classification": "filler",
+    "ff7_id": 38
+  },
+  {
+    "name": "Death Penalty",
+    "code": 100055,
+    "classification": "filler",
+    "ff7_id": 254
+  },
+  {
+    "name": "Desert Rose",
+    "code": 100056,
+    "classification": "progression",
+    "ff7_id": 102
+  },
+  {
+    "name": "Diamond Bangle",
+    "code": 100057,
+    "classification": "filler",
+    "ff7_id": 263
+  },
+  {
+    "name": "Diamond Knuckle",
+    "code": 100058,
+    "classification": "filler",
+    "ff7_id": 149
+  },
+  {
+    "name": "Diamond Pin",
+    "code": 100059,
+    "classification": "filler",
+    "ff7_id": 177
+  },
+  {
+    "name": "Dragon Armlet",
+    "code": 100060,
+    "classification": "filler",
+    "ff7_id": 281
+  },
+  {
+    "name": "Dragon Claw",
+    "code": 100061,
+    "classification": "filler",
+    "ff7_id": 150
+  },
+  {
+    "name": "Dragon Fang",
+    "code": 100062,
+    "classification": "filler",
+    "ff7_id": 60
+  },
+  {
+    "name": "Dragon Scales",
+    "code": 100063,
+    "classification": "filler",
+    "ff7_id": 49
+  },
+  {
+    "name": "Dragoon Lance",
+    "code": 100064,
+    "classification": "filler",
+    "ff7_id": 210
+  },
+  {
+    "name": "Dream Powder",
+    "code": 100065,
+    "classification": "filler",
+    "ff7_id": 26
+  },
+  {
+    "name": "Drill Arm",
+    "code": 100066,
+    "classification": "filler",
+    "ff7_id": 169
+  },
+  {
+    "name": "Earring",
+    "code": 100067,
+    "classification": "filler",
+    "ff7_id": 290
+  },
+  {
+    "name": "Earth Drum",
+    "code": 100068,
+    "classification": "filler",
+    "ff7_id": 36
+  },
+  {
+    "name": "Earth Harp",
+    "code": 100069,
+    "classification": "progression",
+    "ff7_id": 103
+  },
+  {
+    "name": "Earth Mallet",
+    "code": 100070,
+    "classification": "filler",
+    "ff7_id": 37
+  },
+  {
+    "name": "Echoscreen",
+    "code": 100071,
+    "classification": "filler",
+    "ff7_id": 12
+  },
+  {
+    "name": "Edincoat",
+    "code": 100072,
+    "classification": "filler",
+    "ff7_id": 267
+  },
+  {
+    "name": "Eight Inch Cannon",
+    "code": 100073,
+    "classification": "filler",
+    "ff7_id": 55
+  },
+  {
+    "name": "Elixir",
+    "code": 100074,
+    "classification": "useful",
+    "ff7_id": 5
+  },
+  {
+    "name": "Empty Item",
+    "code": 100075,
+    "classification": "filler",
+    "ff7_id": 511
+  },
+  {
+    "name": "Empty Item Data",
+    "code": 100076,
+    "classification": "filler",
+    "ff7_id": 65535
+  },
+  {
+    "name": "Enemy Launcher",
+    "code": 100077,
+    "classification": "filler",
+    "ff7_id": 172
+  },
+  {
+    "name": "Enhance Sword",
+    "code": 100078,
+    "classification": "filler",
+    "ff7_id": 132
+  },
+  {
+    "name": "Escort Guard",
+    "code": 100079,
+    "classification": "filler",
+    "ff7_id": 283
+  },
+  {
+    "name": "Ether",
+    "code": 100080,
+    "classification": "filler",
+    "ff7_id": 3
+  },
+  {
+    "name": "Eyedrop",
+    "code": 100081,
+    "classification": "filler",
+    "ff7_id": 52
+  },
+  {
+    "name": "Fairy Ring",
+    "code": 100082,
+    "classification": "filler",
+    "ff7_id": 301
+  },
+  {
+    "name": "Fairy Tale",
+    "code": 100083,
+    "classification": "filler",
+    "ff7_id": 198
+  },
+  {
+    "name": "Final Heaven",
+    "code": 100084,
+    "classification": "filler",
+    "ff7_id": 89
+  },
+  {
+    "name": "Fire Armlet",
+    "code": 100085,
+    "classification": "filler",
+    "ff7_id": 278
+  },
+  {
+    "name": "Fire Fang",
+    "code": 100086,
+    "classification": "filler",
+    "ff7_id": 30
+  },
+  {
+    "name": "Fire Ring",
+    "code": 100087,
+    "classification": "filler",
+    "ff7_id": 307
+  },
+  {
+    "name": "Fire Veil",
+    "code": 100088,
+    "classification": "filler",
+    "ff7_id": 31
+  },
+  {
+    "name": "Flayer",
+    "code": 100089,
+    "classification": "filler",
+    "ff7_id": 212
+  },
+  {
+    "name": "Force Stealer",
+    "code": 100090,
+    "classification": "filler",
+    "ff7_id": 135
+  },
+  {
+    "name": "Four Point Shuriken",
+    "code": 100091,
+    "classification": "filler",
+    "ff7_id": 215
+  },
+  {
+    "name": "Four Slots",
+    "code": 100092,
+    "classification": "filler",
+    "ff7_id": 277
+  },
+  {
+    "name": "Fourth Bracelet",
+    "code": 100093,
+    "classification": "filler",
+    "ff7_id": 273
+  },
+  {
+    "name": "Full Metal Staff",
+    "code": 100094,
+    "classification": "filler",
+    "ff7_id": 192
+  },
+  {
+    "name": "Fury Ring",
+    "code": 100095,
+    "classification": "filler",
+    "ff7_id": 312
+  },
+  {
+    "name": "Gambler",
+    "code": 100096,
+    "classification": "filler",
+    "ff7_id": 101
+  },
+  {
+    "name": "Gatling Gun",
+    "code": 100097,
+    "classification": "filler",
+    "ff7_id": 160
+  },
+  {
+    "name": "Ghost Hand",
+    "code": 100098,
+    "classification": "filler",
+    "ff7_id": 42
+  },
+  {
+    "name": "Gigas Armlet",
+    "code": 100099,
+    "classification": "filler",
+    "ff7_id": 270
+  },
+  {
+    "name": "Gods Hand",
+    "code": 100100,
+    "classification": "filler",
+    "ff7_id": 158
+  },
+  {
+    "name": "Gold Armlet",
+    "code": 100101,
+    "classification": "filler",
+    "ff7_id": 262
+  },
+  {
+    "name": "Gold Barrette",
+    "code": 100102,
+    "classification": "filler",
+    "ff7_id": 179
+  },
+  {
+    "name": "Yellow M-phone",
+    "code": 100302,
+    "classification": "filler",
+    "ff7_id": 229
+  },
+  {
+    "name": "Gold Mphone",
+    "code": 100103,
+    "classification": "filler",
+    "ff7_id": 238
+  },
+  {
+    "name": "Grand Glove",
+    "code": 100104,
+    "classification": "filler",
+    "ff7_id": 147
+  },
+  {
+    "name": "Graviball",
+    "code": 100105,
+    "classification": "filler",
+    "ff7_id": 56
+  },
+  {
+    "name": "Great Gospel",
+    "code": 100106,
+    "classification": "filler",
+    "ff7_id": 90
+  },
+  {
+    "name": "Green Mphone",
+    "code": 100107,
+    "classification": "filler",
+    "ff7_id": 230
+  },
+  {
+    "name": "Grenade",
+    "code": 100108,
+    "classification": "filler",
+    "ff7_id": 20
+  },
+  {
+    "name": "Grow Lance",
+    "code": 100109,
+    "classification": "filler",
+    "ff7_id": 208
+  },
+  {
+    "name": "Guard Source",
+    "code": 100110,
+    "classification": "filler",
+    "ff7_id": 72
+  },
+  {
+    "name": "Guard Stick",
+    "code": 100111,
+    "classification": "filler",
+    "ff7_id": 190
+  },
+  {
+    "name": "Guide Book",
+    "code": 100112,
+    "classification": "progression",
+    "ff7_id": 104
+  },
+  {
+    "name": "Gysahl Greens",
+    "code": 100113,
+    "classification": "filler",
+    "ff7_id": 69
+  },
+  {
+    "name": "Hairpin",
+    "code": 100114,
+    "classification": "filler",
+    "ff7_id": 185
+  },
+  {
+    "name": "Hardedge",
+    "code": 100115,
+    "classification": "filler",
+    "ff7_id": 130
+  },
+  {
+    "name": "Hawkeye",
+    "code": 100116,
+    "classification": "filler",
+    "ff7_id": 219
+  },
+  {
+    "name": "Headband",
+    "code": 100117,
+    "classification": "filler",
+    "ff7_id": 300
+  },
+  {
+    "name": "Heaven's Cloud",
+    "code": 100303,
+    "classification": "filler",
+    "ff7_id": 140
+  },
+  {
+    "name": "Heavens Cloud",
+    "code": 100118,
+    "classification": "filler",
+    "ff7_id": 141
+  },
+  {
+    "name": "Heavy Vulcan",
+    "code": 100119,
+    "classification": "filler",
+    "ff7_id": 164
+  },
+  {
+    "name": "Hero Drink",
+    "code": 100120,
+    "classification": "filler",
+    "ff7_id": 18
+  },
+  {
+    "name": "Hi Potion",
+    "code": 100122,
+    "classification": "filler",
+    "ff7_id": 1
+  },
+  {
+    "name": "Highwind (Limit)",
+    "code": 100121,
+    "classification": "useful",
+    "ff7_id": 94
+  },
+  {
+    "name": "Holy Torch",
+    "code": 100123,
+    "classification": "filler",
+    "ff7_id": 47
+  },
+  {
+    "name": "Hourglass",
+    "code": 100124,
+    "classification": "filler",
+    "ff7_id": 23
+  },
+  {
+    "name": "Hp Shout",
+    "code": 100125,
+    "classification": "filler",
+    "ff7_id": 241
+  },
+  {
+    "name": "Hyper",
+    "code": 100126,
+    "classification": "filler",
+    "ff7_id": 13
+  },
+  {
+    "name": "Hypno Crown",
+    "code": 100127,
+    "classification": "filler",
+    "ff7_id": 319
+  },
+  {
+    "name": "Ice Crystal",
+    "code": 100128,
+    "classification": "filler",
+    "ff7_id": 33
+  },
+  {
+    "name": "Ice Ring",
+    "code": 100129,
+    "classification": "filler",
+    "ff7_id": 308
+  },
+  {
+    "name": "Impaler",
+    "code": 100130,
+    "classification": "filler",
+    "ff7_id": 50
+  },
+  {
+    "name": "Imperial Guard",
+    "code": 100131,
+    "classification": "filler",
+    "ff7_id": 271
+  },
+  {
+    "name": "Ink",
+    "code": 100132,
+    "classification": "filler",
+    "ff7_id": 58
+  },
+  {
+    "name": "Iron Bangle",
+    "code": 100133,
+    "classification": "filler",
+    "ff7_id": 257
+  },
+  {
+    "name": "Javelin",
+    "code": 100134,
+    "classification": "filler",
+    "ff7_id": 207
+  },
+  {
+    "name": "Jem Ring",
+    "code": 100135,
+    "classification": "filler",
+    "ff7_id": 302
+  },
+  {
+    "name": "Kaiser Knuckle",
+    "code": 100136,
+    "classification": "filler",
+    "ff7_id": 154
+  },
+  {
+    "name": "Kiss Of Death",
+    "code": 100137,
+    "classification": "filler",
+    "ff7_id": 24
+  },
+  {
+    "name": "Krakka Greens",
+    "code": 100138,
+    "classification": "filler",
+    "ff7_id": 68
+  },
+  {
+    "name": "Lariat",
+    "code": 100139,
+    "classification": "filler",
+    "ff7_id": 245
+  },
+  {
+    "name": "Lasan Nut",
+    "code": 100140,
+    "classification": "filler",
+    "ff7_id": 81
+  },
+  {
+    "name": "Leather Glove",
+    "code": 100141,
+    "classification": "filler",
+    "ff7_id": 144
+  },
+  {
+    "name": "Light Curtain",
+    "code": 100142,
+    "classification": "filler",
+    "ff7_id": 44
+  },
+  {
+    "name": "Limited Moon",
+    "code": 100143,
+    "classification": "filler",
+    "ff7_id": 189
+  },
+  {
+    "name": "Locoweed",
+    "code": 100144,
+    "classification": "filler",
+    "ff7_id": 29
+  },
+  {
+    "name": "Long Barrel R",
+    "code": 100145,
+    "classification": "filler",
+    "ff7_id": 249
+  },
+  {
+    "name": "Luchile Nut",
+    "code": 100146,
+    "classification": "filler",
+    "ff7_id": 83
+  },
+  {
+    "name": "Luck Source",
+    "code": 100147,
+    "classification": "filler",
+    "ff7_id": 76
+  },
+  {
+    "name": "Lunar Curtain",
+    "code": 100148,
+    "classification": "filler",
+    "ff7_id": 45
+  },
+  {
+    "name": "M Tentacles",
+    "code": 100169,
+    "classification": "filler",
+    "ff7_id": 39
+  },
+  {
+    "name": "Magic Comb",
+    "code": 100149,
+    "classification": "filler",
+    "ff7_id": 182
+  },
+  {
+    "name": "Magic Shuriken",
+    "code": 100150,
+    "classification": "filler",
+    "ff7_id": 225
+  },
+  {
+    "name": "Magic Source",
+    "code": 100151,
+    "classification": "filler",
+    "ff7_id": 73
+  },
+  {
+    "name": "Maidens Kiss",
+    "code": 100152,
+    "classification": "filler",
+    "ff7_id": 10
+  },
+  {
+    "name": "Masamune",
+    "code": 100153,
+    "classification": "filler",
+    "ff7_id": 255
+  },
+  {
+    "name": "Masamune Blade",
+    "code": 100154,
+    "classification": "filler",
+    "ff7_id": 97
+  },
+  {
+    "name": "Mast Ax",
+    "code": 100155,
+    "classification": "filler",
+    "ff7_id": 204
+  },
+  {
+    "name": "Master Fist",
+    "code": 100156,
+    "classification": "filler",
+    "ff7_id": 157
+  },
+  {
+    "name": "Max Ray",
+    "code": 100157,
+    "classification": "filler",
+    "ff7_id": 174
+  },
+  {
+    "name": "Megalixir",
+    "code": 100158,
+    "classification": "useful",
+    "ff7_id": 6
+  },
+  {
+    "name": "Metal Knuckle",
+    "code": 100159,
+    "classification": "filler",
+    "ff7_id": 145
+  },
+  {
+    "name": "Microlaser",
+    "code": 100160,
+    "classification": "filler",
+    "ff7_id": 166
+  },
+  {
+    "name": "Mimett Greens",
+    "code": 100161,
+    "classification": "filler",
+    "ff7_id": 64
+  },
+  {
+    "name": "Mind Source",
+    "code": 100162,
+    "classification": "filler",
+    "ff7_id": 74
+  },
+  {
+    "name": "Minerva Band",
+    "code": 100163,
+    "classification": "filler",
+    "ff7_id": 282
+  },
+  {
+    "name": "Mirror",
+    "code": 100164,
+    "classification": "filler",
+    "ff7_id": 46
+  },
+  {
+    "name": "Missing Score",
+    "code": 100165,
+    "classification": "filler",
+    "ff7_id": 175
+  },
+  {
+    "name": "Molotov",
+    "code": 100166,
+    "classification": "filler",
+    "ff7_id": 53
+  },
+  {
+    "name": "Mop",
+    "code": 100167,
+    "classification": "filler",
+    "ff7_id": 209
+  },
+  {
+    "name": "Motor Drive",
+    "code": 100168,
+    "classification": "filler",
+    "ff7_id": 152
+  },
+  {
+    "name": "Murasame",
+    "code": 100170,
+    "classification": "filler",
+    "ff7_id": 137
+  },
+  {
+    "name": "Mute Mask",
+    "code": 100171,
+    "classification": "filler",
+    "ff7_id": 27
+  },
+  {
+    "name": "Mystile",
+    "code": 100172,
+    "classification": "filler",
+    "ff7_id": 284
+  },
+  {
+    "name": "Mythril Armlet",
+    "code": 100173,
+    "classification": "filler",
+    "ff7_id": 259
+  },
+  {
+    "name": "Mythril Claw",
+    "code": 100174,
+    "classification": "filler",
+    "ff7_id": 146
+  },
+  {
+    "name": "Mythril Clip",
+    "code": 100175,
+    "classification": "filler",
+    "ff7_id": 176
+  },
+  {
+    "name": "Mythril Rod",
+    "code": 100176,
+    "classification": "filler",
+    "ff7_id": 191
+  },
+  {
+    "name": "Mythril Saber",
+    "code": 100177,
+    "classification": "filler",
+    "ff7_id": 129
+  },
+  {
+    "name": "Nail Bat",
+    "code": 100178,
+    "classification": "filler",
+    "ff7_id": 138
+  },
+  {
+    "name": "Omnislash",
+    "code": 100179,
+    "classification": "filler",
+    "ff7_id": 87
+  },
+  {
+    "name": "Organics",
+    "code": 100180,
+    "classification": "filler",
+    "ff7_id": 133
+  },
+  {
+    "name": "Oritsuru",
+    "code": 100181,
+    "classification": "filler",
+    "ff7_id": 227
+  },
+  {
+    "name": "Outsider",
+    "code": 100182,
+    "classification": "filler",
+    "ff7_id": 253
+  },
+  {
+    "name": "Pahsan Greens",
+    "code": 100183,
+    "classification": "filler",
+    "ff7_id": 66
+  },
+  {
+    "name": "Partisan",
+    "code": 100184,
+    "classification": "filler",
+    "ff7_id": 205
+  },
+  {
+    "name": "Peace Ring",
+    "code": 100186,
+    "classification": "filler",
+    "ff7_id": 305
+  },
+  {
+    "name": "Peacemaker",
+    "code": 100185,
+    "classification": "filler",
+    "ff7_id": 247
+  },
+  {
+    "name": "Pepio Nut",
+    "code": 100187,
+    "classification": "filler",
+    "ff7_id": 84
+  },
+  {
+    "name": "Phoenix Down",
+    "code": 100188,
+    "classification": "filler",
+    "ff7_id": 7
+  },
+  {
+    "name": "Pile Banger",
+    "code": 100189,
+    "classification": "filler",
+    "ff7_id": 173
+  },
+  {
+    "name": "Pinwheel",
+    "code": 100190,
+    "classification": "filler",
+    "ff7_id": 217
+  },
+  {
+    "name": "Platinum Bangle",
+    "code": 100191,
+    "classification": "filler",
+    "ff7_id": 265
+  },
+  {
+    "name": "Platinum Fist",
+    "code": 100192,
+    "classification": "filler",
+    "ff7_id": 153
+  },
+  {
+    "name": "Plus Barrette",
+    "code": 100193,
+    "classification": "filler",
+    "ff7_id": 183
+  },
+  {
+    "name": "Poison Ring",
+    "code": 100194,
+    "classification": "filler",
+    "ff7_id": 295
+  },
+  {
+    "name": "Porov Nut",
+    "code": 100195,
+    "classification": "filler",
+    "ff7_id": 79
+  },
+  {
+    "name": "Potion",
+    "code": 100196,
+    "classification": "filler",
+    "ff7_id": 0
+  },
+  {
+    "name": "Power Source",
+    "code": 100198,
+    "classification": "filler",
+    "ff7_id": 71
+  },
+  {
+    "name": "Power Wrist",
+    "code": 100199,
+    "classification": "filler",
+    "ff7_id": 288
+  },
+  {
+    "name": "Powersoul",
+    "code": 100197,
+    "classification": "filler",
+    "ff7_id": 156
+  },
+  {
+    "name": "Pram Nut",
+    "code": 100200,
+    "classification": "filler",
+    "ff7_id": 80
+  },
+  {
+    "name": "Precious Watch",
+    "code": 100201,
+    "classification": "filler",
+    "ff7_id": 286
+  },
+  {
+    "name": "Premium Heart",
+    "code": 100202,
+    "classification": "filler",
+    "ff7_id": 159
+  },
+  {
+    "name": "Princess Guard",
+    "code": 100203,
+    "classification": "filler",
+    "ff7_id": 200
+  },
+  {
+    "name": "Prism Staff",
+    "code": 100204,
+    "classification": "filler",
+    "ff7_id": 194
+  },
+  {
+    "name": "Protect Ring",
+    "code": 100205,
+    "classification": "filler",
+    "ff7_id": 314
+  },
+  {
+    "name": "Protect Vest",
+    "code": 100206,
+    "classification": "filler",
+    "ff7_id": 289
+  },
+  {
+    "name": "Quicksilver",
+    "code": 100207,
+    "classification": "filler",
+    "ff7_id": 242
+  },
+  {
+    "name": "Ragnarok",
+    "code": 100208,
+    "classification": "filler",
+    "ff7_id": 142
+  },
+  {
+    "name": "Razor Ring",
+    "code": 100209,
+    "classification": "filler",
+    "ff7_id": 218
+  },
+  {
+    "name": "Reagan Greens",
+    "code": 100210,
+    "classification": "filler",
+    "ff7_id": 63
+  },
+  {
+    "name": "Red Mphone",
+    "code": 100211,
+    "classification": "filler",
+    "ff7_id": 232
+  },
+  {
+    "name": "Reflect Ring",
+    "code": 100212,
+    "classification": "filler",
+    "ff7_id": 316
+  },
+  {
+    "name": "Remedy",
+    "code": 100213,
+    "classification": "filler",
+    "ff7_id": 15
+  },
+  {
+    "name": "Ribbon",
+    "code": 100214,
+    "classification": "useful",
+    "ff7_id": 306
+  },
+  {
+    "name": "Right Arm",
+    "code": 100215,
+    "classification": "filler",
+    "ff7_id": 22
+  },
+  {
+    "name": "Rising Sun",
+    "code": 100216,
+    "classification": "filler",
+    "ff7_id": 226
+  },
+  {
+    "name": "Rocket Punch",
+    "code": 100217,
+    "classification": "filler",
+    "ff7_id": 171
+  },
+  {
+    "name": "Rune Armlet",
+    "code": 100218,
+    "classification": "filler",
+    "ff7_id": 266
+  },
+  {
+    "name": "Rune Blade",
+    "code": 100219,
+    "classification": "filler",
+    "ff7_id": 136
+  },
+  {
+    "name": "S Mine",
+    "code": 100237,
+    "classification": "filler",
+    "ff7_id": 54
+  },
+  {
+    "name": "Safety Bit",
+    "code": 100220,
+    "classification": "filler",
+    "ff7_id": 311
+  },
+  {
+    "name": "Sahara Nut",
+    "code": 100221,
+    "classification": "filler",
+    "ff7_id": 82
+  },
+  {
+    "name": "Save Crystal",
+    "code": 100222,
+    "classification": "filler",
+    "ff7_id": 98
+  },
+  {
+    "name": "Scimitar",
+    "code": 100223,
+    "classification": "filler",
+    "ff7_id": 211
+  },
+  {
+    "name": "Seraph Comb",
+    "code": 100224,
+    "classification": "filler",
+    "ff7_id": 186
+  },
+  {
+    "name": "Shinra Alpha",
+    "code": 100225,
+    "classification": "filler",
+    "ff7_id": 276
+  },
+  {
+    "name": "Shinra Beta",
+    "code": 100226,
+    "classification": "filler",
+    "ff7_id": 275
+  },
+  {
+    "name": "Shortbarrel",
+    "code": 100227,
+    "classification": "filler",
+    "ff7_id": 244
+  },
+  {
+    "name": "Shotgun",
+    "code": 100228,
+    "classification": "filler",
+    "ff7_id": 243
+  },
+  {
+    "name": "Shrapnel",
+    "code": 100229,
+    "classification": "filler",
+    "ff7_id": 21
+  },
+  {
+    "name": "Shrivel",
+    "code": 100230,
+    "classification": "filler",
+    "ff7_id": 51
+  },
+  {
+    "name": "Silver Armlet",
+    "code": 100231,
+    "classification": "filler",
+    "ff7_id": 261
+  },
+  {
+    "name": "Silver Barrette",
+    "code": 100232,
+    "classification": "filler",
+    "ff7_id": 178
+  },
+  {
+    "name": "Silver Glasses",
+    "code": 100233,
+    "classification": "filler",
+    "ff7_id": 299
+  },
+  {
+    "name": "Silver M-phone",
+    "code": 100301,
+    "classification": "filler",
+    "ff7_id": 228
+  },
+  {
+    "name": "Silver Mphone",
+    "code": 100234,
+    "classification": "filler",
+    "ff7_id": 236
+  },
+  {
+    "name": "Silver Rifle",
+    "code": 100235,
+    "classification": "filler",
+    "ff7_id": 250
+  },
+  {
+    "name": "Slash Lance",
+    "code": 100236,
+    "classification": "filler",
+    "ff7_id": 202
+  },
+  {
+    "name": "Smoke Bomb",
+    "code": 100238,
+    "classification": "filler",
+    "ff7_id": 16
+  },
+  {
+    "name": "Sneak Glove",
+    "code": 100239,
+    "classification": "filler",
+    "ff7_id": 318
+  },
+  {
+    "name": "Sniper CR",
+    "code": 100240,
+    "classification": "filler",
+    "ff7_id": 251
+  },
+  {
+    "name": "Soft",
+    "code": 100241,
+    "classification": "filler",
+    "ff7_id": 9
+  },
+  {
+    "name": "Solid Bazooka",
+    "code": 100242,
+    "classification": "filler",
+    "ff7_id": 170
+  },
+  {
+    "name": "Spear",
+    "code": 100243,
+    "classification": "filler",
+    "ff7_id": 201
+  },
+  {
+    "name": "Speed Drink",
+    "code": 100244,
+    "classification": "filler",
+    "ff7_id": 17
+  },
+  {
+    "name": "Speed Source",
+    "code": 100245,
+    "classification": "filler",
+    "ff7_id": 75
+  },
+  {
+    "name": "Spider Web",
+    "code": 100246,
+    "classification": "filler",
+    "ff7_id": 25
+  },
+  {
+    "name": "Spiral Shuriken",
+    "code": 100247,
+    "classification": "filler",
+    "ff7_id": 223
+  },
+  {
+    "name": "Spirit Lance",
+    "code": 100248,
+    "classification": "filler",
+    "ff7_id": 213
+  },
+  {
+    "name": "Spring Gun Clip",
+    "code": 100249,
+    "classification": "filler",
+    "ff7_id": 188
+  },
+  {
+    "name": "Sprint Shoes",
+    "code": 100250,
+    "classification": "filler",
+    "ff7_id": 304
+  },
+  {
+    "name": "Star Pendant",
+    "code": 100253,
+    "classification": "filler",
+    "ff7_id": 298
+  },
+  {
+    "name": "Stardust",
+    "code": 100251,
+    "classification": "filler",
+    "ff7_id": 40
+  },
+  {
+    "name": "Starlight Phone",
+    "code": 100252,
+    "classification": "filler",
+    "ff7_id": 240
+  },
+  {
+    "name": "Striking Staff",
+    "code": 100254,
+    "classification": "filler",
+    "ff7_id": 193
+  },
+  {
+    "name": "Super Sweeper",
+    "code": 100257,
+    "classification": "filler",
+    "ff7_id": 96
+  },
+  {
+    "name": "Superball",
+    "code": 100255,
+    "classification": "filler",
+    "ff7_id": 224
+  },
+  {
+    "name": "Supershot ST",
+    "code": 100256,
+    "classification": "filler",
+    "ff7_id": 252
+  },
+  {
+    "name": "Swift Bolt",
+    "code": 100258,
+    "classification": "filler",
+    "ff7_id": 35
+  },
+  {
+    "name": "Sylkis Greens",
+    "code": 100259,
+    "classification": "filler",
+    "ff7_id": 62
+  },
+  {
+    "name": "Talisman",
+    "code": 100260,
+    "classification": "filler",
+    "ff7_id": 291
+  },
+  {
+    "name": "Tantal Greens",
+    "code": 100261,
+    "classification": "filler",
+    "ff7_id": 67
+  },
+  {
+    "name": "Tent",
+    "code": 100262,
+    "classification": "filler",
+    "ff7_id": 70
+  },
+  {
+    "name": "Tetra Elemental",
+    "code": 100263,
+    "classification": "filler",
+    "ff7_id": 310
+  },
+  {
+    "name": "th Soldier",
+    "code": 100264,
+    "classification": "filler",
+    "ff7_id": 95
+  },
+  {
+    "name": "Tiger Fang",
+    "code": 100265,
+    "classification": "filler",
+    "ff7_id": 148
+  },
+  {
+    "name": "Tissue",
+    "code": 100266,
+    "classification": "filler",
+    "ff7_id": 86
+  },
+  {
+    "name": "Titan Bangle",
+    "code": 100267,
+    "classification": "filler",
+    "ff7_id": 258
+  },
+  {
+    "name": "Tough Ring",
+    "code": 100268,
+    "classification": "filler",
+    "ff7_id": 296
+  },
+  {
+    "name": "Tranquilizer",
+    "code": 100269,
+    "classification": "filler",
+    "ff7_id": 14
+  },
+  {
+    "name": "Trident",
+    "code": 100270,
+    "classification": "filler",
+    "ff7_id": 203
+  },
+  {
+    "name": "Trumpet Shell",
+    "code": 100271,
+    "classification": "filler",
+    "ff7_id": 237
+  },
+  {
+    "name": "TS Bomb",
+    "code": 100272,
+    "classification": "filler",
+    "ff7_id": 57
+  },
+  {
+    "name": "Turbo Ether",
+    "code": 100273,
+    "classification": "filler",
+    "ff7_id": 4
+  },
+  {
+    "name": "Twin Viper",
+    "code": 100274,
+    "classification": "filler",
+    "ff7_id": 222
+  },
+  {
+    "name": "Ultima Weapon",
+    "code": 100275,
+    "classification": "filler",
+    "ff7_id": 143
+  },
+  {
+    "name": "Umbrella",
+    "code": 100276,
+    "classification": "filler",
+    "ff7_id": 199
+  },
+  {
+    "name": "Vaccine",
+    "code": 100277,
+    "classification": "filler",
+    "ff7_id": 19
+  },
+  {
+    "name": "Vagyrisk Claw",
+    "code": 100278,
+    "classification": "filler",
+    "ff7_id": 43
+  },
+  {
+    "name": "Vampire Fang",
+    "code": 100279,
+    "classification": "filler",
+    "ff7_id": 41
+  },
+  {
+    "name": "Venus Gospel",
+    "code": 100280,
+    "classification": "filler",
+    "ff7_id": 214
+  },
+  {
+    "name": "Viper Halberd",
+    "code": 100281,
+    "classification": "filler",
+    "ff7_id": 206
+  },
+  {
+    "name": "W Machine Gun",
+    "code": 100292,
+    "classification": "filler",
+    "ff7_id": 168
+  },
+  {
+    "name": "War Gong",
+    "code": 100282,
+    "classification": "filler",
+    "ff7_id": 28
+  },
+  {
+    "name": "Warrior Bangle",
+    "code": 100283,
+    "classification": "filler",
+    "ff7_id": 274
+  },
+  {
+    "name": "Water Ring",
+    "code": 100284,
+    "classification": "filler",
+    "ff7_id": 317
+  },
+  {
+    "name": "White Cape",
+    "code": 100285,
+    "classification": "filler",
+    "ff7_id": 303
+  },
+  {
+    "name": "White M-phone",
+    "code": 100299,
+    "classification": "filler",
+    "ff7_id": 225
+  },
+  {
+    "name": "White Mphone",
+    "code": 100286,
+    "classification": "filler",
+    "ff7_id": 234
+  },
+  {
+    "name": "Winchester",
+    "code": 100287,
+    "classification": "filler",
+    "ff7_id": 246
+  },
+  {
+    "name": "Wind Slash",
+    "code": 100288,
+    "classification": "filler",
+    "ff7_id": 221
+  },
+  {
+    "name": "Wizard Bracelet",
+    "code": 100289,
+    "classification": "filler",
+    "ff7_id": 268
+  },
+  {
+    "name": "Wizard Staff",
+    "code": 100290,
+    "classification": "filler",
+    "ff7_id": 196
+  },
+  {
+    "name": "Wizer Staff",
+    "code": 100291,
+    "classification": "filler",
+    "ff7_id": 197
+  },
+  {
+    "name": "Work Glove",
+    "code": 100293,
+    "classification": "filler",
+    "ff7_id": 155
+  },
+  {
+    "name": "X Potion",
+    "code": 100294,
+    "classification": "filler",
+    "ff7_id": 2
+  },
+  {
+    "name": "Yellow Mphone",
+    "code": 100295,
+    "classification": "filler",
+    "ff7_id": 229
+  },
+  {
+    "name": "Yoshiyuki",
+    "code": 100296,
+    "classification": "filler",
+    "ff7_id": 139
+  },
+  {
+    "name": "Zeio Nut",
+    "code": 100297,
+    "classification": "filler",
+    "ff7_id": 77
+  },
+  {
+    "name": "Ziedrich",
+    "code": 100298,
+    "classification": "useful",
+    "ff7_id": 285
+  },
+  {
+    "name": "Cotton Dress",
+    "code": 100500,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Satin Dress",
+    "code": 100501,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Silk Dress",
+    "code": 100502,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Wig",
+    "code": 100503,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Dyed Wig",
+    "code": 100504,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Blonde Wig",
+    "code": 100505,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Glass Tiara",
+    "code": 100506,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Ruby Tiara",
+    "code": 100507,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Diamond Tiara",
+    "code": 100508,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Cologne",
+    "code": 100509,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Flower Cologne",
+    "code": 100510,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Sexy Cologne",
+    "code": 100511,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Members Card",
+    "code": 100512,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Lingerie",
+    "code": 100513,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Mystery Panties",
+    "code": 100514,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Bikini Briefs",
+    "code": 100515,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Pharmacy Coupon",
+    "code": 100516,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Disinfectant",
+    "code": 100517,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Deodorant",
+    "code": 100518,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Digestive",
+    "code": 100519,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Huge Materia (Fort Condor)",
+    "code": 100520,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Huge Materia (Corel)",
+    "code": 100521,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Huge Materia (Underwater)",
+    "code": 100522,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Huge Materia (Rocket)",
+    "code": 100523,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Key to Ancients",
+    "code": 100524,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Letter to a Daughter",
+    "code": 100525,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Letter to a Wife",
+    "code": 100526,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Lunar Harp",
+    "code": 100527,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Basement Key",
+    "code": 100528,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keycard 60",
+    "code": 100530,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keycard 62",
+    "code": 100531,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keycard 65",
+    "code": 100532,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keycard 66",
+    "code": 100533,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keycard 68",
+    "code": 100534,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Midgar Parts 1",
+    "code": 100535,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "PHS",
+    "code": 100536,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Gold Ticket",
+    "code": 100537,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Keystone",
+    "code": 100538,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Leviathan Scales",
+    "code": 100539,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Glacier Map",
+    "code": 100540,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "A Coupon",
+    "code": 100541,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "B Coupon",
+    "code": 100542,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "C Coupon",
+    "code": 100543,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Black Materia",
+    "code": 100544,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Mythril",
+    "code": 100545,
+    "classification": "useful",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Snowboard",
+    "code": 100546,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Midgar Parts 2",
+    "code": 100547,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Midgar Parts 3",
+    "code": 100548,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Midgar Parts 4",
+    "code": 100549,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "Midgar Parts 5",
+    "code": 100550,
+    "classification": "progression",
+    "category": "key_item",
+    "ff7_id": null
+  },
+  {
+    "name": "MP Plus",
+    "code": 100400,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 0
+  },
+  {
+    "name": "HP Plus",
+    "code": 100401,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 1
+  },
+  {
+    "name": "Speed Plus",
+    "code": 100402,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 2
+  },
+  {
+    "name": "Magic Plus",
+    "code": 100403,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 3
+  },
+  {
+    "name": "Luck Plus",
+    "code": 100404,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 4
+  },
+  {
+    "name": "EXP Plus",
+    "code": 100405,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 5
+  },
+  {
+    "name": "Gil Plus",
+    "code": 100406,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 6
+  },
+  {
+    "name": "Enemy Away",
+    "code": 100407,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 7
+  },
+  {
+    "name": "Enemy Lure",
+    "code": 100408,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 8
+  },
+  {
+    "name": "Chocobo Lure",
+    "code": 100409,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 9
+  },
+  {
+    "name": "Pre-emptive",
+    "code": 100410,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 10
+  },
+  {
+    "name": "Long Range",
+    "code": 100411,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 11
+  },
+  {
+    "name": "Mega All",
+    "code": 100412,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 12
+  },
+  {
+    "name": "Counter Attack",
+    "code": 100413,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 13
+  },
+  {
+    "name": "Slash-All",
+    "code": 100414,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 14
+  },
+  {
+    "name": "Double Cut",
+    "code": 100415,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 15
+  },
+  {
+    "name": "Cover",
+    "code": 100416,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 16
+  },
+  {
+    "name": "Underwater",
+    "code": 100417,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 17
+  },
+  {
+    "name": "HP <-> MP",
+    "code": 100418,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 18
+  },
+  {
+    "name": "W-Magic",
+    "code": 100419,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 19
+  },
+  {
+    "name": "W-Summon",
+    "code": 100420,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 20
+  },
+  {
+    "name": "W-Item",
+    "code": 100421,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 21
+  },
+  {
+    "name": "All",
+    "code": 100422,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 23
+  },
+  {
+    "name": "Counter",
+    "code": 100423,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 24
+  },
+  {
+    "name": "Magic Counter",
+    "code": 100424,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 25
+  },
+  {
+    "name": "MP Turbo",
+    "code": 100425,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 26
+  },
+  {
+    "name": "MP Absorb",
+    "code": 100426,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 27
+  },
+  {
+    "name": "HP Absorb",
+    "code": 100427,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 28
+  },
+  {
+    "name": "Elemental",
+    "code": 100428,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 29
+  },
+  {
+    "name": "Added Effect",
+    "code": 100429,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 30
+  },
+  {
+    "name": "Sneak Attack",
+    "code": 100430,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 31
+  },
+  {
+    "name": "Final Attack",
+    "code": 100431,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 32
+  },
+  {
+    "name": "Added Cut",
+    "code": 100432,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 33
+  },
+  {
+    "name": "Steal-As-Well",
+    "code": 100433,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 34
+  },
+  {
+    "name": "Quadra Magic",
+    "code": 100434,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 35
+  },
+  {
+    "name": "Steal",
+    "code": 100435,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 36
+  },
+  {
+    "name": "Sense",
+    "code": 100436,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 37
+  },
+  {
+    "name": "Throw",
+    "code": 100437,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 39
+  },
+  {
+    "name": "Morph",
+    "code": 100438,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 40
+  },
+  {
+    "name": "Deathblow",
+    "code": 100439,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 41
+  },
+  {
+    "name": "Manipulate",
+    "code": 100440,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 42
+  },
+  {
+    "name": "Mime",
+    "code": 100441,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 43
+  },
+  {
+    "name": "Enemy Skill",
+    "code": 100442,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 44
+  },
+  {
+    "name": "Master Command",
+    "code": 100443,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 48
+  },
+  {
+    "name": "Fire",
+    "code": 100444,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 49
+  },
+  {
+    "name": "Ice",
+    "code": 100445,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 50
+  },
+  {
+    "name": "Earth",
+    "code": 100446,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 51
+  },
+  {
+    "name": "Lightning",
+    "code": 100447,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 52
+  },
+  {
+    "name": "Restore",
+    "code": 100448,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 53
+  },
+  {
+    "name": "Heal",
+    "code": 100449,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 54
+  },
+  {
+    "name": "Revive",
+    "code": 100450,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 55
+  },
+  {
+    "name": "Seal",
+    "code": 100451,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 56
+  },
+  {
+    "name": "Mystify",
+    "code": 100452,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 57
+  },
+  {
+    "name": "Transform",
+    "code": 100453,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 58
+  },
+  {
+    "name": "Exit",
+    "code": 100454,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 59
+  },
+  {
+    "name": "Poison",
+    "code": 100455,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 60
+  },
+  {
+    "name": "Gravity",
+    "code": 100456,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 61
+  },
+  {
+    "name": "Barrier",
+    "code": 100457,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 62
+  },
+  {
+    "name": "Comet",
+    "code": 100458,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 64
+  },
+  {
+    "name": "Time",
+    "code": 100459,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 65
+  },
+  {
+    "name": "Destruct",
+    "code": 100460,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 68
+  },
+  {
+    "name": "Contain",
+    "code": 100461,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 69
+  },
+  {
+    "name": "Full Cure",
+    "code": 100462,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 70
+  },
+  {
+    "name": "Shield",
+    "code": 100463,
+    "classification": "filler",
+    "category": "materia",
+    "ff7_id": 71
+  },
+  {
+    "name": "Ultima",
+    "code": 100464,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 72
+  },
+  {
+    "name": "Master Magic",
+    "code": 100465,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 73
+  },
+  {
+    "name": "Choco/Mog",
+    "code": 100466,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 74
+  },
+  {
+    "name": "Shiva",
+    "code": 100467,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 75
+  },
+  {
+    "name": "Ifrit",
+    "code": 100468,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 76
+  },
+  {
+    "name": "Ramuh",
+    "code": 100469,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 77
+  },
+  {
+    "name": "Titan",
+    "code": 100470,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 78
+  },
+  {
+    "name": "Odin",
+    "code": 100471,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 79
+  },
+  {
+    "name": "Leviathan",
+    "code": 100472,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 80
+  },
+  {
+    "name": "Bahamut",
+    "code": 100473,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 81
+  },
+  {
+    "name": "Kujata",
+    "code": 100474,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 82
+  },
+  {
+    "name": "Alexander",
+    "code": 100475,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 83
+  },
+  {
+    "name": "Phoenix",
+    "code": 100476,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 84
+  },
+  {
+    "name": "Neo Bahamut",
+    "code": 100477,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 85
+  },
+  {
+    "name": "Hades",
+    "code": 100478,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 86
+  },
+  {
+    "name": "Typhon",
+    "code": 100479,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 87
+  },
+  {
+    "name": "Bahamut ZERO",
+    "code": 100480,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 88
+  },
+  {
+    "name": "Knights of the Round",
+    "code": 100481,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 89
+  },
+  {
+    "name": "Master Summon",
+    "code": 100482,
+    "classification": "useful",
+    "category": "materia",
+    "ff7_id": 90
+  },
+  {
+    "name": "Highwind",
+    "code": 300501,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Submarine",
+    "code": 300502,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Key to Sector 5",
+    "code": 300503,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Green Chocobo",
+    "code": 300504,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Blue Chocobo",
+    "code": 300505,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Black Chocobo",
+    "code": 300506,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Gold Chocobo",
+    "code": 300507,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Barret",
+    "code": 300600,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Tifa",
+    "code": 300601,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Aerith",
+    "code": 300602,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Red XIII",
+    "code": 300603,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Cait Sith",
+    "code": 300604,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Cid",
+    "code": 300605,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  }
+]
