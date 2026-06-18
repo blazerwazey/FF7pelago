@@ -16,13 +16,11 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from ._resources import try_load_json
 from .Locations import ALL_LOCATION_TABLE
 
 if TYPE_CHECKING:
     from .__init__ import FF7World
-
-_DATA_DIR = Path(__file__).resolve().parent / "data"
-_KEY_ITEM_BITON_FILE = _DATA_DIR / "key_item_biton_map.json"
 
 # Bank 1 is the only bank we can reliably both (a) write to via the FF7 field
 # script BITON opcode AND (b) poll from FF7Client via the live savemap mirror
@@ -50,12 +48,7 @@ _AP_BITON_ADDR_MAX = 0xFF
 
 
 def _load_key_item_biton_map() -> Dict[str, Dict[str, int]]:
-    if _KEY_ITEM_BITON_FILE.exists():
-        try:
-            return json.loads(_KEY_ITEM_BITON_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-    return {}
+    return try_load_json("data/key_item_biton_map.json", {})
 
 
 _KEY_ITEM_BITON_MAP: Dict[str, Dict[str, int]] = _load_key_item_biton_map()
@@ -65,17 +58,12 @@ _KEY_ITEM_BITON_MAP: Dict[str, Dict[str, int]] = _load_key_item_biton_map()
 # each pickup's own flag — instead of auto-allocating bits in a shared region —
 # is collision-free: a flag only changes when that specific item is taken, so
 # script-heavy maps (Fort Condor, etc.) no longer trigger unrelated locations.
-_FIELD_PICKUP_FLAGS_FILE = _DATA_DIR / "field_pickup_flags.json"
-
-
 def _load_field_pickup_flags() -> Dict[int, List[int]]:
-    if _FIELD_PICKUP_FLAGS_FILE.exists():
-        try:
-            raw = json.loads(_FIELD_PICKUP_FLAGS_FILE.read_text(encoding="utf-8"))
-            return {int(k): list(v) for k, v in raw.items()}
-        except Exception:
-            pass
-    return {}
+    raw = try_load_json("data/field_pickup_flags.json", {})
+    try:
+        return {int(k): list(v) for k, v in raw.items()}
+    except Exception:
+        return {}
 
 
 _FIELD_PICKUP_FLAGS: Dict[int, List[int]] = _load_field_pickup_flags()
@@ -298,10 +286,14 @@ class FF7JSONExporter:
 
     def write_file(self, output_directory: str) -> str:
         payload = self.build_payload()
-        mw = self.world.multiworld
-        player_name = mw.get_player_name(self.world.player)
-        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in player_name)
-        filename = f"AP_{mw.seed_name}_{self.world.player}_{safe_name}.apff7"
+        # Use the standard AP output base name: "AP_<seed>_P<player>_<name>".
+        # The leading "P" on the player segment is REQUIRED — the WebHost
+        # (archipelago.gg) parses unrecognised seed files as AP_<seed>_P<n>_<name>
+        # and does int(slot_id[1:]) to strip that "P". A hand-rolled name without
+        # it (e.g. AP_<seed>_<n>_<name>) makes slot_id="<n>" -> int("") and the
+        # host rejects the whole multidata ("invalid literal for int()").
+        base = self.world.multiworld.get_out_file_name_base(self.world.player)
+        filename = f"{base}.apff7"
         path = Path(output_directory, filename)
         path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         return str(path)

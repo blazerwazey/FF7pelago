@@ -8,6 +8,8 @@ from typing import ClassVar, Dict
 
 from BaseClasses import Item, ItemClassification
 
+from ._resources import load_json
+
 
 @dataclass(frozen=True)
 class FF7ItemData:
@@ -20,7 +22,6 @@ class FF7ItemData:
     category: str | None = None  # item, weapon, armor, accessory, materia, key_item
     count: int = 1  # number of copies to add to the item pool
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
 CLASSIFICATION_MAP = {
     "progression": ItemClassification.progression,
     "useful": ItemClassification.useful,
@@ -29,7 +30,7 @@ CLASSIFICATION_MAP = {
 
 
 def _load_item_dataset() -> list[dict[str, str]]:
-    return json.loads((DATA_DIR / "items.json").read_text(encoding="utf-8"))
+    return load_json("data/items.json")
 
 
 def _build_item_table() -> Dict[str, FF7ItemData]:

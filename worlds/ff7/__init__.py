@@ -235,6 +235,8 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "gonjun1":    "Gongaga",
     "gninn":      "Gongaga",
     "goson":      "Gongaga",
+    "gnmk":       "Gongaga",        # Meltdown Reactor (Titan materia)
+    "zz3":        "Chocobo Sage",   # Chocobo Sage's house (Enemy Skill)
     "cos_btm":    "Cosmo Canyon",
     "cos_btm2":   "Cosmo Canyon",
     "cosmin6":    "Cosmo Canyon",
@@ -319,10 +321,20 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "trnad_3":    "Whirlwind Maze",
     "trnad_4":    "Whirlwind Maze",
     "woa_1":      "Whirlwind Maze",
-    # --- Northern Cave (interior, las*): NOT mapped. These are the final-dungeon
-    #     fields, reached only via the end-game party-split descent; their checks
-    #     are dead at Free Roam moment 1603, so dropping the maps here drops all
-    #     of their locations.
+    # --- Northern Cave (interior, las*): Re-added with Highwind access
+    "las0_4":     "Northern Cave",
+    "las0_5":     "Northern Cave",
+    "las0_6":     "Northern Cave",
+    "las0_7":     "Northern Cave",
+    "las1_2":     "Northern Cave",
+    "las1_3":     "Northern Cave",
+    "las2_2":     "Northern Cave",
+    "las2_3":     "Northern Cave",
+    "las3_1":     "Northern Cave",
+    "las3_2":     "Northern Cave",
+    "las3_3":     "Northern Cave",
+    "las4_0":     "Northern Cave",
+    "las4_1":     "Northern Cave",
 
     # --- Mideel (Highwind) ---
     "itown1b":    "Mideel",
@@ -414,6 +426,45 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # Removed by request: Sewer (Midgar, colne_b1) + Whirlwind Maze (trnad_*).
     300031, 300032,                                  # Sewer
     300248, 300249, 300398, 310016, 310074, 310075,  # Whirlwind Maze
+    # Removed by request: Sector 7 (mds7 maps + shops)
+    200000, 200001, 200002, 200003, 200004, 200005, 200006, 200007,  # Train Graveyard + No. 1 Reactor
+    300160, 300161,                                  # Beginner's Hall
+    # Sector 7 shops (shop_ids 0/1/2/9 — all AP slots, per the expanded shops.json)
+    320000, 320001, 320002, 320003, 320004, 320005, 320006, 320007,
+    320008, 320009, 320010, 320026, 320027, 320028,
+    # Removed by request: Nibelheim House (niv_ti maps)
+    300179, 300180, 310071, 310072,
+    # Removed by request: Turtle Paradise flyers
+    310058, 310059, 310060, 310061, 310062, 310063, 310064, 310065,
+    # Removed by request: Junon Inn - Potion
+    300100,
+    # Removed by request: all Underwater Reactor locations (semkin_6/7, subin_1a)
+    200336, 200342, 200343,   # Leviathan Scales, Scimitar, Battle Trumpet
+    310012, 310013,           # Huge Materia (Underwater), Key to Ancients
+    # Removed by request: all Corneo mansion locations (colne_*; Sewer already above)
+    300029,                   # Corneo Hall, 2f - Phoenix Down (colne_3)
+    300030,                   # Torture Room - Ether (colne_4)
+    300297,                   # Corneo Hall, 2f - Hyper (colne_6)
+    # Gold Saucer Chocobo Racing
+    310069,
+    # Removed by request: all min51_2 checks (Flyer #1 already above)
+    300163,                   # Sector 5 House 2f - Turbo Ether
+    310046,                   # Midgar Sector 5 - Found hidden draw
+    310047,                   # Midgar Sector 5 - Stole boys 5 gil
+    # Removed by request: all Shinra Building locations (blin*; Flyer #2 already above)
+    200135, 300007, 300008, 300011, 300012, 300013, 300014, 300016, 300017,
+    300018, 300022, 300281, 300284, 300285, 300286, 300391,
+    310002, 310003, 310004, 310005, 310006, 310007, 310008,
+    310040, 310041, 310048, 310049, 310050, 310051, 310052, 310053, 310054,
+    310055, 310056, 310076, 310077, 310078, 310079,
+    # Removed by request: all Temple of the Ancients locations (kuro_*)
+    200305, 200306, 200307, 200308, 200309, 200310, 200311, 200313, 200314,
+    200315, 200316, 300109, 300111, 310093, 310094, 310095,
+    # Removed by request: all Cargo Ship locations + shop (shpin_2/shpin_3,
+    # shop_id 25). NOTE: this is the Junon->Costa boat, NOT the Gelnika
+    # "Cargo Room" (q_4, 200296/310090) which stays in.
+    300224, 300225, 300226,                          # Ether, All, Wind Slash
+    320065, 320066, 320067, 320068,                  # Cargo Ship Item - AP Slots 1-4
 })
 
 # Weapon boss locations (detected by their savemap defeat flag) and the traversal
@@ -435,6 +486,7 @@ _FREE_ROAM_LOCATION_ITEM_GATES = {
     200302: "Earth Harp",    # Show Master Magic
     310092: "Earth Harp",    # Show Master Summon
     200304: "Desert Rose",   # Show Gold Chocobo
+    310070: "Tifa",          # Nibelheim - Final Heaven
 }
 
 
@@ -500,6 +552,15 @@ class FF7Web(WebWorld):
             "World",
             [
                 "free_roam",
+                "disable_gold_saucer",
+            ],
+        ),
+        OptionGroup(
+            "Gameplay",
+            [
+                "exp_multiplier",
+                "gil_multiplier",
+                "ap_multiplier",
             ],
         ),
         OptionGroup(
@@ -630,6 +691,7 @@ class FF7World(World):
             "Kalm",
             "Mythril Mines",
             "Chocobo Farm",
+            "Chocobo Sage",
             "Fort Condor",
             "Junon Lower",
             "Junon Upper",
@@ -652,6 +714,7 @@ class FF7World(World):
             "Icicle Inn",
             "Great Glacier",
             "Whirlwind Maze",
+            "Northern Cave",
             "Mideel",
             "Underwater Reactor",
             "Gelnika",
@@ -669,19 +732,25 @@ class FF7World(World):
             return lambda state: state.has(item, player)
 
         # World-map traversal (Free Roam). Boats + the Tiny Bronco are gone, so
-        # only the Gold Chocobo and the Highwind cross open ocean to other
-        # continents; Green/Black cross the Junon mountain; the Submarine reaches
-        # North Corel + the Gold Saucer (and underwater spots) but can't land you
-        # on the other continents.
+        # the Submarine reaches North Corel + the Gold Saucer (and underwater spots)
+        # but can't land you on the other continents.
+        # Chocobo access:
+        # - Green: Junon mountain only
+        # - Blue: Open ocean only (not Junon)
+        # - Black: Junon mountain + open ocean
+        # - Gold: Junon mountain + open ocean
+        # - Highwind: Junon mountain + open ocean
         def _mountain(state):    # Junon (mountain crossing)
             return (state.has("Green Chocobo", player) or state.has("Black Chocobo", player)
                     or state.has("Gold Chocobo", player) or state.has("Highwind", player))
 
         def _ocean(state):       # open-ocean continents
-            return state.has("Gold Chocobo", player) or state.has("Highwind", player)
+            return (state.has("Blue Chocobo", player) or state.has("Black Chocobo", player)
+                    or state.has("Gold Chocobo", player) or state.has("Highwind", player))
 
         def _sub(state):         # North Corel + Gold Saucer (Submarine), or full ocean
-            return (state.has("Submarine", player) or state.has("Gold Chocobo", player)
+            return (state.has("Submarine", player) or state.has("Blue Chocobo", player)
+                    or state.has("Black Chocobo", player) or state.has("Gold Chocobo", player)
                     or state.has("Highwind", player))
 
         def _underwater(state):  # underwater only (Submarine)
@@ -697,18 +766,26 @@ class FF7World(World):
         world_map.connect(sub_regions["Junon Lower"]).access_rule = _mountain
         world_map.connect(sub_regions["Junon Upper"]).access_rule = _mountain
 
+        # --- Chocobo Sage's house (chocobo / Highwind only, mountain-enclosed) ---
+        world_map.connect(sub_regions["Chocobo Sage"]).access_rule = _mountain
+
         # --- North Corel + Gold Saucer (Submarine reaches these; or Gold/Highwind) ---
         world_map.connect(sub_regions["Corel"]).access_rule = _sub
         world_map.connect(sub_regions["Gold Saucer Area"]).access_rule = (
             lambda state: _sub(state) and state.has("Gold Ticket", player)
         )
 
-        # --- Open-ocean continents (Gold Chocobo or Highwind) ---
+        # --- Open-ocean continents (Blue/Black/Gold Chocobo or Highwind) ---
         for _name in ("Costa del Sol", "Mt. Corel", "Gongaga", "Cosmo Canyon",
-                      "Nibelheim", "Mt. Nibel", "Rocket Town", "Ancient Forest",
+                      "Nibelheim", "Mt. Nibel", "Rocket Town",
                       "Wutai", "Bone Village", "Sleeping Forest", "Icicle Inn",
                       "Mideel"):
             world_map.connect(sub_regions[_name]).access_rule = _ocean
+        # Ancient Forest: Black/Gold/Highwind only (no Blue)
+        world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
+            lambda state: (state.has("Black Chocobo", player)
+                    or state.has("Gold Chocobo", player) or state.has("Highwind", player))
+        )
         # Shinra Mansion basement: ocean + Basement Key.
         world_map.connect(sub_regions["Shinra Mansion Basement"]).access_rule = (
             lambda state: _ocean(state) and state.has("Basement Key", player)
@@ -724,8 +801,15 @@ class FF7World(World):
             lambda state: _ocean(state) and state.has("Snowboard", player)
         )
 
-        # --- Northern Crater interior: Highwind only ---
+        # --- Northern Crater interior: Highwind + All Characters + 4 Huge Materia ---
         world_map.connect(sub_regions["Whirlwind Maze"]).access_rule = _has("Highwind")
+        world_map.connect(sub_regions["Northern Cave"]).access_rule = (
+            lambda state: (
+                state.has("Highwind", player)
+                and state.has_all(_PARTY_MEMBER_ITEMS, player)
+                and state.has_all(_GOAL_HUGE_MATERIA, player)
+            )
+        )
 
         # --- Underwater (Submarine): Underwater Reactor + sunken Gelnika ---
         world_map.connect(sub_regions["Underwater Reactor"]).access_rule = _underwater
@@ -738,6 +822,10 @@ class FF7World(World):
         _tier_rules = {"mountain": _mountain, "ocean": _ocean, "sub": _sub,
                        "underwater": _underwater, "highwind": _has("Highwind")}
 
+        # Optionally drop every Gold Saucer check (and its shop slots) from the
+        # pool — all those locations resolve to the "Gold Saucer Area" region.
+        disable_gold_saucer = bool(self.options.disable_gold_saucer)
+
         for location_data in ALL_LOCATION_TABLE.values():
             if location_data.name == self.victory_location_name:
                 continue
@@ -747,6 +835,8 @@ class FF7World(World):
                 continue  # not a real field pickup -> Gold Saucer can't place/track it
             region_name = FREE_ROAM_REGION_MAP.get(location_data.map)
             if region_name is None:
+                continue
+            if disable_gold_saucer and region_name == "Gold Saucer Area":
                 continue
             target_region = sub_regions[region_name]
             ff7_location = FF7Location(
@@ -767,6 +857,10 @@ class FF7World(World):
         # region's access rule gates reachability (e.g. Junon shops need Green
         # Chocobo). Shops whose region isn't created are skipped (unreachable).
         for shop_data in SHOP_LOCATION_TABLE.values():
+            if shop_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
+                continue
+            if disable_gold_saucer and shop_data.region == "Gold Saucer Area":
+                continue
             target_region = sub_regions.get(shop_data.region)
             if target_region is None:
                 continue
@@ -945,6 +1039,9 @@ class FF7World(World):
             "shops": exporter._serialize_shops(),
             "victory_condition": self.options.victory_condition.value,
             "free_roam": bool(self.options.free_roam),
+            "exp_multiplier": int(self.options.exp_multiplier.value),
+            "gil_multiplier": int(self.options.gil_multiplier.value),
+            "ap_multiplier": int(self.options.ap_multiplier.value),
         }
 
     def generate_output(self, output_directory: str) -> None:

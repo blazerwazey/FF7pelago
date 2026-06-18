@@ -363,7 +363,7 @@
     "bit": 5
   },
   {
-    "name": "House - Drill Arm",
+    "name": "Rocket Town - Drill Arm",
     "code": 200280,
     "map": "rktsid",
     "maps": ["rktsid"],
@@ -374,7 +374,7 @@
     "bit": 2
   },
   {
-    "name": "House - Power Source",
+    "name": "Rocket Town - Power Source",
     "code": 200281,
     "map": "rktmin2",
     "maps": ["rktmin2"],
@@ -429,7 +429,7 @@
     "bit": 2
   },
   {
-    "name": "House: 2f - Guard Source",
+    "name": "Kalm House: 2f - Guard Source",
     "code": 200289,
     "map": "elmin3_2",
     "maps": ["elmin3_2"],
@@ -451,7 +451,7 @@
     "bit": 4
   },
   {
-    "name": "Weapons Store - Fourth Bracelet",
+    "name": "Rocket Town Weapons Store - Fourth Bracelet",
     "code": 200291,
     "map": "rkt_w",
     "maps": ["rkt_w"],
@@ -462,7 +462,7 @@
     "bit": 5
   },
   {
-    "name": "Item Store - Guard Source",
+    "name": "Rocket Town Item Store - Guard Source",
     "code": 200292,
     "map": "rkt_i",
     "maps": ["rkt_i"],
@@ -1595,7 +1595,7 @@
     "bit": 7
   },
   {
-    "name": "House: 2f - Ether",
+    "name": "Kalm House: 2f - Ether",
     "code": 300055,
     "map": "elmin2_2",
     "maps": ["elmin2_2"],
@@ -1837,7 +1837,7 @@
     "bit": 3
   },
   {
-    "name": "Respectable Inn - Potion",
+    "name": "Junon Training Hall - Potion",
     "code": 300100,
     "map": "junpb_2",
     "maps": ["junpb_2"],
@@ -2134,7 +2134,7 @@
     "bit": 4
   },
   {
-    "name": "House 2f. - Turbo Ether",
+    "name": "Sector 5 House 2f. - Turbo Ether",
     "code": 300163,
     "map": "min51_2",
     "maps": ["min51_2"],
@@ -3894,7 +3894,7 @@
     "bit": 5
   },
   {
-    "name": "Nibelheim - Final Heaven (+other stuff?)",
+    "name": "Nibelheim Tifa's House - Final Heaven",
     "code": 310070,
     "map": "niv_ti2",
     "maps": ["niv_ti2"],
@@ -3916,7 +3916,7 @@
     "bit": 1
   },
   {
-    "name": "Nibelheim - Elemental(+other stuff?)",
+    "name": "Nibelheim - Elemental",
     "code": 310072,
     "map": "niv_ti2",
     "maps": ["niv_ti2"],
@@ -4103,7 +4103,7 @@
     "bit": 0
   },
   {
-    "name": "Research Room - Megalixir",
+    "name": "Sunken Gelnika Research Room - Megalixir",
     "code": 310089,
     "map": "q_3",
     "maps": ["q_3"],
@@ -4114,7 +4114,7 @@
     "bit": 1
   },
   {
-    "name": "Cargo Room - Megalixir",
+    "name": "Sunken Gelnika Cargo Room - Megalixir",
     "code": 310090,
     "map": "q_4",
     "maps": ["q_4"],

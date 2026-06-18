@@ -8,6 +8,8 @@ from typing import ClassVar, Dict, List
 
 from BaseClasses import Location
 
+from ._resources import load_json, try_load_json
+
 
 @dataclass(frozen=True)
 class FF7LocationData:
@@ -29,18 +31,12 @@ class FF7LocationData:
     region: str = ""        # Free Roam region this shop belongs to (access gate)
 
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
-
-
 def _load_location_dataset() -> List[dict[str, object]]:
-    return json.loads((DATA_DIR / "locations.json").read_text(encoding="utf-8"))
+    return load_json("data/locations.json")
 
 
 def _load_shop_dataset() -> List[dict[str, object]]:
-    path = DATA_DIR / "shops.json"
-    if not path.exists():
-        return []
-    return json.loads(path.read_text(encoding="utf-8"))
+    return try_load_json("data/shops.json", [])
 
 
 def _build_location_table() -> Dict[str, FF7LocationData]:
@@ -85,9 +81,6 @@ SHOP_LOCATION_TABLE: Dict[str, FF7LocationData] = {
 }
 
 
-_FIELD_PICKUP_FLAGS_FILE = DATA_DIR / "field_pickup_flags.json"
-
-
 def _load_placeable_codes() -> set[int]:
     """Location codes Gold Saucer can actually place an item at + the client can
     detect: those with an explicit vanilla flag, plus those with a natural
@@ -98,12 +91,11 @@ def _load_placeable_codes() -> set[int]:
     # Boss locations are tracked by game-moment thresholds (BOSS_CHECKS in the
     # client), not a field-item flag, so include them explicitly.
     codes.update(data.code for data in ALL_LOCATION_TABLE.values() if data.category == "boss")
-    if _FIELD_PICKUP_FLAGS_FILE.exists():
-        try:
-            raw = json.loads(_FIELD_PICKUP_FLAGS_FILE.read_text(encoding="utf-8"))
-            codes.update(int(k) for k in raw)
-        except Exception:
-            pass
+    raw = try_load_json("data/field_pickup_flags.json", {})
+    try:
+        codes.update(int(k) for k in raw)
+    except Exception:
+        pass
     return codes
 
 

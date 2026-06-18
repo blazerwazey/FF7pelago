@@ -24,16 +24,20 @@ class FieldItemsMode(Choice):
     """Controls how field items are randomized.
 
     shuffle: Items are shuffled among the original locations (same pool, different spots).
-    random:  Items are replaced with a completely random selection.
+    replace: Items are replaced with a completely random selection.
+
+    (Note: "random" cannot be used as a Choice value name in Archipelago — it is
+    reserved for the meta "pick a random setting" keyword — so this mode is named
+    "replace". The exported value is unchanged: shuffle=0, replace=1.)
     """
     display_name = "Field Items Mode"
     option_shuffle = 0
-    option_random = 1
+    option_replace = 1
     default = option_shuffle
 
 
 class FieldItemsKeepType(Toggle):
-    """When using Random mode, keep the same item type (weapon stays weapon, etc.)."""
+    """When using Replace mode, keep the same item type (weapon stays weapon, etc.)."""
     display_name = "Field Items Keep Type"
     default = False
 
@@ -87,6 +91,49 @@ class FreeRoam(Toggle):
 
 
 # ---------------------------------------------------------------------------
+# Gameplay QoL — battle reward multipliers (applied live by the client by
+# patching the battle EXP/AP/Gil calc instructions; 1 = vanilla)
+# ---------------------------------------------------------------------------
+
+class ExpMultiplier(Range):
+    """Multiply all battle EXP gained. 1 = normal."""
+    display_name = "EXP Multiplier"
+    range_start = 1
+    range_end = 50
+    default = 1
+
+
+class GilMultiplier(Range):
+    """Multiply all battle Gil gained. 1 = normal."""
+    display_name = "Gil Multiplier"
+    range_start = 1
+    range_end = 50
+    default = 1
+
+
+class APMultiplier(Range):
+    """Multiply all battle AP (materia ability points) gained. 1 = normal."""
+    display_name = "AP Multiplier"
+    range_start = 1
+    range_end = 50
+    default = 1
+
+
+class DisableGoldSaucer(Toggle):
+    """Remove every Gold Saucer check from the pool (Free Roam only).
+
+    When enabled, no locations inside the Gold Saucer (Wonder Square, Battle
+    Square / Arena, Chocobo Square, Ghost Hotel, Speed Square, Event Square,
+    Gondola, the Keystone and Gold Ticket key items, etc.) are checks, and the
+    Gold Saucer shop slots are dropped. Useful if you'd rather not be required
+    to play the minigames. The Gold Ticket item still controls access to the
+    area for any logic that needs it.
+    """
+    display_name = "Disable Gold Saucer Checks"
+    default = False
+
+
+# ---------------------------------------------------------------------------
 # Options dataclass
 # ---------------------------------------------------------------------------
 
@@ -108,6 +155,12 @@ class FF7Options(PerGameCommonOptions):
 
     # World
     free_roam: FreeRoam
+
+    # Gameplay QoL
+    exp_multiplier: ExpMultiplier
+    gil_multiplier: GilMultiplier
+    ap_multiplier: APMultiplier
+    disable_gold_saucer: DisableGoldSaucer
 
     # Goal
     victory_condition: VictoryCondition

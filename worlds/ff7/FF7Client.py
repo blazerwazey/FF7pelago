@@ -60,8 +60,18 @@ CRATER_REQUIRED_ITEMS = frozenset({
     "Huge Materia (Fort Condor)", "Huge Materia (Corel)",
     "Huge Materia (Underwater)", "Huge Materia (Rocket)",
 })
-GAME_MOMENT_OFFSET = 0x0BA4   # uint16 LE "mprogress" Main Progress var; >= 3000 = post-Sephiroth
-GAME_MOMENT_GOAL   = 3000
+GAME_MOMENT_OFFSET = 0x0BA4   # uint16 LE "mprogress" Main Progress var
+GAME_MOMENT_GOAL   = 3000     # (legacy; mprogress actually caps at 1999, see below)
+# Defeat-Sephiroth goal detection. mprogress (game_moment) is NOT usable: it maxes
+# at 1999 in the crater descent and never reaches a clean post-Sephiroth value, and
+# the ending/credits are engine-driven (no ending field/flag to poll). Instead read
+# the LIVE game-module global: FF7 switches it to Ending(25) then Credits(28) only
+# after the final battle is won (a loss is GameOver=26, the intro is 27). Address +
+# enum from ff7-ultima (maciej-trebacz) addresses.rs / types.ts; the map matches
+# this build — its game_moment 0xDC08DC == our SAVEMAP_BASE(0xDBFD38)+0x0BA4.
+GAME_MODULE_ADDR    = 0xCBF9DC  # live "current_module" byte
+GAME_MODULE_ENDING  = 25        # post-final-battle ending sequence
+GAME_MODULE_CREDITS = 28        # staff roll
 # Ultimate Weapon (Free Roam): his kill flag weapons_killed.bit[0] is set by his
 # FINAL BATTLE (no wm0 model-11 function writes it). The chase that whittles his HP
 # down to make that battle lethal is set up by the disc-2 intro, which Free Roam
@@ -71,6 +81,30 @@ GAME_MOMENT_GOAL   = 3000
 # Forest is separate — its entrance only needs the player on foot/chocobo.
 WEAPONS_KILLED_OFFSET  = 0x0C1F  # byte: bit0 = killed, bit2 = HP < 20,000
 SUBMARINE_FLAGS_OFFSET = 0x0F2A  # byte: bit3 = Ultimate Weapon chase started/engaged
+# Current disc (ff7tk FF7SLOT.disc; live 0xDBFD38+0x0EA4 = 0xDC0BDC = ff7-ultima
+# disc_id). Free Roam is endgame, so force disc 3. Not field-settable (fields use
+# the DSKCG opcode, engine-handled), so the client writes it directly each poll.
+DISC_OFFSET    = 0x0EA4
+FREE_ROAM_DISC = 3
+
+# Field "door"/gate story flags that would softlock Free Roam if left unset: at the
+# Free Roam game moment the field shows a blocking model UNLESS the flag is ON (it's
+# normally set by the story sequence the player skips). Forced ON each poll. Each
+# entry is (savemap byte offset, bit). Field Var[bank][addr] -> savemap: banks map
+# 1/2→0xBA4, 3/4→0xCA4, 11/12→0xDA4, 13/14→0xEA4, 7/15→0xFA4 (ff7-lib/ff7-ultima).
+_FREE_ROAM_FORCE_FLAGS = [
+    (0x1034, 0),   # mtcrl_2 DOOR — Var[15][144].0 (Mt. Corel gate; 0xFA4+0x90)
+    (0x0F2B, 4),   # Ruby Weapon spawn — wm0.ev desert init gates model 29 on this
+                   #   flag (worldscript bit 0x1C3C = savemap 0xF2B.4); unset in Free
+                   #   Roam (disc-2 event skipped), so Ruby never emerges. Ruby-only
+                   #   flag → safe to force; it still won't show once killed.
+]
+# Item-conditional field gates: set savemap <offset>.<bit> ONLY once <item> has
+# been received (the field gate softlocks otherwise, but opening it without the
+# item would break the AP logic). Read on field load, so re-asserted each poll.
+_FREE_ROAM_ITEM_GATE_FLAGS = [
+    ("Basement Key", 0x0C8C, 1),   # Shinra Mansion basement — Var[1][232].1 (0xBA4+0xE8)
+]
 # Boss checks: the only tracked bosses are Ultimate/Emerald/Ruby Weapon, and
 # they are detected like any other location via their savemap defeat flag
 # (byte 0x0C1F = bank-1 0x7B; Ultimate bit0, Ruby bit3, Emerald bit4) carried in
@@ -243,14 +277,14 @@ class FF7CommandProcessor(ClientCommandProcessor):
 
     def _cmd_setjson(self, path: str = "") -> bool:
         """Point the client at the Archipelago FF7 file for this seed.
-        Usage: /setjson <path_to_AP_seed_slot_player.apff7>
+        Usage: /setjson <path_to_AP_seed_Pslot_player.apff7>
         The file is produced by Archipelago at generation time and contains
         pre-computed BITON coordinates for every location.
         """
         if not path.strip():
             logger.warning(
                 "Usage: /setjson <path>  "
-                "(e.g. /setjson C:/AP/AP_MySeed_1_Cloud.apff7)"
+                "(e.g. /setjson C:/AP/AP_MySeed_P1_Cloud.apff7)"
             )
             return False
 
@@ -474,6 +508,11 @@ class FF7Context(CommonContext):
         self._hook_injected: bool = False
         # Victory condition: 0 = defeat_sephiroth (default), 1 = escape_midgar
         self.victory_condition: int = 0
+        # Battle reward multipliers (from slot_data) + whether the exe patch ran.
+        self.exp_multiplier: int = 1
+        self.gil_multiplier: int = 1
+        self.ap_multiplier: int = 1
+        self._reward_mult_applied: bool = False
         # Free Roam mode (from slot_data) — gates Free-Roam-only savemap fixups.
         self.free_roam: bool = False
         # ── Shop-purchase detection (Tier-3 native-grid AP shops) ────────────
@@ -514,6 +553,11 @@ class FF7Context(CommonContext):
             # Read victory condition from slot data (0 = defeat_sephiroth, 1 = escape_midgar)
             self.victory_condition = args.get("slot_data", {}).get("victory_condition", 0)
             self.free_roam = bool(args.get("slot_data", {}).get("free_roam", False))
+            sd = args.get("slot_data", {})
+            self.exp_multiplier = max(1, int(sd.get("exp_multiplier", 1)))
+            self.gil_multiplier = max(1, int(sd.get("gil_multiplier", 1)))
+            self.ap_multiplier  = max(1, int(sd.get("ap_multiplier", 1)))
+            self._reward_mult_applied = False
             raw = args.get("slot_data", {}).get("biton_map", {})
             if raw:
                 self.biton_map = {int(k): tuple(v) for k, v in raw.items()}
@@ -749,32 +793,57 @@ def _ensure_mktpb_old_man_processed(pm: "pymem.Pymem") -> None:
         logger.debug(f"Wall Market side-effect failed: {exc}")
 
 
-# Sector 5 world-map gate side-effect.
-# The world-map entrance to Midgar runs a world-script gate that deactivates
-# its entrance triangle while a world-script flag is OFF. That flag is NOT the
-# Key to Sector 5 *inventory* bit (bank-1 0x43.5) that delivery sets — it is the
-# world-script var the gate tests: Var[15][38] bit 3. World-script savemap banks
-# are 256 bytes from the savemap start, so Var[15][38] = byte 0x0F26 (15*256+38),
-# bit 3. Set it so the gate opens once the player owns the key.
-# NOTE: 0x0F26/bit3 is decoded from the tool's Var[15][38] notation; verify in
-# Landscaper (or live via the Ultima editor) if the gate still won't open.
-_SECTOR5_GATE_OFFSET = 0x0F26   # FF7SLOT offset (live addr = SAVEMAP_BASE + this)
+# Sector 5 walkmesh gate side-effect.
+# Entry to Midgar runs through field mds5_5, whose script keeps the passage open
+# only while the "owns Key to Sector 5" flag is ON:
+#     If Var[15][38] bitOFF 3  ->  Deactivate the triangle #4   (blocks the way)
+# So that flag — not the AP-internal Key-to-Sector-5 inventory bit (bank-1 0x43.5)
+# that delivery also sets — is what must be ON. Var[15][38] is a savemap bit.
+# The field-script savemap banks (authoritative ff7-lib/ff7-ultima map: bank pairs
+# 1/2,3/4 -> 0xBA4,0xCA4; 11/12 -> 0xDA4; 13/14 -> 0xEA4; 7/15 -> 0xFA4; 5/6 = temp)
+# put bank 15 at region 0xFA4, so Var[15][38] = 0xFA4 + 0x26 = 0x0FCA, bit 3.
+# (Earlier 0x10CA was wrong — there is no 0x10A4 savemap region; bank 6 is temp.)
+_SECTOR5_GATE_OFFSET = 0x0FCA   # FF7SLOT offset (live addr = SAVEMAP_BASE + this)
 _SECTOR5_GATE_BIT    = 3        # bit 3 (mask 0x08)
 
 
-def _ensure_sector5_world_gate(pm: "pymem.Pymem") -> None:
-    """Open the world-map Sector 5 / Midgar entrance gate (Free Roam)."""
+def _ensure_sector5_walkmesh_gate(pm: "pymem.Pymem") -> None:
+    """Open the mds5_5 walkmesh passage into Midgar (Free Roam) by setting the
+    Key-to-Sector-5 possession flag Var[15][38].3 the field script gates on."""
     try:
         addr = SAVEMAP_BASE + _SECTOR5_GATE_OFFSET
         current = pm.read_uchar(addr)
         if not (current & (1 << _SECTOR5_GATE_BIT)):
             pm.write_uchar(addr, current | (1 << _SECTOR5_GATE_BIT))
             logger.info(
-                "Sector 5 side-effect: opened world-map gate "
+                "Sector 5 side-effect: set mds5_5 walkmesh gate flag "
                 f"(0x{_SECTOR5_GATE_OFFSET:04X} bit {_SECTOR5_GATE_BIT})"
             )
     except Exception as exc:
-        logger.debug(f"Sector 5 world-gate side-effect failed: {exc}")
+        logger.debug(f"Sector 5 walkmesh-gate side-effect failed: {exc}")
+
+
+# Snow-area "Snowboard key item obtained" story flag. Ultima Bank 1 (field bank
+# pair 1/2 = savemap region 0 @0xBA4), address #130 (0x82), bit 1 → savemap
+# 0xBA4 + 0x82 = 0xC26, bit 1. The AP-internal Snowboard inventory bit (bank-1
+# 0x46.2) isn't this story flag, so set it explicitly on Snowboard delivery.
+_SNOWBOARD_FLAG_OFFSET = 0x0C26
+_SNOWBOARD_FLAG_BIT    = 1
+
+
+def _ensure_snowboard_flag(pm: "pymem.Pymem") -> None:
+    """Set the 'Snowboard key item obtained' story flag (Bank 1 #130 bit 1)."""
+    try:
+        addr = SAVEMAP_BASE + _SNOWBOARD_FLAG_OFFSET
+        current = pm.read_uchar(addr)
+        if not (current & (1 << _SNOWBOARD_FLAG_BIT)):
+            pm.write_uchar(addr, current | (1 << _SNOWBOARD_FLAG_BIT))
+            logger.info(
+                "Snowboard side-effect: set 'Snowboard key item obtained' flag "
+                f"(0x{_SNOWBOARD_FLAG_OFFSET:04X} bit {_SNOWBOARD_FLAG_BIT})"
+            )
+    except Exception as exc:
+        logger.debug(f"Snowboard flag side-effect failed: {exc}")
 
 
 def _deliver_key_item_flag(pm: "pymem.Pymem", item_name: str) -> bool:
@@ -792,7 +861,9 @@ def _deliver_key_item_flag(pm: "pymem.Pymem", item_name: str) -> bool:
         if item_name in _DRESS_ITEMS:
             _ensure_mktpb_old_man_processed(pm)
         if item_name == "Key to Sector 5":
-            _ensure_sector5_world_gate(pm)
+            _ensure_sector5_walkmesh_gate(pm)
+        if item_name == "Snowboard":
+            _ensure_snowboard_flag(pm)
         return True
     except Exception as exc:
         logger.debug(f"Key item flag write failed for '{item_name}': {exc}")
@@ -978,17 +1049,19 @@ def _deliver_vehicle_item(pm: "pymem.Pymem", item_name: str) -> bool:
 # In Free Roam the only land route to Junon is blocked by the "Junon Area crater"
 # world-map alternative (mountain terrain).  A mountain-capable (green) chocobo
 # crosses it.  Only a *stabled, bred* chocobo carries the green colour, so we
-# write a green FF7CHOCOBO record into Chocobo Farm stable slot 0 (foot-reachable
-# from Kalm) and set the stable bookkeeping so Choco Billy will release it.
+# write a coloured FF7CHOCOBO record into the next free Chocobo Farm stable slot
+# (foot-reachable from Kalm) and set the stable bookkeeping so Choco Billy will
+# release it.  Each AP chocobo colour gets its own slot (no overwrite).
 # All offsets are FF7SLOT offsets (live addr = SAVEMAP_BASE + offset), verified
 # from ff7tk FF7Save_Types.h / Type_FF7CHOCOBO.h.
-_CHOCO_SLOT0      = 0x0DC4  # FF7CHOCOBO chocobos[0] (16 bytes)
+_CHOCO_SLOT0      = 0x0DC4  # FF7CHOCOBO chocobos[0] (16 bytes each, 6 slots)
 _CHOCO_STABLES    = 0x0CFC  # qty of stables owned
 _CHOCO_OCCUPIED   = 0x0CFD  # qty of occupied stables
 _CHOCO_MASK       = 0x0CFF  # bitmask of occupied stable slots (bit 0 = slot 1)
 _CHOCO_RATING0    = 0x0E3E  # stablechocorating[0] (1=Wonderful .. 8=Worst)
 _CHOCO_NAME0      = 0x0EC4  # chocobonames[0][6] (FF7 text, 0xFF-terminated)
 _CHOCO_STAMINA0   = 0x0EE8  # chocostaminas[0] (u16)
+_CHOCO_MAX_SLOTS  = 6       # FF7 stable holds up to 6 chocobos
 # FF7CHOCOBO.type byte (record +0x0F): 0=Yellow 1=Green 2=Blue 3=Black 4=Gold.
 # Green is confirmed working in-game; the others follow the same enum/record.
 # Terrain: Green=mountains, Blue=rivers/shallows, Black=mountains+rivers,
@@ -1003,23 +1076,36 @@ CHOCOBO_ITEM_NAMES = frozenset(_CHOCO_TYPES)
 
 
 def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
-    """Place a bred chocobo of the given colour into Chocobo Farm stable slot 1.
+    """Place a bred chocobo of the given colour into the next free Chocobo Farm
+    stable slot.
 
-    Each colour overwrites slot 0 with its own type byte; receiving a new colour
-    replaces the previous one (one delivered chocobo at a time). Only the higher-
-    terrain colour matters for traversal, so this is fine — and AP logic tracks
-    the items independently regardless of which is physically stabled.
+    Each AP chocobo colour is a distinct, one-time item, so we add it to the next
+    empty stable slot rather than overwriting slot 0. Idempotent per colour: if a
+    chocobo of this colour is already stabled, do nothing (so re-delivery on
+    reconnect can't stack duplicates).
     """
     type_byte = _CHOCO_TYPES.get(item_name)
     if type_byte is None:
         return False
     try:
         base = SAVEMAP_BASE
-        rec  = base + _CHOCO_SLOT0
-        # Idempotent: skip if slot 0 already holds this colour and is stabled.
-        if pm.read_uchar(rec + 0x0F) == type_byte \
-                and (pm.read_uchar(base + _CHOCO_MASK) & 0x01):
-            return True
+        mask = pm.read_uchar(base + _CHOCO_MASK)
+        # Idempotent: skip if any occupied slot already holds this colour.
+        free_slot = -1
+        for n in range(_CHOCO_MAX_SLOTS):
+            if (mask >> n) & 1:
+                if pm.read_uchar(base + _CHOCO_SLOT0 + n * 16 + 0x0F) == type_byte:
+                    return True
+            elif free_slot < 0:
+                free_slot = n
+        if free_slot < 0:
+            logger.warning(
+                f"Chocobo Farm stable full ({_CHOCO_MAX_SLOTS} slots) — "
+                f"cannot deliver {item_name}"
+            )
+            return False
+
+        rec = base + _CHOCO_SLOT0 + free_slot * 16
         # FF7CHOCOBO record (16 B).  Only `type` governs terrain; stats are
         # plausible filler so Choco Billy displays/releases it cleanly.
         pm.write_ushort(rec + 0x00, 1000)  # sprintspd
@@ -1034,18 +1120,19 @@ def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
         pm.write_uchar (rec + 0x0D, 0)     # raceswon
         pm.write_uchar (rec + 0x0E, 0)     # sex (0 = male)
         pm.write_uchar (rec + 0x0F, type_byte)
-        # Per-chocobo extras (parallel arrays, slot 0).
-        pm.write_ushort(base + _CHOCO_STAMINA0, 1000)
-        pm.write_uchar (base + _CHOCO_RATING0, 1)            # Wonderful
-        for i in range(6):                                  # empty (default) name
-            pm.write_uchar(base + _CHOCO_NAME0 + i, 0xFF)
-        # Stable bookkeeping: own ≥1 stable, mark slot 1 occupied.
-        if pm.read_uchar(base + _CHOCO_STABLES) < 1:
-            pm.write_uchar(base + _CHOCO_STABLES, 1)
-        mask = pm.read_uchar(base + _CHOCO_MASK) | 0x01
+        # Per-chocobo extras (parallel arrays, indexed by slot).
+        pm.write_ushort(base + _CHOCO_STAMINA0 + free_slot * 2, 1000)
+        pm.write_uchar (base + _CHOCO_RATING0 + free_slot, 1)        # Wonderful
+        for i in range(6):                                          # empty (default) name
+            pm.write_uchar(base + _CHOCO_NAME0 + free_slot * 6 + i, 0xFF)
+        # Stable bookkeeping: mark this slot occupied; own ≥ occupied stables.
+        mask |= (1 << free_slot)
         pm.write_uchar(base + _CHOCO_MASK, mask)
-        pm.write_uchar(base + _CHOCO_OCCUPIED, bin(mask).count("1"))
-        logger.info(f"Delivered {item_name} to Chocobo Farm stable slot 1")
+        occupied = bin(mask).count("1")
+        pm.write_uchar(base + _CHOCO_OCCUPIED, occupied)
+        if pm.read_uchar(base + _CHOCO_STABLES) < occupied:
+            pm.write_uchar(base + _CHOCO_STABLES, occupied)
+        logger.info(f"Delivered {item_name} to Chocobo Farm stable slot {free_slot + 1}")
         return True
     except Exception as exc:
         logger.debug(f"Chocobo delivery failed for {item_name}: {exc}")
@@ -1057,10 +1144,97 @@ def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
 # Vincent,Cid -> ids 0..8. PHS availability is a per-id bitmask.
 _CHARACTER_IDS = {"Barret": 1, "Tifa": 2, "Aerith": 3, "Red XIII": 4, "Cait Sith": 6, "Cid": 8}
 _PARTY_OFFSET       = 0x04F8   # qint8 party[3] — active party member ids
-_PHS_ALLOWED_OFFSET = 0x10A4   # quint16 — who is allowed in the PHS
-_PHS_VISIBLE_OFFSET = 0x10A6   # quint16 — who is visible in the PHS
+# PHS bitmasks (per character id). 0x10A4 is the LOCK mask (ff7-ultima
+# party_locking_mask): a SET bit forces the member in place / blocks swapping.
+# 0x10A6 is the visibility/availability mask. A swappable member needs its
+# visibility bit SET and its lock bit CLEAR.
+_PHS_LOCK_OFFSET    = 0x10A4   # quint16 — who is LOCKED (un-swappable) in the PHS
+_PHS_VISIBLE_OFFSET = 0x10A6   # quint16 — who is visible/available in the PHS
 _CHARS_OFFSET       = 0x0054   # FF7CHAR chars[9]
-_CHAR_RECORD_SIZE   = 132      # bytes per character record
+_CHAR_RECORD_SIZE   = 132      # bytes per character record (FF7CHAR)
+
+# Default in-game names per character id (FF7's initial-data names).
+_CHAR_DEFAULT_NAMES = {
+    1: "Barret", 2: "Tifa", 3: "Aeris", 4: "Red XIII", 6: "Cait Sith", 8: "Cid",
+}
+# First (default) weapon index per character id — the byte stored in FF7CHAR
+# +0x1C. Each character may only equip weapons in their own range, so a delivered
+# character must hold one of theirs (from FF7-exe-Editor GameData.cs WeaponData).
+_CHAR_DEFAULT_WEAPONS = {
+    1: 0x20,  # Barret  — Gatling Gun
+    2: 0x10,  # Tifa    — Leather Glove
+    3: 0x3E,  # Aeris   — Guard Stick
+    4: 0x30,  # Red XIII— Mythril Clip
+    6: 0x65,  # Cait Sith — Yellow M-phone
+    8: 0x49,  # Cid     — Spear
+}
+# FF7CHAR field offsets used during record initialisation.
+_CHR_ID = 0x00; _CHR_LEVEL = 0x01; _CHR_NAME = 0x10
+_CHR_WEAPON = 0x1C; _CHR_ARMOR = 0x1D; _CHR_ACCESSORY = 0x1E
+_CHR_STATUS = 0x1F; _CHR_ROW = 0x20
+_CHR_CURHP = 0x2C; _CHR_BASEHP = 0x2E; _CHR_CURMP = 0x30; _CHR_BASEMP = 0x32
+_CHR_MAXHP = 0x38; _CHR_MAXMP = 0x3A; _CHR_MATERIA = 0x40  # 16 × 4 bytes
+
+
+def _encode_ff7_name(name: str, width: int = 12) -> bytes:
+    """Encode an ASCII name into FF7's menu/kernel charmap (ASCII - 0x20),
+    0xFF-terminated and 0xFF-padded to `width` bytes."""
+    out = bytearray()
+    for c in name[:width - 1]:
+        b = ord(c)
+        out.append((b - 0x20) & 0xFF if 0x20 <= b <= 0x7E else 0x00)
+    out.append(0xFF)                       # terminator
+    out += b"\xFF" * (width - len(out))    # pad
+    return bytes(out[:width])
+
+
+def _init_character_record(pm: "pymem.Pymem", cid: int) -> None:
+    """Seed an uninitialised character record so a delivered party member is
+    playable. Optional characters (Cait Sith, Cid …) never get their join-event
+    record in Free Roam, so their savemap slot reads all-zero — which the engine
+    treats as id 0 ("Cloud") with 0 max HP (instant death). We clone Cloud's
+    record (guaranteed valid, level/stat-consistent) and retarget it: own id,
+    name and first weapon, no armor/accessory, empty materia, and HP/MP collapsed
+    to the unequipped base so the values stay self-consistent."""
+    chars = SAVEMAP_BASE + _CHARS_OFFSET
+    rec = bytearray(pm.read_bytes(chars, _CHAR_RECORD_SIZE))  # Cloud (slot 0)
+    rec[_CHR_ID] = cid
+    rec[_CHR_NAME:_CHR_NAME + 12] = _encode_ff7_name(
+        _CHAR_DEFAULT_NAMES.get(cid, "AP Char"))
+    rec[_CHR_WEAPON] = _CHAR_DEFAULT_WEAPONS.get(cid, 0x00)
+    rec[_CHR_ARMOR] = 0xFF          # no armor
+    rec[_CHR_ACCESSORY] = 0xFF      # no accessory
+    rec[_CHR_STATUS] = 0x00         # normal (clear sadness/fury)
+    rec[_CHR_ROW] = 0x01            # front row
+    rec[_CHR_MATERIA:_CHR_MATERIA + 16 * 4] = b"\xFF" * (16 * 4)  # empty slots
+    # With equipment/materia stripped, max == base; keep HP/MP consistent & alive.
+    base_hp = int.from_bytes(rec[_CHR_BASEHP:_CHR_BASEHP + 2], "little") or 1
+    base_mp = int.from_bytes(rec[_CHR_BASEMP:_CHR_BASEMP + 2], "little")
+    for off in (_CHR_CURHP, _CHR_MAXHP):
+        rec[off:off + 2] = base_hp.to_bytes(2, "little")
+    for off in (_CHR_CURMP, _CHR_MAXMP):
+        rec[off:off + 2] = base_mp.to_bytes(2, "little")
+    pm.write_bytes(chars + cid * _CHAR_RECORD_SIZE, bytes(rec), _CHAR_RECORD_SIZE)
+
+
+def _ensure_character_record(pm: "pymem.Pymem", cid: int) -> bool:
+    """(Re)seed an optional character's record if it is uninitialised/invalid.
+    A bad slot reads as id 0 ("Cloud") and/or max HP 0 (instant death). We re-init
+    when ANY of: max HP == 0, level == 0, or the id byte != cid — the earlier
+    level-only check missed stubs that have a nonzero level but zero HP/wrong id.
+    A validly-progressed record (id==cid, level>0, maxHP>0) is left untouched.
+    Returns True if it (re)initialised."""
+    rec_base = SAVEMAP_BASE + _CHARS_OFFSET + cid * _CHAR_RECORD_SIZE
+    try:
+        level = pm.read_uchar(rec_base + _CHR_LEVEL)
+        maxhp = pm.read_ushort(rec_base + _CHR_MAXHP)
+        id_byte = pm.read_uchar(rec_base + _CHR_ID)
+        if maxhp == 0 or level == 0 or id_byte != cid:
+            _init_character_record(pm, cid)
+            return True
+    except Exception as exc:
+        logger.debug(f"character record check failed for cid {cid}: {exc}")
+    return False
 
 
 def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
@@ -1071,12 +1245,22 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
         return False
     try:
         bit = 1 << cid
-        # PHS availability (allowed + visible).
-        for off in (_PHS_ALLOWED_OFFSET, _PHS_VISIBLE_OFFSET):
-            addr = SAVEMAP_BASE + off
-            val = pm.read_ushort(addr)
-            if not (val & bit):
-                pm.write_ushort(addr, val | bit)
+        # Seed the savemap record if it was never initialised / is invalid (reads
+        # as id 0 "Cloud" with 0 max HP → instant death). Clone-and-retarget Cloud.
+        if _ensure_character_record(pm, cid):
+            logger.info(f"Initialized {char_name} character record (was uninitialised/invalid)")
+        # Make the member available AND swappable in the PHS: SET the visibility
+        # bit and CLEAR the lock bit. (Previously we set BOTH masks, but 0x10A4 is
+        # the LOCK mask — setting it made delivered members appear but be un-
+        # swappable.)
+        vis_addr = SAVEMAP_BASE + _PHS_VISIBLE_OFFSET
+        vis = pm.read_ushort(vis_addr)
+        if not (vis & bit):
+            pm.write_ushort(vis_addr, vis | bit)
+        lock_addr = SAVEMAP_BASE + _PHS_LOCK_OFFSET
+        lock = pm.read_ushort(lock_addr)
+        if lock & bit:
+            pm.write_ushort(lock_addr, lock & ~bit)
         # Auto-fill an empty active party slot (0xFF empty / 0xFE locked).
         base = SAVEMAP_BASE + _PARTY_OFFSET
         slots = [pm.read_uchar(base + i) for i in range(3)]
@@ -1085,17 +1269,68 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
                 if slots[i] in (0xFF, 0xFE):
                     pm.write_uchar(base + i, cid)
                     break
-        # Sanity check: a level-0 record means the savemap char wasn't seeded.
-        if pm.read_uchar(SAVEMAP_BASE + _CHARS_OFFSET + cid * _CHAR_RECORD_SIZE + 1) == 0:
-            logger.warning(
-                f"{char_name}: savemap record reads level 0 — they may appear "
-                f"with no stats; record initialization may be needed."
-            )
         logger.info(f"Delivered party member: {char_name}")
         return True
     except Exception as exc:
         logger.debug(f"Character delivery failed for {char_name}: {exc}")
         return False
+
+
+# ── Battle reward multipliers (EXP / Gil / AP) ────────────────────────────────
+# Instruction patches into ff7_en.exe's battle reward calc (addresses + bytes from
+# ff7-ultima / ff7-lib; same exe map our savemap/module addresses use). Each
+# rewrites the calc site to `imul <reg>, <reg>, <mult>` before the original add, so
+# the boosted reward flows through the game's normal level-up / materia-AP handling
+# (no post-hoc exp/AP fix-ups needed). <mult> is a signed imm8 (capped to 127).
+_REWARD_EXP_ADDR = 0x43153F
+_REWARD_GIL_ADDR = 0x43155A   # 0x43153F + 0x1B
+_REWARD_AP_ADDR  = 0x431576
+# First 6 bytes of the EXP site (`mov ecx,[eax+0x9AB138]`) — preserved by the patch,
+# so it validates the build before we write anything.
+_REWARD_EXP_ANCHOR = bytes((0x8B, 0x88, 0x38, 0xB1, 0x9A, 0x00))
+
+
+def _reward_patch_exp(v: int) -> bytes:
+    return bytes((0x8B, 0x88, 0x38, 0xB1, 0x9A, 0x00, 0x6B, 0xC9, v,
+                  0x01, 0x0D, 0xC0, 0xE2, 0x99, 0x00, 0x90, 0x90, 0x90))
+
+
+def _reward_patch_gil(v: int) -> bytes:
+    return bytes((0x8B, 0x82, 0x34, 0xB1, 0x9A, 0x00, 0x6B, 0xC0, v,
+                  0x01, 0x05, 0xC8, 0xE2, 0x99, 0x00, 0x90))
+
+
+def _reward_patch_ap(v: int) -> bytes:
+    return bytes((0x6B, 0xD2, v, 0x01, 0x15, 0xC4, 0xE2, 0x99, 0x00, 0x90, 0x90, 0x90))
+
+
+def _apply_reward_multipliers(pm: "pymem.Pymem", ctx: FF7Context) -> None:
+    """Patch the battle EXP/Gil/AP calc instructions once, per slot_data multipliers."""
+    if ctx._reward_mult_applied:
+        return
+    if ctx.exp_multiplier <= 1 and ctx.gil_multiplier <= 1 and ctx.ap_multiplier <= 1:
+        ctx._reward_mult_applied = True
+        return
+    try:
+        if bytes(pm.read_bytes(_REWARD_EXP_ADDR, 6)) != _REWARD_EXP_ANCHOR:
+            logger.warning("Reward multipliers: battle EXP calc site doesn't match the "
+                           "expected FF7 build — skipping (won't risk corrupting the exe).")
+            ctx._reward_mult_applied = True
+            return
+        if ctx.exp_multiplier > 1:
+            p = _reward_patch_exp(min(ctx.exp_multiplier, 127))
+            pm.write_bytes(_REWARD_EXP_ADDR, p, len(p))
+        if ctx.gil_multiplier > 1:
+            p = _reward_patch_gil(min(ctx.gil_multiplier, 127))
+            pm.write_bytes(_REWARD_GIL_ADDR, p, len(p))
+        if ctx.ap_multiplier > 1:
+            p = _reward_patch_ap(min(ctx.ap_multiplier, 127))
+            pm.write_bytes(_REWARD_AP_ADDR, p, len(p))
+        logger.info(f"Battle reward multipliers applied: EXP x{ctx.exp_multiplier}, "
+                    f"Gil x{ctx.gil_multiplier}, AP x{ctx.ap_multiplier}")
+        ctx._reward_mult_applied = True
+    except Exception as exc:
+        logger.debug(f"Reward multiplier patch failed: {exc}")
 
 
 def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
@@ -1502,6 +1737,9 @@ async def game_watcher(ctx: FF7Context) -> None:
                 await asyncio.sleep(3)
                 continue
 
+        # ── Battle reward multipliers (one-time exe patch once connected) ──
+        _apply_reward_multipliers(pm, ctx)
+
         # ── Deliver queued items ──────────────────────────────────────────
         if ctx._pending_items:
             _deliver_items_to_game(pm, ctx)
@@ -1578,9 +1816,49 @@ async def game_watcher(ctx: FF7Context) -> None:
             # ── Drive the Northern Crater gate flag from received goal items ───
             _enforce_crater_lock(pm, ctx)
 
+            # ── Keep the mds5_5 walkmesh open once Key to Sector 5 is owned ─────
+            # The gate flag (Var[15][38].3) is read on each field load, so re-set
+            # it every poll: this self-heals re-entering mds5_5 and keys received
+            # before this gate flag was wired up (one-time delivery already past).
+            if "Key to Sector 5" in ctx._received_item_names:
+                _ensure_sector5_walkmesh_gate(pm)
+
             # ── Free Roam: finish Ultimate Weapon once the player has engaged him ─
             if ctx.free_roam:
                 _resolve_ultimate_weapon(pm)
+                # Force disc 3 (Free Roam = endgame). New games default to disc 1;
+                # re-assert each poll in case the engine resets it.
+                try:
+                    if pm.read_uchar(SAVEMAP_BASE + DISC_OFFSET) != FREE_ROAM_DISC:
+                        pm.write_uchar(SAVEMAP_BASE + DISC_OFFSET, FREE_ROAM_DISC)
+                except Exception:
+                    pass
+                # Keep delivered optional characters playable: re-seed their record
+                # if it's been left/overwritten invalid (id 0 "Cloud" / 0 HP → dies).
+                for _cname, _cid in _CHARACTER_IDS.items():
+                    if _cname in ctx._received_item_names:
+                        if _ensure_character_record(pm, _cid):
+                            logger.info(f"Re-seeded {_cname} record (was invalid)")
+                # Force open field gates that would otherwise softlock (e.g. the
+                # Mt. Corel mtcrl_2 door, read on field load).
+                for _off, _bit in _FREE_ROAM_FORCE_FLAGS:
+                    try:
+                        _a = SAVEMAP_BASE + _off
+                        _v = pm.read_uchar(_a)
+                        if not (_v & (1 << _bit)):
+                            pm.write_uchar(_a, _v | (1 << _bit))
+                    except Exception:
+                        pass
+                # Item-conditional gates (open only once the key item is received).
+                for _gitem, _goff, _gbit in _FREE_ROAM_ITEM_GATE_FLAGS:
+                    if _gitem in ctx._received_item_names:
+                        try:
+                            _a = SAVEMAP_BASE + _goff
+                            _v = pm.read_uchar(_a)
+                            if not (_v & (1 << _gbit)):
+                                pm.write_uchar(_a, _v | (1 << _gbit))
+                        except Exception:
+                            pass
 
             # ── Shop purchases: detect token buys, swap to Potion, fire checks ─
             shop_checks = _process_shop_purchases(pm, ctx)
@@ -1591,14 +1869,16 @@ async def game_watcher(ctx: FF7Context) -> None:
 
             # ── Check win condition ───────────────────────────────────────
             if not ctx.finished_game and ctx.server and ctx.slot:
-                # Determine goal threshold based on victory condition
                 if ctx.victory_condition == 1:  # escape_midgar
-                    goal_threshold = MIDGAR_ESCAPE_MOMENT
+                    reached_goal = game_moment >= MIDGAR_ESCAPE_MOMENT
                     goal_message = "Goal complete — Escaped from Midgar!"
                 else:  # defeat_sephiroth (default)
-                    goal_threshold = GAME_MOMENT_GOAL
+                    # The game switches the live module to Ending/Credits only after
+                    # Sephiroth is beaten — the reliable "on the kill" signal.
+                    module = pm.read_uchar(GAME_MODULE_ADDR)
+                    reached_goal = module in (GAME_MODULE_ENDING, GAME_MODULE_CREDITS)
                     goal_message = "Goal complete — Sephiroth defeated!"
-                if game_moment >= goal_threshold:
+                if reached_goal:
                     ctx.finished_game = True
                     await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
                     logger.info(goal_message)
