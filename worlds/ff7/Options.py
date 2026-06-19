@@ -133,6 +133,17 @@ class DisableGoldSaucer(Toggle):
     default = False
 
 
+class WeaponFightChecks(DefaultOnToggle):
+    """Include the optional Weapon superbosses as check locations (Free Roam).
+
+    When on (default), defeating Ultimate, Ruby, and Emerald Weapon each award
+    an Archipelago check. When off, the Weapons are not checks — they can still
+    be fought, but no item is placed on them. Reaching each still requires the
+    relevant traversal (Ruby/Ultimate: open ocean; Emerald: Submarine).
+    """
+    display_name = "Weapon Fight Checks"
+
+
 # ---------------------------------------------------------------------------
 # Options dataclass
 # ---------------------------------------------------------------------------
@@ -161,6 +172,7 @@ class FF7Options(PerGameCommonOptions):
     gil_multiplier: GilMultiplier
     ap_multiplier: APMultiplier
     disable_gold_saucer: DisableGoldSaucer
+    weapon_fight_checks: WeaponFightChecks
 
     # Goal
     victory_condition: VictoryCondition

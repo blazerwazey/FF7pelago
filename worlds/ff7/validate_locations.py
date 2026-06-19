@@ -21,18 +21,18 @@ are reconciled, ``errors`` can be promoted to a generate_early assertion.
 """
 from __future__ import annotations
 
-import json
 from collections import Counter
-from pathlib import Path
 from typing import Dict, List, Tuple
 
-_DATA_DIR = Path(__file__).resolve().parent / "data"
+from ._resources import load_json
+
 # Categories whose locations are expected to be FF7FieldItemList pickups.
 _FIELD_PICKUP_CATEGORIES = frozenset({"standard", "materia", "reward"})
 
 
 def _load(name: str):
-    return json.loads((_DATA_DIR / name).read_text(encoding="utf-8"))
+    # Zip-safe: works whether ff7 is a folder world or a packaged .apworld.
+    return load_json(f"data/{name}")
 
 
 def validate(

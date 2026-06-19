@@ -553,6 +553,7 @@ class FF7Web(WebWorld):
             [
                 "free_roam",
                 "disable_gold_saucer",
+                "weapon_fight_checks",
             ],
         ),
         OptionGroup(
@@ -781,7 +782,15 @@ class FF7World(World):
                       "Wutai", "Bone Village", "Sleeping Forest", "Icicle Inn",
                       "Mideel"):
             world_map.connect(sub_regions[_name]).access_rule = _ocean
-        # Ancient Forest: Black/Gold/Highwind only (no Blue)
+        # Ancient Forest sits on a mountain-walled plateau (western continent); its
+        # entrance only fires on foot/chocobo. Routes: Black/Gold chocobo cross the
+        # terrain to it; the Highwind reaches it two ways that both reduce to "have
+        # Highwind" — (a) Highwind ferries a Green chocobo to climb the plateau, and
+        # (b) the Highwind lets you defeat Ultimate Weapon, which advances the
+        # overworld to world_progress 4 and opens a walkable foot path in (this is
+        # the post-2026-06-18 client behaviour: _resolve_ultimate_weapon sets the
+        # post-Ultimate state). A Green chocobo ALONE can't cross the ocean here, so
+        # it is intentionally not a standalone route. (No Blue.)
         world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
             lambda state: (state.has("Black Chocobo", player)
                     or state.has("Gold Chocobo", player) or state.has("Highwind", player))
@@ -870,14 +879,16 @@ class FF7World(World):
             target_region.locations.append(shop_loc)
 
         # Weapon bosses are world-map encounters (not field maps), so wire them
-        # directly onto World Map with their own access rules.
-        for boss_name, tier in _FREE_ROAM_WEAPON_BOSSES.items():
-            boss_data = ALL_LOCATION_TABLE.get(boss_name)
-            if boss_data is None:
-                continue
-            boss_loc = FF7Location(player, boss_name, boss_data.code, world_map)
-            boss_loc.access_rule = _tier_rules.get(tier, _ocean)
-            world_map.locations.append(boss_loc)
+        # directly onto World Map with their own access rules. Optional via
+        # weapon_fight_checks (off = the Weapons aren't checks, just fightable).
+        if self.options.weapon_fight_checks:
+            for boss_name, tier in _FREE_ROAM_WEAPON_BOSSES.items():
+                boss_data = ALL_LOCATION_TABLE.get(boss_name)
+                if boss_data is None:
+                    continue
+                boss_loc = FF7Location(player, boss_name, boss_data.code, world_map)
+                boss_loc.access_rule = _tier_rules.get(tier, _ocean)
+                world_map.locations.append(boss_loc)
 
         victory_loc = FF7Location(player, self.victory_location_name, None, world_map)
         # Gate the goal so winning requires real endgame progression: the

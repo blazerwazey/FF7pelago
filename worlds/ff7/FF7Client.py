@@ -70,8 +70,23 @@ GAME_MOMENT_GOAL   = 3000     # (legacy; mprogress actually caps at 1999, see be
 # enum from ff7-ultima (maciej-trebacz) addresses.rs / types.ts; the map matches
 # this build — its game_moment 0xDC08DC == our SAVEMAP_BASE(0xDBFD38)+0x0BA4.
 GAME_MODULE_ADDR    = 0xCBF9DC  # live "current_module" byte
+GAME_MODULE_FIELD   = 1
+GAME_MODULE_BATTLE  = 2
+GAME_MODULE_WORLD   = 3
 GAME_MODULE_ENDING  = 25        # post-final-battle ending sequence
+GAME_MODULE_GAMEOVER = 26
 GAME_MODULE_CREDITS = 28        # staff roll
+
+# Live battle formation index (u16). ff7-ultima "battle_id". Used to detect a
+# won Ruby/Emerald battle and register the kill (their weapons_killed flags are
+# set by post-battle world-script logic the Free Roam endgame skips, so a won
+# fight leaves them un-flagged -> the AP check never fires and they respawn).
+BATTLE_FORMATION_ADDR = 0x9AAD3C
+# Weapon battle formation id -> weapons_killed bit mask (ff7-ultima ff7Battles.ts:
+# 982/983 Ruby[Desert]=bit3 0x08, 984/985/986 Emerald[Underwater]=bit4 0x10).
+# Ultimate Weapon is NOT here: he flees rather than dying, so a battle win never
+# happens — he is handled by _resolve_ultimate_weapon (engagement-based) instead.
+_WEAPON_BATTLE_FORMATIONS = {982: 0x08, 983: 0x08, 984: 0x10, 985: 0x10, 986: 0x10}
 # Ultimate Weapon (Free Roam): his kill flag weapons_killed.bit[0] is set by his
 # FINAL BATTLE (no wm0 model-11 function writes it). The chase that whittles his HP
 # down to make that battle lethal is set up by the disc-2 intro, which Free Roam
@@ -94,10 +109,11 @@ FREE_ROAM_DISC = 3
 # 1/2→0xBA4, 3/4→0xCA4, 11/12→0xDA4, 13/14→0xEA4, 7/15→0xFA4 (ff7-lib/ff7-ultima).
 _FREE_ROAM_FORCE_FLAGS = [
     (0x1034, 0),   # mtcrl_2 DOOR — Var[15][144].0 (Mt. Corel gate; 0xFA4+0x90)
-    (0x0F2B, 4),   # Ruby Weapon spawn — wm0.ev desert init gates model 29 on this
-                   #   flag (worldscript bit 0x1C3C = savemap 0xF2B.4); unset in Free
-                   #   Roam (disc-2 event skipped), so Ruby never emerges. Ruby-only
-                   #   flag → safe to force; it still won't show once killed.
+    # NOTE: Ruby Weapon's spawn (0xF2B.4) is NOT forced here anymore. Ruby's model
+    # geometry only renders at world_progress 4, which the overworld init reaches
+    # only after Ultimate is dead — so forcing his spawn early just produced an
+    # invisible, collidable boss. His spawn + the wp-4 flags are now set together
+    # in _resolve_ultimate_weapon once Ultimate is defeated (he then appears, drawn).
 ]
 # Item-conditional field gates: set savemap <offset>.<bit> ONLY once <item> has
 # been received (the field gate softlocks otherwise, but opening it without the
@@ -413,6 +429,93 @@ class FF7CommandProcessor(ClientCommandProcessor):
             logger.warning(f"[setwp] failed: {exc}")
         return True
 
+    def _cmd_weapons(self) -> bool:
+        """[Debug] Dump weapon-boss state: weapons_killed bits, submarine_flags,
+        the Ruby spawn flag, the live game module, and (while in a battle) the
+        formation id. Fight Ruby/Emerald and run this to confirm the kill flag is
+        set and to read the real formation id if a kill isn't registering."""
+        pm = getattr(self.ctx, "pm", None)
+        if pm is None:
+            logger.warning("Not attached to FF7 — open the game first.")
+            return False
+        try:
+            wk = pm.read_uchar(SAVEMAP_BASE + WEAPONS_KILLED_OFFSET)
+            sf = pm.read_uchar(SAVEMAP_BASE + SUBMARINE_FLAGS_OFFSET)
+            ruby_spawn = pm.read_uchar(SAVEMAP_BASE + 0x0F2B)
+            module = pm.read_uchar(GAME_MODULE_ADDR)
+            logger.info(
+                f"[weapons] weapons_killed=0x{wk:02x}  "
+                f"Ultimate={'Y' if wk & 0x01 else 'N'} "
+                f"Ruby={'Y' if wk & 0x08 else 'N'} "
+                f"Emerald={'Y' if wk & 0x10 else 'N'}"
+            )
+            logger.info(
+                f"[weapons] submarine_flags=0x{sf:02x} (Ultimate-engaged bit3="
+                f"{'Y' if sf & 0x08 else 'N'}); Ruby-spawn 0xF2B.4="
+                f"{'Y' if ruby_spawn & 0x10 else 'N'}; game_module={module}; "
+                f"pending_kill=0x{self.ctx._weapon_kill_pending:02x}"
+            )
+            if module == GAME_MODULE_BATTLE:
+                formation = pm.read_ushort(BATTLE_FORMATION_ADDR)
+                logger.info(
+                    f"[weapons] IN BATTLE — formation id = {formation} "
+                    f"(expect Ruby=982/983, Emerald=984/985/986)"
+                )
+        except Exception as exc:
+            logger.warning(f"[weapons] failed: {exc}")
+        return True
+
+    def _cmd_rewards(self) -> bool:
+        """[Debug] Diagnose the EXP/Gil/AP battle multipliers: the values from
+        slot_data, whether the exe patch sites match the expected build, and the
+        live bytes there. Run this if the multipliers seem to do nothing. It
+        re-applies the patch when the site matches."""
+        ctx = self.ctx
+        pm = getattr(ctx, "pm", None)
+        if pm is None:
+            logger.warning("Not attached to FF7 — open the game first.")
+            return False
+        try:
+            logger.info(
+                f"[rewards] slot_data multipliers: EXP x{ctx.exp_multiplier}, "
+                f"Gil x{ctx.gil_multiplier}, AP x{ctx.ap_multiplier} "
+                f"(applied={ctx._reward_mult_applied})"
+            )
+            if ctx.exp_multiplier <= 1 and ctx.gil_multiplier <= 1 and ctx.ap_multiplier <= 1:
+                logger.warning(
+                    "[rewards] All multipliers are 1 — nothing to apply. Set "
+                    "exp/gil/ap_multiplier in your YAML and REGENERATE the seed "
+                    "(the values travel in slot_data, so an old seed keeps the old values)."
+                )
+            exp = bytes(pm.read_bytes(_REWARD_EXP_ADDR, 8))
+            gil = bytes(pm.read_bytes(_REWARD_GIL_ADDR, 8))
+            ap = bytes(pm.read_bytes(_REWARD_AP_ADDR, 8))
+            exp_full = bytes(pm.read_bytes(_REWARD_EXP_ADDR, len(_REWARD_EXP_ORIG_2013)))
+            match = exp[:6] == _REWARD_EXP_ANCHOR or exp_full == _REWARD_EXP_ORIG_2013
+            logger.info(f"[rewards] EXP @0x{_REWARD_EXP_ADDR:X}: {exp.hex(' ')}  "
+                        f"anchor={'MATCH' if match else 'MISMATCH'}")
+            logger.info(f"[rewards] Gil @0x{_REWARD_GIL_ADDR:X}: {gil.hex(' ')}")
+            logger.info(f"[rewards] AP  @0x{_REWARD_AP_ADDR:X}: {ap.hex(' ')}")
+            if match:
+                ctx._reward_mult_applied = False
+                _apply_reward_multipliers(pm, ctx)
+                logger.info("[rewards] re-applied. After a '6b c9'/'6b c0'/'6b d2' the next "
+                            "byte is the multiplier (hex) — confirm it matches your YAML.")
+            else:
+                logger.warning(
+                    "[rewards] EXP patch site does NOT match this exe build, so the "
+                    "multipliers can't be applied (classic Steam ff7_en.exe is expected; "
+                    "a 2026 re-release / 7th-Heaven / Hext-modded exe shifts or rewrites "
+                    "this code). Paste the window below + your FF7 version to get a patch:"
+                )
+                base = 0x431500
+                window = bytes(pm.read_bytes(base, 0xA0))
+                for i in range(0, len(window), 16):
+                    logger.warning(f"  0x{base + i:X}: {window[i:i + 16].hex(' ')}")
+        except Exception as exc:
+            logger.warning(f"[rewards] failed: {exc}")
+        return True
+
     def _cmd_mapbitons(self, path: str = "") -> bool:
         """[Debug] Scan flevel.lgp and rebuild the BITON map.
         Usage: /mapbitons [ff7_install_dir]
@@ -498,6 +601,9 @@ class FF7Context(CommonContext):
         self._pending_items: List[Tuple[int, object]] = []
         # Boss checks that have been sent (location_id)
         self._boss_checks_sent: Set[int] = set()
+        # Weapon-boss kill latched from a battle formation, applied to
+        # weapons_killed once the player exits the battle to gameplay.
+        self._weapon_kill_pending: int = 0
         # Baseline established once per game connection: locations whose detection
         # bit is already set at connect (Free Roam starts at game moment 1603,
         # which leaves savemap progress noise). Suppressed so we never
@@ -1004,23 +1110,86 @@ def _enforce_crater_lock(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
 
 
 def _resolve_ultimate_weapon(pm: "pymem.Pymem") -> None:
-    """Finish Ultimate Weapon in Free Roam. His kill flag (weapons_killed.bit[0])
-    is set by his final battle, which never becomes lethal because the disc-2 chase
-    that whittles his HP is skipped at game moment 1603. Once the player has engaged
-    him (submarine_flags.bit[3], set the moment they first ram him), set
-    weapons_killed.bit[0] so he dies, stops respawning, and the AP 'Defeat Ultimate
-    Weapon' check fires. No-op until engaged / once dead."""
+    """Finish Ultimate Weapon in Free Roam AND advance to the post-Ultimate world
+    state so Ruby Weapon actually RENDERS.
+
+    His kill flag (weapons_killed.bit[0]) is set by his final battle, which never
+    becomes lethal because the disc-2 chase is skipped — so once the player has
+    engaged him (submarine_flags.bit[3], set on the first ram) we set bit[0] (death
+    + the AP check). Ruby/Diamond are gated by the overworld's world_progress: it
+    only reaches 4 ("after Ultimate killed") when weapons_killed.bit0 AND 0xF2B.0
+    AND submarine_flags.bit4 are all set, and the boss model GEOMETRY for Ruby only
+    loads at world_progress 4 (at 3 he's an invisible-but-collidable entity). A real
+    Ultimate kill sets all three; the engagement shortcut set only bit0, leaving wp
+    at 3 and Ruby invisible. So on resolving Ultimate we also set 0xF2A.4, 0xF2B.0,
+    and 0xF2B.4 (Ruby's spawn bit) — the full post-Ultimate state. No-op until
+    engaged."""
     try:
         wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
+        sf_addr = SAVEMAP_BASE + SUBMARINE_FLAGS_OFFSET
         wk = pm.read_uchar(wk_addr)
-        if wk & 0x01:            # bit0 — already defeated
-            return
-        sf = pm.read_uchar(SAVEMAP_BASE + SUBMARINE_FLAGS_OFFSET)
-        if sf & 0x08:            # bit3 — chase started (player has engaged him)
-            pm.write_uchar(wk_addr, wk | 0x01)
+        sf = pm.read_uchar(sf_addr)
+        if not (wk & 0x01):                       # not yet defeated
+            if not (sf & 0x08):                   # bit3 — not engaged yet
+                return
+            pm.write_uchar(wk_addr, wk | 0x01)    # engaged → mark defeated
             logger.info("Ultimate Weapon defeated (Free Roam) — weapons_killed.bit[0] set.")
+        # Ultimate down: assert the post-Ultimate state so world_progress hits 4 and
+        # Ruby's model is drawn (he's invisible at wp3). Re-checked each poll so it
+        # self-heals across overworld reloads.
+        if not (sf & 0x10):                       # submarine_flags.bit4
+            pm.write_uchar(sf_addr, sf | 0x10)
+        f2b_addr = SAVEMAP_BASE + 0x0F2B
+        f2b = pm.read_uchar(f2b_addr)
+        if (f2b & 0x11) != 0x11:                  # 0xF2B.0 (wp4 cond) + 0xF2B.4 (Ruby spawn)
+            pm.write_uchar(f2b_addr, f2b | 0x11)
+            logger.info("Post-Ultimate world state set — Ruby Weapon should now render.")
     except Exception as exc:
         logger.debug(f"resolve ultimate weapon failed: {exc}")
+
+
+def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
+    """Register Ruby/Emerald Weapon kills in Free Roam by watching battles.
+
+    Their defeat flags (weapons_killed bit3=Ruby, bit4=Emerald) are set by
+    post-battle world-script logic that the Free Roam endgame state skips, so a
+    WON fight leaves the flag clear: the AP check never fires and the weapon
+    keeps respawning. We watch the live game module + battle formation id; while
+    the player is in a Ruby/Emerald battle we latch the kill, and once they
+    return to gameplay (World/Field, i.e. they won — not a Game Over) we set the
+    bit. Acts ONLY on the exact weapon formation ids, so a wrong/garbage
+    formation read can never false-trigger a kill."""
+    try:
+        module = pm.read_uchar(GAME_MODULE_ADDR)
+        if module == GAME_MODULE_BATTLE:
+            formation = pm.read_ushort(BATTLE_FORMATION_ADDR)
+            mask = _WEAPON_BATTLE_FORMATIONS.get(formation)
+            if mask:
+                ctx._weapon_kill_pending |= mask
+            return
+        if not ctx._weapon_kill_pending:
+            return
+        if module == GAME_MODULE_GAMEOVER:
+            ctx._weapon_kill_pending = 0          # player lost — not a kill
+            return
+        if module in (GAME_MODULE_WORLD, GAME_MODULE_FIELD):
+            wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
+            wk = pm.read_uchar(wk_addr)
+            new = wk | ctx._weapon_kill_pending
+            if new != wk:
+                names = []
+                if ctx._weapon_kill_pending & 0x08:
+                    names.append("Ruby")
+                if ctx._weapon_kill_pending & 0x10:
+                    names.append("Emerald")
+                pm.write_uchar(wk_addr, new)
+                logger.info(
+                    f"{'/'.join(names)} Weapon defeat registered (Free Roam) — "
+                    f"weapons_killed 0x{wk:02x} -> 0x{new:02x}."
+                )
+            ctx._weapon_kill_pending = 0
+    except Exception as exc:
+        logger.debug(f"resolve weapon battles failed: {exc}")
 
 
 def _deliver_vehicle_item(pm: "pymem.Pymem", item_name: str) -> bool:
@@ -1285,9 +1454,22 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
 _REWARD_EXP_ADDR = 0x43153F
 _REWARD_GIL_ADDR = 0x43155A   # 0x43153F + 0x1B
 _REWARD_AP_ADDR  = 0x431576
-# First 6 bytes of the EXP site (`mov ecx,[eax+0x9AB138]`) — preserved by the patch,
-# so it validates the build before we write anything.
+# First 6 bytes of the classic EXP site (`mov ecx,[eax+0x9AB138]`) — also the
+# first 6 bytes our patch writes, so it doubles as an "already patched" marker.
 _REWARD_EXP_ANCHOR = bytes((0x8B, 0x88, 0x38, 0xB1, 0x9A, 0x00))
+# The 2013 Steam build (FFNx / 7th Heaven) computes the same reward in a different
+# instruction order — it loads the running total first then adds the per-enemy
+# value — so the site starts differently and the classic anchor misses it. It uses
+# the SAME registers, the SAME per-enemy globals (0x9AB138/0x9AB134) and the SAME
+# total globals (0x99E2C0/C8/C4) in blocks of the SAME size (18/16/12), so the
+# exact same patch bytes apply at the exact same addresses. We validate the full
+# original block of all three sites before patching this build.
+_REWARD_EXP_ORIG_2013 = bytes((0x8B, 0x0D, 0xC0, 0xE2, 0x99, 0x00, 0x03, 0x88, 0x38,
+                               0xB1, 0x9A, 0x00, 0x89, 0x0D, 0xC0, 0xE2, 0x99, 0x00))
+_REWARD_GIL_ORIG_2013 = bytes((0xA1, 0xC8, 0xE2, 0x99, 0x00, 0x03, 0x82, 0x34,
+                               0xB1, 0x9A, 0x00, 0xA3, 0xC8, 0xE2, 0x99, 0x00))
+_REWARD_AP_ORIG_2013 = bytes((0xA1, 0xC4, 0xE2, 0x99, 0x00, 0x03, 0xC2,
+                              0xA3, 0xC4, 0xE2, 0x99, 0x00))
 
 
 def _reward_patch_exp(v: int) -> bytes:
@@ -1312,11 +1494,19 @@ def _apply_reward_multipliers(pm: "pymem.Pymem", ctx: FF7Context) -> None:
         ctx._reward_mult_applied = True
         return
     try:
-        if bytes(pm.read_bytes(_REWARD_EXP_ADDR, 6)) != _REWARD_EXP_ANCHOR:
-            logger.warning("Reward multipliers: battle EXP calc site doesn't match the "
-                           "expected FF7 build — skipping (won't risk corrupting the exe).")
+        if bytes(pm.read_bytes(_REWARD_EXP_ADDR, 6)) == _REWARD_EXP_ANCHOR:
+            build = "classic"          # classic Steam build, or already patched
+        elif (bytes(pm.read_bytes(_REWARD_EXP_ADDR, len(_REWARD_EXP_ORIG_2013))) == _REWARD_EXP_ORIG_2013
+              and bytes(pm.read_bytes(_REWARD_GIL_ADDR, len(_REWARD_GIL_ORIG_2013))) == _REWARD_GIL_ORIG_2013
+              and bytes(pm.read_bytes(_REWARD_AP_ADDR, len(_REWARD_AP_ORIG_2013))) == _REWARD_AP_ORIG_2013):
+            build = "2013/FFNx"         # 2013 Steam build (FFNx / 7th Heaven)
+        else:
+            logger.warning("Reward multipliers: battle reward calc doesn't match a known "
+                           "FF7 build — skipping (run /rewards to dump the code for support).")
             ctx._reward_mult_applied = True
             return
+        # Same patch bytes + addresses for both builds (verified: identical
+        # registers, per-enemy globals and total globals, identical block sizes).
         if ctx.exp_multiplier > 1:
             p = _reward_patch_exp(min(ctx.exp_multiplier, 127))
             pm.write_bytes(_REWARD_EXP_ADDR, p, len(p))
@@ -1326,8 +1516,8 @@ def _apply_reward_multipliers(pm: "pymem.Pymem", ctx: FF7Context) -> None:
         if ctx.ap_multiplier > 1:
             p = _reward_patch_ap(min(ctx.ap_multiplier, 127))
             pm.write_bytes(_REWARD_AP_ADDR, p, len(p))
-        logger.info(f"Battle reward multipliers applied: EXP x{ctx.exp_multiplier}, "
-                    f"Gil x{ctx.gil_multiplier}, AP x{ctx.ap_multiplier}")
+        logger.info(f"Battle reward multipliers applied ({build} build): "
+                    f"EXP x{ctx.exp_multiplier}, Gil x{ctx.gil_multiplier}, AP x{ctx.ap_multiplier}")
         ctx._reward_mult_applied = True
     except Exception as exc:
         logger.debug(f"Reward multiplier patch failed: {exc}")
@@ -1826,6 +2016,9 @@ async def game_watcher(ctx: FF7Context) -> None:
             # ── Free Roam: finish Ultimate Weapon once the player has engaged him ─
             if ctx.free_roam:
                 _resolve_ultimate_weapon(pm)
+                # Register Ruby/Emerald kills from a won battle (their flags are
+                # otherwise never set in Free Roam → no check + endless respawn).
+                _resolve_weapon_battles(ctx, pm)
                 # Force disc 3 (Free Roam = endgame). New games default to disc 1;
                 # re-assert each poll in case the engine resets it.
                 try:
