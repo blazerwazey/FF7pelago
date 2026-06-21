@@ -1,0 +1,48 @@
+# Final Fantasy VII — Archipelago template YAML
+#
+# Fill in your slot name and tweak the options below, then drop this file in the
+# host's Players/ folder before generating. Every option can also be given as a
+# weighted map, e.g.:
+#
+#   free_roam:
+#     'true': 3
+#     'false': 1
+#
+# Lines beginning with '#' are comments. See docs/multiworld_en.md for setup and
+# docs/en_Final Fantasy VII.md for what each feature does.
+
+name: Player{number}            # your in-room slot name ({number}/{player} templating allowed)
+description: FF7 template       # free-text note shown in the spoiler/host
+
+game: Final Fantasy VII
+requires:
+  version: 0.5.1                # minimum Archipelago version
+
+Final Fantasy VII:
+  # ── Core AP options ──────────────────────────────────────────────────────
+  progression_balancing: 50     # 0–99 (or disabled/normal/extreme); spreads progression earlier
+  accessibility: items          # full | minimal | items (items = all your progression reachable)
+
+  # ── Randomizers ──────────────────────────────────────────────────────────
+  randomize_field_items: true   # treasure/pickups/materia become checks
+  field_items_mode: shuffle     # shuffle (keep original pool) | replace (fresh random selection)
+  field_items_keep_type: false  # replace-mode only: keep item TYPE (weapon→weapon, etc.)
+  randomize_shops: false        # reserve native-grid shop slots as AP checks (needs shophook.dll)
+
+  randomize_starting_equipment: true   # randomize each character's starting gear
+  starting_equipment_tier: 3           # 1–5 (higher = stronger starting gear)
+
+  # ── World ────────────────────────────────────────────────────────────────
+  free_roam: true               # start on the world map near end-game; vehicles/keys gated by items
+  disable_gold_saucer: false    # (Free Roam) remove all Gold Saucer checks + shop slots from the pool
+  weapon_fight_checks: true     # (Free Roam) Ultimate/Ruby/Emerald Weapon kills are checks
+
+  # ── Gameplay QoL ─────────────────────────────────────────────────────────
+  exp_multiplier: 1             # 1–50 × battle EXP
+  gil_multiplier: 1             # 1–50 × battle Gil
+  ap_multiplier: 1              # 1–50 × battle AP (materia)
+  start_with_chocobo_lure: false  # begin with a Chocobo Lure materia
+
+  # ── Goal ─────────────────────────────────────────────────────────────────
+  victory_condition: defeat_sephiroth   # defeat Sephiroth in the Northern Crater
+  death_link: false             # share deaths with other DeathLink players
