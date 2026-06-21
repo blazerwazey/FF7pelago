@@ -48,6 +48,11 @@ except ImportError:
 SAVEMAP_BASE       = 0xDBFD38
 BANK_OFFSET        = 0x0BA4   # Bank 1 base (game-state flags)
 POLL_INTERVAL      = 0.2
+# Live savemap length (ff7-ultima reads 0x10F4). Every field-pickup BITON flag
+# lives inside this region (max offset ~0x1057), so the detection scan reads ONE
+# snapshot per poll and indexes it instead of doing a ReadProcessMemory syscall
+# per location (~381/poll → 1/poll).
+SAVEMAP_LEN        = 0x10F4
 
 # Northern Crater gate. The client sets this savemap byte to 1 once every goal
 # item has been received; the Gold Saucer field-gate injected into the crater
@@ -84,8 +89,10 @@ GAME_MODULE_CREDITS = 28        # staff roll
 BATTLE_FORMATION_ADDR = 0x9AAD3C
 # Weapon battle formation id -> weapons_killed bit mask (ff7-ultima ff7Battles.ts:
 # 982/983 Ruby[Desert]=bit3 0x08, 984/985/986 Emerald[Underwater]=bit4 0x10).
-# Ultimate Weapon is NOT here: he flees rather than dying, so a battle win never
-# happens — he is handled by _resolve_ultimate_weapon (engagement-based) instead.
+# Diamond Weapon is NOT here — he is fully hidden in Free Roam (his world-map model
+# never renders, so his ambient spawn is neutralized) and has no AP check.
+# Ultimate Weapon is NOT here either: he flees rather than dying, so a battle win
+# never happens — he is handled by _resolve_ultimate_weapon (engagement-based).
 _WEAPON_BATTLE_FORMATIONS = {982: 0x08, 983: 0x08, 984: 0x10, 985: 0x10, 986: 0x10}
 # Ultimate Weapon (Free Roam): his kill flag weapons_killed.bit[0] is set by his
 # FINAL BATTLE (no wm0 model-11 function writes it). The chase that whittles his HP
@@ -109,6 +116,13 @@ FREE_ROAM_DISC = 3
 # 1/2→0xBA4, 3/4→0xCA4, 11/12→0xDA4, 13/14→0xEA4, 7/15→0xFA4 (ff7-lib/ff7-ultima).
 _FREE_ROAM_FORCE_FLAGS = [
     (0x1034, 0),   # mtcrl_2 DOOR — Var[15][144].0 (Mt. Corel gate; 0xFA4+0x90)
+    # Icicle Inn (snow) "Snow area story flags" — Var[1][130] (0xBA4+0x82 = 0xC26).
+    # Mark the one-time snow-area events done so the field skips the Shinra blockade
+    # cutscene chain on Free Roam entry (complements the convil/snow field patches).
+    (0x0C26, 0),   # #0 Man1: "It's dangerous!" handled
+    (0x0C26, 3),   # #3 Elena punched Cloud
+    (0x0C26, 4),   # #4 Cloud woke in Gast home
+    (0x0C26, 7),   # #7 First time snowboarding
     # NOTE: Ruby Weapon's spawn (0xF2B.4) is NOT forced here anymore. Ruby's model
     # geometry only renders at world_progress 4, which the overworld init reaches
     # only after Ultimate is dead — so forcing his spawn early just produced an
@@ -119,7 +133,15 @@ _FREE_ROAM_FORCE_FLAGS = [
 # been received (the field gate softlocks otherwise, but opening it without the
 # item would break the AP logic). Read on field load, so re-asserted each poll.
 _FREE_ROAM_ITEM_GATE_FLAGS = [
-    ("Basement Key", 0x0C8C, 1),   # Shinra Mansion basement — Var[1][232].1 (0xBA4+0xE8)
+    ("Basement Key", 0x0C8C, 1),       # Shinra Mansion basement — Var[1][232].1 (0xBA4+0xE8)
+    ("Leviathan Scales", 0x1031, 0),   # "has Leviathan Scales" prerequisite — Var[15][141].0
+                                       # (0xFA4+0x8D). Field scripts gate their reward branches
+                                       # on this being ON. NOT setting Var[15][137].* — those are
+                                       # per-NPC "reward already given" bits, checked OFF, so
+                                       # setting them would block the rewards.
+    ("Glacier Map", 0x0C26, 6),        # Snow story flag #6 "Glacier Map key item" — Var[1][130].6
+                                       # (0xBA4+0x82 = 0xC26). Set only once the AP Glacier Map is
+                                       # received, so the Great Glacier map/navigation works.
 ]
 # Boss checks: the only tracked bosses are Ultimate/Emerald/Ruby Weapon, and
 # they are detected like any other location via their savemap defeat flag
@@ -195,17 +217,22 @@ def _token_section_index(token_type: str, tid: int) -> Tuple[int, int]:
 
 def _shops_from_apff7(
     shops: List[dict],
-) -> Tuple[Dict[int, int], Dict[int, int], Dict[int, str], Dict[int, str]]:
+) -> Tuple[Dict[int, int], Dict[int, int], Dict[int, str], Dict[int, str],
+           Dict[int, str], Dict[int, str]]:
     """From the .apff7 ``shops`` array build, split by token space:
-        (item_token->loc, materia_token->loc, item_token->name, materia_token->name)
+        (item_token->loc, materia_token->loc, item_token->name, materia_token->name,
+         item_token->desc, materia_token->desc)
     Item-space tokens are composite item ids (consumable/weapon/armor/accessory,
     all detected in the item inventory); materia tokens live in the materia
     inventory. Display name format ``A <Item> @ <Owner>`` (the leading "A " marks
-    it as an Archipelago slot), trimmed to fit the shop grid."""
+    it as an Archipelago slot), trimmed to fit the shop grid. The description is
+    ``An Archipelago Item for <Owner>`` (shown in the shop info pane)."""
     item_loc: Dict[int, int] = {}
     mat_loc: Dict[int, int] = {}
     item_names: Dict[int, str] = {}
     mat_names: Dict[int, str] = {}
+    item_descs: Dict[int, str] = {}
+    mat_descs: Dict[int, str] = {}
     for s in shops:
         token = s.get("token_id")
         loc   = s.get("location_id")
@@ -214,29 +241,39 @@ def _shops_from_apff7(
         item  = (s.get("item") or "AP Item").strip()
         owner = (s.get("item_owner") or "").strip()
         name  = (f"A {item} @ {owner}" if owner else f"A {item}")[:30]
+        desc  = (f"An Archipelago Item for {owner}" if owner else "An Archipelago Item")
         if s.get("token_type", "item") == "materia":
             mat_loc[int(token)] = int(loc)
             mat_names[int(token)] = name
+            mat_descs[int(token)] = desc
         else:
             item_loc[int(token)] = int(loc)
             item_names[int(token)] = name
-    return item_loc, mat_loc, item_names, mat_names
+            item_descs[int(token)] = desc
+    return item_loc, mat_loc, item_names, mat_names, item_descs, mat_descs
 
 
 def _write_shop_ap_txt(
-    exe_dir: Path, item_names: Dict[int, str], materia_names: Dict[int, str]
+    exe_dir: Path, item_names: Dict[int, str], materia_names: Dict[int, str],
+    item_descs: Optional[Dict[int, str]] = None,
+    materia_descs: Optional[Dict[int, str]] = None,
 ) -> None:
-    """Write shop_ap.txt (read by shophook.dll). Format: ``<section>:<index>=<name>``
-    so the hook can override item/weapon/materia names alike. (Legacy ``<id>=name``
-    lines are still accepted by the hook and treated as section 4.)"""
+    """Write shop_ap.txt (read by shophook.dll). Format:
+    ``<section>:<index>=<name>[|<description>]`` so the hook can override
+    item/weapon/materia names (a3=8) and descriptions (a3=0) alike. (Legacy
+    ``<id>=name`` lines are still accepted by the hook and treated as section 4.)"""
+    item_descs = item_descs or {}
+    materia_descs = materia_descs or {}
     try:
         lines = ["# Auto-generated from the .apff7 shop placements.\n"]
         for tok, name in sorted(item_names.items()):
             sec, idx = _token_section_index("item", tok)
-            lines.append(f"{sec}:{idx}={name}\n")
+            desc = item_descs.get(tok)
+            lines.append(f"{sec}:{idx}={name}|{desc}\n" if desc else f"{sec}:{idx}={name}\n")
         for tok, name in sorted(materia_names.items()):
             sec, idx = _token_section_index("materia", tok)
-            lines.append(f"{sec}:{idx}={name}\n")
+            desc = materia_descs.get(tok)
+            lines.append(f"{sec}:{idx}={name}|{desc}\n" if desc else f"{sec}:{idx}={name}\n")
         (exe_dir / "shop_ap.txt").write_text("".join(lines), encoding="utf-8")
     except Exception as exc:
         logger.debug(f"shop_ap.txt write failed: {exc}")
@@ -291,6 +328,28 @@ def _item_name_to_ff7_id(item_name: str) -> Optional[Tuple[str, int]]:
 class FF7CommandProcessor(ClientCommandProcessor):
     ctx: "FF7Context"
 
+    def _cmd_debug(self, value: str = "") -> bool:
+        """Enable/disable the FF7 debug commands (off by default). With no arg it
+        toggles; or pass on/off. The debug commands (/wdump /setwp /weapons
+        /rewards /mapbitons) are diagnostics — some write game memory — so they
+        do nothing until enabled here."""
+        v = value.strip().lower()
+        if v in ("on", "1", "true", "yes"):
+            self.ctx.debug = True
+        elif v in ("off", "0", "false", "no"):
+            self.ctx.debug = False
+        else:
+            self.ctx.debug = not self.ctx.debug
+        logger.info(f"FF7 debug commands {'ENABLED' if self.ctx.debug else 'disabled'}.")
+        return True
+
+    def _require_debug(self) -> bool:
+        """Gate for debug commands. Returns True if enabled; else prints a hint."""
+        if not self.ctx.debug:
+            logger.warning("Debug commands are off. Run /debug to enable them.")
+            return False
+        return True
+
     def _cmd_setjson(self, path: str = "") -> bool:
         """Point the client at the Archipelago FF7 file for this seed.
         Usage: /setjson <path_to_AP_seed_Pslot_player.apff7>
@@ -312,7 +371,7 @@ class FF7CommandProcessor(ClientCommandProcessor):
         try:
             data = json.loads(json_path.read_text(encoding="utf-8"))
             biton_map = _biton_map_from_placements(data.get("placements", []))
-            item_loc, mat_loc, item_names, mat_names = \
+            item_loc, mat_loc, item_names, mat_names, item_descs, mat_descs = \
                 _shops_from_apff7(data.get("shops", []))
         except Exception as exc:
             logger.warning(f"Failed to read JSON: {exc}")
@@ -324,14 +383,16 @@ class FF7CommandProcessor(ClientCommandProcessor):
         self.ctx.shop_materia_to_location = mat_loc
         self.ctx._shop_apff7_names = item_names
         self.ctx._shop_apff7_materia_names = mat_names
+        self.ctx._shop_apff7_descs = item_descs
+        self.ctx._shop_apff7_materia_descs = mat_descs
         if item_loc or mat_loc:
-            logger.info(f"Shop slots loaded: {len(item_loc) + len(mat_loc)} AP shop check(s).")
+            logger.debug(f"Shop slots loaded: {len(item_loc) + len(mat_loc)} AP shop check(s).")
 
         settings = _load_settings()
         settings["json_path"] = str(json_path)
         _save_settings(settings)
 
-        logger.info(
+        logger.debug(
             f"JSON loaded: {json_path.name}  "
             f"({len(biton_map)} locations tracked)"
         )
@@ -342,6 +403,8 @@ class FF7CommandProcessor(ClientCommandProcessor):
         With a model id (e.g. /wdump 5): hex-dump that entity's raw bytes so a
         broken (invisible) vehicle can be diffed against a known-good save.
         """
+        if not self._require_debug():
+            return True
         import struct
         pm = getattr(self.ctx, "pm", None)
         if pm is None:
@@ -414,6 +477,8 @@ class FF7CommandProcessor(ClientCommandProcessor):
         whether world_progress gates which world-map vehicle models load.
         After setting, walk into a field and back to the world map.
         """
+        if not self._require_debug():
+            return True
         pm = getattr(self.ctx, "pm", None)
         if pm is None:
             logger.warning("Not attached to FF7 — open the game first.")
@@ -434,6 +499,8 @@ class FF7CommandProcessor(ClientCommandProcessor):
         the Ruby spawn flag, the live game module, and (while in a battle) the
         formation id. Fight Ruby/Emerald and run this to confirm the kill flag is
         set and to read the real formation id if a kill isn't registering."""
+        if not self._require_debug():
+            return True
         pm = getattr(self.ctx, "pm", None)
         if pm is None:
             logger.warning("Not attached to FF7 — open the game first.")
@@ -470,6 +537,8 @@ class FF7CommandProcessor(ClientCommandProcessor):
         slot_data, whether the exe patch sites match the expected build, and the
         live bytes there. Run this if the multipliers seem to do nothing. It
         re-applies the patch when the site matches."""
+        if not self._require_debug():
+            return True
         ctx = self.ctx
         pm = getattr(ctx, "pm", None)
         if pm is None:
@@ -521,6 +590,8 @@ class FF7CommandProcessor(ClientCommandProcessor):
         Usage: /mapbitons [ff7_install_dir]
         Prefer /setjson in normal use — this is a fallback for debugging.
         """
+        if not self._require_debug():
+            return True
         from worlds.ff7.biton_mapper import build_biton_map, find_ff7_dir
 
         ff7_dir: Optional[Path] = None
@@ -531,7 +602,7 @@ class FF7CommandProcessor(ClientCommandProcessor):
         else:
             ff7_dir = find_ff7_dir()
             if ff7_dir:
-                logger.info(f"Auto-detected FF7 dir: {ff7_dir}")
+                logger.debug(f"Auto-detected FF7 dir: {ff7_dir}")
 
         if ff7_dir is None:
             logger.warning(
@@ -581,6 +652,9 @@ class FF7Context(CommonContext):
         super().__init__(server_address, password)
         self.finished_game: bool = False
         self.game_connected: bool = False
+        # Debug/diagnostic commands are gated behind this (default off) so players
+        # don't trip them by accident — some write game memory. Toggle with /debug.
+        self.debug: bool = False
         self._checked_this_session: Set[int] = set()
         # Names of every AP item received this connection (for the crater gate).
         self._received_item_names: Set[str] = set()
@@ -624,27 +698,22 @@ class FF7Context(CommonContext):
         # ── Shop-purchase detection (Tier-3 native-grid AP shops) ────────────
         # {ff7_item_id: location_code} for shop-slot "token" items. Buying the
         # token (sold by Gold Saucer's shop Hext, displayed with the AP name by
-        # shophook.dll) fires that location and is swapped for a Potion.
+        # shophook.dll) fires that location; the DLL suppresses the inventory
+        # grant and signals the purchase via shop_buys.txt.
         self.shop_token_to_location: Dict[int, int] = {}
-        # Materia-space tokens (slot type 1) are detected in the materia inventory.
+        # Materia-space tokens (slot type 1) signal with section 13.
         self.shop_materia_to_location: Dict[int, int] = {}
         # token_id -> display name, parsed from the .apff7 shops array (used to
         # (re)write shop_ap.txt with the correct cross-player names at attach).
         self._shop_apff7_names: Dict[int, str] = {}
         self._shop_apff7_materia_names: Dict[int, str] = {}
-        # {ff7_item_id: display_name} mirror of shop_ap.txt — drives the per-id
-        # baseline even before location mappings exist (lets us test detection
-        # against the manual shop_ap.txt before the full pipeline is wired).
-        self._shop_token_names: Dict[int, str] = {}
-        self._shop_materia_names: Dict[int, str] = {}
-        # Inventory counts of token ids at connect; a later increase = a purchase.
-        self._shop_token_baseline: Dict[int, int] = {}
-        self._shop_materia_baseline: Dict[int, int] = {}
-        self._shop_baseline_established: bool = False
-        # Party gil at the previous poll — a token-count rise only counts as a
-        # purchase if gil also fell (battles never cost gil), which lets ordinary
-        # item ids serve as tokens without false-firing on battle drops/steals.
-        self._prev_gil: int = -1
+        # token_id -> per-owner description ("An Archipelago Item for <Owner>"),
+        # written into shop_ap.txt so the DLL overrides the shop info-pane text.
+        self._shop_apff7_descs: Dict[int, str] = {}
+        self._shop_apff7_materia_descs: Dict[int, str] = {}
+        # Path to shophook.dll's shop_buys.txt purchase-signal file (set at the
+        # exe dir when the hook is injected); polled + consumed each game tick.
+        self._shop_buys_path: Optional[Path] = None
 
     async def server_auth(self, password_requested: bool = False) -> None:
         await super().server_auth(password_requested)
@@ -667,7 +736,7 @@ class FF7Context(CommonContext):
             raw = args.get("slot_data", {}).get("biton_map", {})
             if raw:
                 self.biton_map = {int(k): tuple(v) for k, v in raw.items()}
-                logger.info(
+                logger.debug(
                     f"BITON map received from server: {len(self.biton_map)} locations tracked."
                 )
             else:
@@ -677,10 +746,11 @@ class FF7Context(CommonContext):
             raw_shops = args.get("slot_data", {}).get("shops", [])
             if raw_shops:
                 self.shop_token_to_location, self.shop_materia_to_location, \
-                    self._shop_apff7_names, self._shop_apff7_materia_names = \
+                    self._shop_apff7_names, self._shop_apff7_materia_names, \
+                    self._shop_apff7_descs, self._shop_apff7_materia_descs = \
                     _shops_from_apff7(raw_shops)
                 if self.shop_token_to_location or self.shop_materia_to_location:
-                    logger.info(
+                    logger.debug(
                         "Shop slots from server: "
                         f"{len(self.shop_token_to_location) + len(self.shop_materia_to_location)}"
                         " AP shop check(s)."
@@ -699,7 +769,7 @@ class FF7Context(CommonContext):
         """Load BITON coordinates from the stored Archipelago JSON path."""
         json_path = self.json_path
         if json_path is None or not json_path.exists():
-            logger.info(
+            logger.debug(
                 "No Archipelago JSON path configured — BITON tracking disabled.  "
                 "Run /setjson <path_to_FF7_seed_P1.json> to enable it."
             )
@@ -708,9 +778,10 @@ class FF7Context(CommonContext):
             data = json.loads(json_path.read_text(encoding="utf-8"))
             self.biton_map = _biton_map_from_placements(data.get("placements", []))
             self.shop_token_to_location, self.shop_materia_to_location, \
-                self._shop_apff7_names, self._shop_apff7_materia_names = \
+                self._shop_apff7_names, self._shop_apff7_materia_names, \
+                self._shop_apff7_descs, self._shop_apff7_materia_descs = \
                 _shops_from_apff7(data.get("shops", []))
-            logger.info(
+            logger.debug(
                 f"BITON map loaded from {json_path.name}: "
                 f"{len(self.biton_map)} locations tracked."
             )
@@ -725,10 +796,11 @@ class FF7Context(CommonContext):
         try:
             data = json.loads(json_path.read_text(encoding="utf-8"))
             self.shop_token_to_location, self.shop_materia_to_location, \
-                self._shop_apff7_names, self._shop_apff7_materia_names = \
+                self._shop_apff7_names, self._shop_apff7_materia_names, \
+                self._shop_apff7_descs, self._shop_apff7_materia_descs = \
                 _shops_from_apff7(data.get("shops", []))
             if self.shop_token_to_location:
-                logger.info(
+                logger.debug(
                     f"Shop slots loaded: {len(self.shop_token_to_location)} AP shop check(s)."
                 )
         except Exception as exc:
@@ -889,12 +961,12 @@ def _ensure_mktpb_old_man_processed(pm: "pymem.Pymem") -> None:
             pharm_val  = pm.read_uchar(pharm_addr)
             if not (pharm_val & 0x01):   # bit 0 = Pharmacy Coupon
                 pm.write_uchar(pharm_addr, pharm_val | 0x01)
-                logger.info(
+                logger.debug(
                     "Wall Market side-effect: delivered Pharmacy Coupon "
                     "(mktpb old man bypassed by remote dress delivery)"
                 )
             pm.write_uchar(var_addr, current | (1 << _MKTPB_OLD_MAN_DONE_BIT))
-            logger.info("Wall Market side-effect: mktpb old man marked as processed")
+            logger.debug("Wall Market side-effect: mktpb old man marked as processed")
     except Exception as exc:
         logger.debug(f"Wall Market side-effect failed: {exc}")
 
@@ -921,7 +993,7 @@ def _ensure_sector5_walkmesh_gate(pm: "pymem.Pymem") -> None:
         current = pm.read_uchar(addr)
         if not (current & (1 << _SECTOR5_GATE_BIT)):
             pm.write_uchar(addr, current | (1 << _SECTOR5_GATE_BIT))
-            logger.info(
+            logger.debug(
                 "Sector 5 side-effect: set mds5_5 walkmesh gate flag "
                 f"(0x{_SECTOR5_GATE_OFFSET:04X} bit {_SECTOR5_GATE_BIT})"
             )
@@ -944,7 +1016,7 @@ def _ensure_snowboard_flag(pm: "pymem.Pymem") -> None:
         current = pm.read_uchar(addr)
         if not (current & (1 << _SNOWBOARD_FLAG_BIT)):
             pm.write_uchar(addr, current | (1 << _SNOWBOARD_FLAG_BIT))
-            logger.info(
+            logger.debug(
                 "Snowboard side-effect: set 'Snowboard key item obtained' flag "
                 f"(0x{_SNOWBOARD_FLAG_OFFSET:04X} bit {_SNOWBOARD_FLAG_BIT})"
             )
@@ -963,7 +1035,7 @@ def _deliver_key_item_flag(pm: "pymem.Pymem", item_name: str) -> bool:
             byte_addr = _biton_byte_addr(1, address)
             current = pm.read_uchar(byte_addr)
             pm.write_uchar(byte_addr, current | (1 << bit))
-        logger.info(f"Delivered key item: {item_name}")
+        logger.debug(f"Delivered key item: {item_name}")
         if item_name in _DRESS_ITEMS:
             _ensure_mktpb_old_man_processed(pm)
         if item_name == "Key to Sector 5":
@@ -1091,7 +1163,7 @@ def _place_stranded_vehicles(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
             break
     if placed:
         ctx._pending_vehicle_models -= placed
-        logger.info(f"Relocated vehicle(s) model_id={sorted(placed)} to spawn coords")
+        logger.debug(f"Relocated vehicle(s) model_id={sorted(placed)} to spawn coords")
 
 
 def _enforce_crater_lock(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
@@ -1104,7 +1176,7 @@ def _enforce_crater_lock(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
         if pm.read_uchar(addr) != (1 if unlocked else 0):
             pm.write_uchar(addr, 1 if unlocked else 0)
             if unlocked:
-                logger.info("Northern Crater unlocked — all goal items received.")
+                logger.debug("Northern Crater unlocked — all goal items received.")
     except Exception as exc:
         logger.debug(f"crater lock write failed: {exc}")
 
@@ -1116,7 +1188,7 @@ def _resolve_ultimate_weapon(pm: "pymem.Pymem") -> None:
     His kill flag (weapons_killed.bit[0]) is set by his final battle, which never
     becomes lethal because the disc-2 chase is skipped — so once the player has
     engaged him (submarine_flags.bit[3], set on the first ram) we set bit[0] (death
-    + the AP check). Ruby/Diamond are gated by the overworld's world_progress: it
+    + the AP check). Ruby is gated by the overworld's world_progress: it
     only reaches 4 ("after Ultimate killed") when weapons_killed.bit0 AND 0xF2B.0
     AND submarine_flags.bit4 are all set, and the boss model GEOMETRY for Ruby only
     loads at world_progress 4 (at 3 he's an invisible-but-collidable entity). A real
@@ -1133,7 +1205,7 @@ def _resolve_ultimate_weapon(pm: "pymem.Pymem") -> None:
             if not (sf & 0x08):                   # bit3 — not engaged yet
                 return
             pm.write_uchar(wk_addr, wk | 0x01)    # engaged → mark defeated
-            logger.info("Ultimate Weapon defeated (Free Roam) — weapons_killed.bit[0] set.")
+            logger.debug("Ultimate Weapon defeated (Free Roam) — weapons_killed.bit[0] set.")
         # Ultimate down: assert the post-Ultimate state so world_progress hits 4 and
         # Ruby's model is drawn (he's invisible at wp3). Re-checked each poll so it
         # self-heals across overworld reloads.
@@ -1143,7 +1215,10 @@ def _resolve_ultimate_weapon(pm: "pymem.Pymem") -> None:
         f2b = pm.read_uchar(f2b_addr)
         if (f2b & 0x11) != 0x11:                  # 0xF2B.0 (wp4 cond) + 0xF2B.4 (Ruby spawn)
             pm.write_uchar(f2b_addr, f2b | 0x11)
-            logger.info("Post-Ultimate world state set — Ruby Weapon should now render.")
+            logger.debug("Post-Ultimate world state set — Ruby Weapon should now render.")
+        # NOTE: Diamond Weapon is fully hidden in Free Roam (his world-map model
+        # never renders even at wp4), so his ambient spawn is neutralized in
+        # wm0.ev and nothing here touches his 0xEF6.3 flag.
     except Exception as exc:
         logger.debug(f"resolve ultimate weapon failed: {exc}")
 
@@ -1183,7 +1258,7 @@ def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
                 if ctx._weapon_kill_pending & 0x10:
                     names.append("Emerald")
                 pm.write_uchar(wk_addr, new)
-                logger.info(
+                logger.debug(
                     f"{'/'.join(names)} Weapon defeat registered (Free Roam) — "
                     f"weapons_killed 0x{wk:02x} -> 0x{new:02x}."
                 )
@@ -1207,7 +1282,7 @@ def _deliver_vehicle_item(pm: "pymem.Pymem", item_name: str) -> bool:
         byte_addr = _biton_byte_addr(1, bank1_addr)
         current = pm.read_uchar(byte_addr)
         pm.write_uchar(byte_addr, current | mask)
-        logger.info(f"Vehicle unlocked: {item_name} (addr=0x{bank1_addr:02X} mask=0x{mask:02X})")
+        logger.debug(f"Vehicle unlocked: {item_name} (addr=0x{bank1_addr:02X} mask=0x{mask:02X})")
         return True
     except Exception as exc:
         logger.debug(f"Vehicle flag write failed for '{item_name}': {exc}")
@@ -1301,7 +1376,7 @@ def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
         pm.write_uchar(base + _CHOCO_OCCUPIED, occupied)
         if pm.read_uchar(base + _CHOCO_STABLES) < occupied:
             pm.write_uchar(base + _CHOCO_STABLES, occupied)
-        logger.info(f"Delivered {item_name} to Chocobo Farm stable slot {free_slot + 1}")
+        logger.debug(f"Delivered {item_name} to Chocobo Farm stable slot {free_slot + 1}")
         return True
     except Exception as exc:
         logger.debug(f"Chocobo delivery failed for {item_name}: {exc}")
@@ -1417,7 +1492,7 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
         # Seed the savemap record if it was never initialised / is invalid (reads
         # as id 0 "Cloud" with 0 max HP → instant death). Clone-and-retarget Cloud.
         if _ensure_character_record(pm, cid):
-            logger.info(f"Initialized {char_name} character record (was uninitialised/invalid)")
+            logger.debug(f"Initialized {char_name} character record (was uninitialised/invalid)")
         # Make the member available AND swappable in the PHS: SET the visibility
         # bit and CLEAR the lock bit. (Previously we set BOTH masks, but 0x10A4 is
         # the LOCK mask — setting it made delivered members appear but be un-
@@ -1438,7 +1513,7 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
                 if slots[i] in (0xFF, 0xFE):
                     pm.write_uchar(base + i, cid)
                     break
-        logger.info(f"Delivered party member: {char_name}")
+        logger.debug(f"Delivered party member: {char_name}")
         return True
     except Exception as exc:
         logger.debug(f"Character delivery failed for {char_name}: {exc}")
@@ -1516,7 +1591,7 @@ def _apply_reward_multipliers(pm: "pymem.Pymem", ctx: FF7Context) -> None:
         if ctx.ap_multiplier > 1:
             p = _reward_patch_ap(min(ctx.ap_multiplier, 127))
             pm.write_bytes(_REWARD_AP_ADDR, p, len(p))
-        logger.info(f"Battle reward multipliers applied ({build} build): "
+        logger.debug(f"Battle reward multipliers applied ({build} build): "
                     f"EXP x{ctx.exp_multiplier}, Gil x{ctx.gil_multiplier}, AP x{ctx.ap_multiplier}")
         ctx._reward_mult_applied = True
     except Exception as exc:
@@ -1600,7 +1675,7 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
                 # items / weapons / armors / accessories all go in the item list
                 _write_item(pm, ff7_id)
             ctx._delivered_item_indices.add(item_index)
-            logger.info(f"Delivered item: {item_name} (ff7_id={ff7_id})")
+            logger.debug(f"Delivered item: {item_name} (ff7_id={ff7_id})")
         except Exception as exc:
             logger.debug(f"Item delivery failed for '{item_name}': {exc}")
             still_pending.append((item_index, net_item))
@@ -1629,188 +1704,58 @@ def _write_item(pm: "pymem.Pymem", ff7_id: int, qty: int = 1) -> None:
 
 
 # ── Shop-purchase detection ───────────────────────────────────────────────────
-# Native-grid Tier-3 AP shops: Gold Saucer's shop Hext sells "token" item ids,
-# shophook.dll displays the AP name on them, and the player buys normally. Here
-# the client notices the token entering inventory, fires the AP location, and
-# swaps the token for a Potion so the player always walks away with a Potion.
-
-# Item handed back after an AP shop purchase. None = give nothing (ideal: the
-# player spends gil and receives no item). Set to 0 to hand back a Potion instead
-# (fallback if "no item" ever proves problematic).
-SHOP_REFUND_ITEM_ID: Optional[int] = None
-POTION_FF7_ID = 0
-
-
-def _load_shop_overrides(exe_dir: Path) -> Dict[int, str]:
-    """Parse shop_ap.txt (the same file shophook.dll reads) -> {ff7_id: name}."""
-    result: Dict[int, str] = {}
-    try:
-        path = exe_dir / "shop_ap.txt"
-        if not path.exists():
-            return result
-        for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            id_str, name = line.split("=", 1)
-            try:
-                result[int(id_str.strip(), 0)] = name.strip()
-            except ValueError:
-                continue
-    except Exception as exc:
-        logger.debug(f"shop_ap.txt parse failed: {exc}")
-    return result
-
-
-def _read_all_item_counts(pm: "pymem.Pymem") -> Dict[int, int]:
-    """One block read of the item inventory -> {ff7_id: total_qty}."""
-    raw = pm.read_bytes(SAVEMAP_BASE + ITEM_LIST_OFFSET, ITEM_SLOT_COUNT * 2)
-    counts: Dict[int, int] = {}
-    for i in range(ITEM_SLOT_COUNT):
-        word = raw[i * 2] | (raw[i * 2 + 1] << 8)
-        if word != EMPTY_ITEM_WORD:
-            counts[word & 0x1FF] = counts.get(word & 0x1FF, 0) + ((word >> 9) & 0x7F)
-    return counts
-
-
-def _remove_item(pm: "pymem.Pymem", ff7_id: int, qty: int) -> None:
-    """Remove up to qty of ff7_id from the item inventory."""
-    base = SAVEMAP_BASE + ITEM_LIST_OFFSET
-    remaining = qty
-    for slot in range(ITEM_SLOT_COUNT):
-        if remaining <= 0:
-            return
-        addr = base + slot * 2
-        word = pm.read_ushort(addr)
-        if word == EMPTY_ITEM_WORD or (word & 0x1FF) != ff7_id:
-            continue
-        slot_qty = (word >> 9) & 0x7F
-        take = min(slot_qty, remaining)
-        remaining -= take
-        new_qty = slot_qty - take
-        pm.write_ushort(addr, (ff7_id | (new_qty << 9)) if new_qty > 0 else EMPTY_ITEM_WORD)
-
-
-def _read_all_materia_counts(pm: "pymem.Pymem") -> Dict[int, int]:
-    """One block read of the materia inventory -> {materia_id: count}."""
-    raw = pm.read_bytes(SAVEMAP_BASE + MATERIA_LIST_OFFSET, MATERIA_SLOT_COUNT * 4)
-    counts: Dict[int, int] = {}
-    for i in range(MATERIA_SLOT_COUNT):
-        mid = raw[i * 4]
-        if mid != EMPTY_MATERIA_BYTE:
-            counts[mid] = counts.get(mid, 0) + 1
-    return counts
-
-
-def _remove_materia(pm: "pymem.Pymem", mid: int, qty: int) -> None:
-    """Remove up to qty copies of materia id `mid` (mark slots empty)."""
-    base = SAVEMAP_BASE + MATERIA_LIST_OFFSET
-    removed = 0
-    for slot in range(MATERIA_SLOT_COUNT):
-        if removed >= qty:
-            return
-        addr = base + slot * 4
-        if pm.read_uchar(addr) == mid:
-            for b in range(4):                       # 0xFFFFFFFF = empty slot
-                pm.write_uchar(addr + b, EMPTY_MATERIA_BYTE)
-            removed += 1
+# Native-grid Tier-3 AP shops: Gold Saucer's shop Hext sells reserved "token" item
+# ids, shophook.dll displays the AP name/description on them, and the player buys
+# normally. shophook.dll SUPPRESSES the inventory grant (the token never enters
+# inventory) and appends "<section>:<index>" to shop_buys.txt. Here the client
+# consumes that file and fires the matching AP location. Gil is still deducted by
+# the game's separate DecreaseGil call, so the player pays for the slot.
+SHOP_BUYS_FILENAME = "shop_buys.txt"
 
 
 def _process_shop_purchases(pm: "pymem.Pymem", ctx: "FF7Context") -> List[int]:
-    """Detect AP shop-token purchases (item + materia space), take the token back
-    (no item given), and return the location codes to check. A token purchase =
-    inventory count above baseline while gil also dropped."""
-    if not ctx._shop_token_names and not ctx._shop_materia_names:
+    """Consume shophook.dll's shop_buys.txt and return the AP location codes to
+    check. Each line is "<section>:<index>" (section 4 = item-space token, 13 =
+    materia-space token). The DLL already suppressed the inventory grant, so the
+    client only has to map the token to its location and fire the check."""
+    path = ctx._shop_buys_path
+    if path is None or not path.exists():
         return []
     try:
-        counts = _read_all_item_counts(pm)
-        gil = pm.read_uint(SAVEMAP_BASE + GIL_OFFSET)
-    except Exception:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        if not text.strip():
+            return []
+        # Consume: truncate so each purchase fires exactly once.
+        path.write_text("", encoding="utf-8")
+    except Exception as exc:
+        logger.debug(f"shop_buys.txt read/consume failed: {exc}")
         return []
-    # A purchase costs gil; a battle drop/steal does not. Only honour token
-    # increases when gil also fell since the last poll.
-    gil_dropped = (ctx._prev_gil >= 0 and gil < ctx._prev_gil)
-    ctx._prev_gil = gil
 
     newly: List[int] = []
-    changed = False
-    for ff7_id, name in ctx._shop_token_names.items():
-        current = counts.get(ff7_id, 0)
-        baseline = ctx._shop_token_baseline.get(ff7_id, 0)
-        delta = current - baseline
-        if delta <= 0:
-            if current < baseline:
-                ctx._shop_token_baseline[ff7_id] = current  # consumed in-game
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or ":" not in line:
             continue
-        if not gil_dropped:
-            # Token id rose without spending gil → a battle drop, not a purchase.
-            # Absorb into baseline (keep the real item) without firing a check.
-            ctx._shop_token_baseline[ff7_id] = current
+        sec_str, idx_str = line.split(":", 1)
+        try:
+            section = int(sec_str.strip(), 0)
+            index = int(idx_str.strip(), 0)
+        except ValueError:
             continue
-        loc = ctx.shop_token_to_location.get(ff7_id)
-        if (loc is not None and loc not in ctx.checked_locations
-                and loc not in ctx._checked_this_session):
-            newly.append(loc)
-            ctx._checked_this_session.add(loc)
-        try:
-            _remove_item(pm, ff7_id, delta)                 # take the purchased token back
-            if SHOP_REFUND_ITEM_ID is not None and ff7_id != SHOP_REFUND_ITEM_ID:
-                _write_item(pm, SHOP_REFUND_ITEM_ID, delta)  # optional refund item
-        except Exception as exc:
-            logger.debug(f"Shop swap failed for id {ff7_id}: {exc}")
-        logger.info(
-            f"AP shop purchase ×{delta}: {name}"
-            + ("" if loc is not None else "  (no location mapped — display test)")
-        )
-        changed = True
-    if changed:
-        # Re-baseline so the returned Potions / removed tokens aren't recounted.
-        try:
-            after = _read_all_item_counts(pm)
-            for ff7_id in ctx._shop_token_names:
-                ctx._shop_token_baseline[ff7_id] = after.get(ff7_id, 0)
-        except Exception:
-            pass
-
-    # ── Materia-space tokens (materia inventory) ──────────────────────────────
-    if ctx._shop_materia_names:
-        try:
-            mcounts = _read_all_materia_counts(pm)
-        except Exception:
-            mcounts = {}
-        mat_changed = False
-        for mid, name in ctx._shop_materia_names.items():
-            current = mcounts.get(mid, 0)
-            baseline = ctx._shop_materia_baseline.get(mid, 0)
-            delta = current - baseline
-            if delta <= 0:
-                if current < baseline:
-                    ctx._shop_materia_baseline[mid] = current  # consumed in-game
-                continue
-            if not gil_dropped:
-                ctx._shop_materia_baseline[mid] = current  # battle drop, not a buy
-                continue
-            loc = ctx.shop_materia_to_location.get(mid)
-            if (loc is not None and loc not in ctx.checked_locations
-                    and loc not in ctx._checked_this_session):
-                newly.append(loc)
-                ctx._checked_this_session.add(loc)
-            try:
-                _remove_materia(pm, mid, delta)            # take the token back
-            except Exception as exc:
-                logger.debug(f"Shop materia swap failed for id {mid}: {exc}")
-            logger.info(
-                f"AP shop purchase (materia) ×{delta}: {name}"
-                + ("" if loc is not None else "  (no location mapped — display test)")
-            )
-            mat_changed = True
-        if mat_changed:
-            try:
-                after_m = _read_all_materia_counts(pm)
-                for mid in ctx._shop_materia_names:
-                    ctx._shop_materia_baseline[mid] = after_m.get(mid, 0)
-            except Exception:
-                pass
+        if section == KTEXT_MATERIA:
+            loc = ctx.shop_materia_to_location.get(index)
+            space = "materia"
+        else:
+            loc = ctx.shop_token_to_location.get(index)
+            space = "item"
+        if loc is None:
+            logger.debug(f"AP shop buy {section}:{index} ({space}) has no mapped location.")
+            continue
+        if loc in ctx.checked_locations or loc in ctx._checked_this_session:
+            continue
+        newly.append(loc)
+        ctx._checked_this_session.add(loc)
+        logger.debug(f"AP shop purchase ({space} token {index}) → firing location {loc}")
     return newly
 
 
@@ -1827,6 +1772,37 @@ def _write_materia(pm: "pymem.Pymem", ff7_id: int, ap: int = 0) -> None:
             pm.write_uchar(base + slot * 4 + 3, (ap >> 16) & 0xFF)
             return
     raise RuntimeError(f"Materia inventory full — could not deliver ff7_id={ff7_id}")
+
+
+def _strip_token_materia(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Delete AP shop-token materia from the materia inventory.
+
+    Materia tokens use unused/"gap" materia ids that are never legitimately owned.
+    The shophook fires the purchase check from the gil drop, but the shop's materia
+    grant isn't fully suppressed, so the token materia still lands in inventory
+    (shown with a broken name/AP). Since these ids can never be a real materia, we
+    strip any of them out each poll and compact the list. Runs in all modes."""
+    token_ids = set(ctx.shop_materia_to_location.keys())
+    if not token_ids:
+        return
+    try:
+        base = SAVEMAP_BASE + MATERIA_LIST_OFFSET
+        raw = bytes(pm.read_bytes(base, MATERIA_SLOT_COUNT * 4))
+        kept = bytearray()
+        removed = 0
+        for i in range(MATERIA_SLOT_COUNT):
+            slot = raw[i * 4:i * 4 + 4]
+            if slot[0] in token_ids:          # token id byte ⇒ drop this slot
+                removed += 1
+            else:
+                kept += slot
+        if removed == 0:
+            return
+        kept += b"\xff\xff\xff\xff" * removed  # refill the freed slots as empty (compacted)
+        pm.write_bytes(base, bytes(kept), len(kept))
+        logger.debug(f"Stripped {removed} AP shop-token materia from inventory")
+    except Exception as exc:
+        logger.debug(f"strip token materia failed: {exc}")
 
 
 # ── Game watcher ──────────────────────────────────────────────────────────────
@@ -1851,9 +1827,9 @@ async def game_watcher(ctx: FF7Context) -> None:
             logger.info(msg)
 
     while not ctx.exit_event.is_set():
-        # ── Warn if no BITON map yet ──────────────────────────────────────
+        # ── Wait quietly for a BITON map (logged to file only, not the client) ─
         if not ctx.biton_map:
-            log_once(
+            logger.debug(
                 "No BITON map loaded.  Connect to server, then run "
                 "/setjson <path_to_FF7_seed.json> to enable location tracking."
             )
@@ -1877,7 +1853,7 @@ async def game_watcher(ctx: FF7Context) -> None:
                         current_val = pm.read_uchar(materia_menu_addr)
                         if not (current_val & 0x08):  # Bit 3 not set
                             pm.write_uchar(materia_menu_addr, current_val | 0x08)
-                            logger.info("Materia menu enabled from game start")
+                            logger.debug("Materia menu enabled from game start")
                     except Exception as e:
                         logger.debug(f"Could not enable materia menu: {e}")
 
@@ -1894,26 +1870,29 @@ async def game_watcher(ctx: FF7Context) -> None:
                                 else (ctx.ff7_dir or Path("."))
                             exe_dir_p = Path(exe_dir)
                             # If the seed defined shop slots, (re)write shop_ap.txt
-                            # with the correct cross-player names BEFORE injecting
-                            # (the DLL reads the file once at load).
+                            # with the correct cross-player names + descriptions
+                            # BEFORE injecting (the DLL reads the file once at load).
                             if ctx._shop_apff7_names or ctx._shop_apff7_materia_names:
                                 _write_shop_ap_txt(exe_dir_p, ctx._shop_apff7_names,
-                                                   ctx._shop_apff7_materia_names)
+                                                   ctx._shop_apff7_materia_names,
+                                                   ctx._shop_apff7_descs,
+                                                   ctx._shop_apff7_materia_descs)
+                            # Purchase-signal file the DLL appends to; clear any
+                            # stale entries from a previous session before injecting.
+                            ctx._shop_buys_path = exe_dir_p / SHOP_BUYS_FILENAME
+                            try:
+                                ctx._shop_buys_path.write_text("", encoding="utf-8")
+                            except Exception:
+                                pass
                             dll = exe_dir_p / "shophook.dll"
                             if inject_dll(pm, dll):
                                 ctx._hook_injected = True
-                            # Token ids to watch for purchases (from the same file
-                            # the DLL displays; seed names if present, else manual).
-                            ctx._shop_token_names = (
-                                dict(ctx._shop_apff7_names) if ctx._shop_apff7_names
-                                else _load_shop_overrides(exe_dir_p)
-                            )
-                            ctx._shop_materia_names = dict(ctx._shop_apff7_materia_names)
-                            if ctx._shop_token_names or ctx._shop_materia_names:
-                                logger.info(
-                                    "Shop detection: tracking "
-                                    f"{len(ctx._shop_token_names)} item + "
-                                    f"{len(ctx._shop_materia_names)} materia token id(s)."
+                            n_item = len(ctx.shop_token_to_location)
+                            n_mat = len(ctx.shop_materia_to_location)
+                            if n_item or n_mat:
+                                logger.debug(
+                                    "Shop detection: watching shop_buys.txt for "
+                                    f"{n_item} item + {n_mat} materia token slot(s)."
                                 )
                         except Exception as e:
                             logger.debug(f"Shop hook injection skipped: {e}")
@@ -1945,43 +1924,39 @@ async def game_watcher(ctx: FF7Context) -> None:
             # pre-satisfied so we never report them as fresh checks (which would
             # wrongly hand items to other players the instant we connect). Only
             # 0->1 transitions AFTER this baseline count as real checks.
+            # One savemap snapshot per poll backs both the baseline and the
+            # detection scan (all BITON flags live inside it), replacing ~381
+            # per-location reads with a single read. Falls back to per-location
+            # reads if the snapshot read fails.
+            try:
+                _sm = bytes(pm.read_bytes(SAVEMAP_BASE, SAVEMAP_LEN))
+                if len(_sm) < SAVEMAP_LEN:
+                    _sm = None
+            except Exception:
+                _sm = None
+
+            def _biton_is_set(bank: int, address: int, bit: int) -> bool:
+                idx = _biton_byte_addr(bank, address) - SAVEMAP_BASE
+                if _sm is not None and 0 <= idx < len(_sm):
+                    return bool(_sm[idx] & (1 << bit))
+                return bool(pm.read_uchar(_biton_byte_addr(bank, address)) & (1 << bit))
+
             if not ctx._baseline_established and ctx.biton_map:
                 for code, (bank, address, bit) in ctx.biton_map.items():
                     if code in ctx.checked_locations:
                         continue
                     try:
-                        if pm.read_uchar(_biton_byte_addr(bank, address)) & (1 << bit):
+                        if _biton_is_set(bank, address, bit):
                             ctx._baseline_locations.add(code)
                     except Exception:
                         pass
                 ctx._baseline_established = True
                 if ctx._baseline_locations:
-                    logger.info(
+                    logger.debug(
                         f"Baseline: suppressing {len(ctx._baseline_locations)} "
                         f"pre-set location flag(s) + already-passed boss checks "
                         f"(game moment {game_moment})."
                     )
-
-            # ── Establish shop-token inventory baseline once ──────────────
-            if not ctx._shop_baseline_established and (
-                    ctx._shop_token_names or ctx._shop_materia_names):
-                try:
-                    counts = _read_all_item_counts(pm)
-                except Exception:
-                    counts = {}
-                for ff7_id in ctx._shop_token_names:
-                    ctx._shop_token_baseline[ff7_id] = counts.get(ff7_id, 0)
-                try:
-                    mcounts = _read_all_materia_counts(pm)
-                except Exception:
-                    mcounts = {}
-                for mid in ctx._shop_materia_names:
-                    ctx._shop_materia_baseline[mid] = mcounts.get(mid, 0)
-                try:
-                    ctx._prev_gil = pm.read_uint(SAVEMAP_BASE + GIL_OFFSET)
-                except Exception:
-                    ctx._prev_gil = -1
-                ctx._shop_baseline_established = True
 
             newly_checked = []
             for code, (bank, address, bit) in ctx.biton_map.items():
@@ -1989,16 +1964,21 @@ async def game_watcher(ctx: FF7Context) -> None:
                         or code in ctx._checked_this_session
                         or code in ctx._baseline_locations):
                     continue
-                byte_addr = _biton_byte_addr(bank, address)
-                byte_val  = pm.read_uchar(byte_addr)
-                if byte_val & (1 << bit):
+                try:
+                    hit = _biton_is_set(bank, address, bit)
+                except Exception:
+                    continue                          # bad single read — skip, don't kill the pass
+                if hit:
                     newly_checked.append(code)
                     ctx._checked_this_session.add(code)
 
             if newly_checked and ctx.server and ctx.slot:
                 await ctx.send_msgs([{"cmd": "LocationChecks", "locations": newly_checked}])
                 for code in newly_checked:
-                    logger.info(f"Checked location: {ctx.location_names.lookup_in_game(code)}")
+                    try:
+                        logger.debug(f"Checked location: {ctx.location_names.lookup_in_game(code)}")
+                    except Exception:
+                        logger.debug(f"Checked location: {code}")
 
             # ── Relocate any AP-delivered vehicle stranded at the (0,0) sea tile ─
             _place_stranded_vehicles(pm, ctx)
@@ -2031,7 +2011,7 @@ async def game_watcher(ctx: FF7Context) -> None:
                 for _cname, _cid in _CHARACTER_IDS.items():
                     if _cname in ctx._received_item_names:
                         if _ensure_character_record(pm, _cid):
-                            logger.info(f"Re-seeded {_cname} record (was invalid)")
+                            logger.debug(f"Re-seeded {_cname} record (was invalid)")
                 # Force open field gates that would otherwise softlock (e.g. the
                 # Mt. Corel mtcrl_2 door, read on field load).
                 for _off, _bit in _FREE_ROAM_FORCE_FLAGS:
@@ -2058,7 +2038,10 @@ async def game_watcher(ctx: FF7Context) -> None:
             if shop_checks and ctx.server and ctx.slot:
                 await ctx.send_msgs([{"cmd": "LocationChecks", "locations": shop_checks}])
                 for code in shop_checks:
-                    logger.info(f"Checked location: {ctx.location_names.lookup_in_game(code)}")
+                    logger.debug(f"Checked location: {ctx.location_names.lookup_in_game(code)}")
+
+            # ── Strip AP materia tokens the shop grant leaves in inventory ─────
+            _strip_token_materia(pm, ctx)
 
             # ── Check win condition ───────────────────────────────────────
             if not ctx.finished_game and ctx.server and ctx.slot:
@@ -2085,21 +2068,33 @@ async def game_watcher(ctx: FF7Context) -> None:
             ctx._baseline_established = False
             ctx._baseline_locations.clear()
             ctx._hook_injected = False
-            ctx._shop_baseline_established = False
+            ctx._shop_buys_path = None
             ctx.pm = None
             await asyncio.sleep(3)
             continue
         except Exception as exc:
-            logger.debug(f"FF7 memory read error: {exc}")
-            pm = None
-            ctx.game_connected = False
-            ctx._boss_checks_sent.clear()
-            ctx._baseline_established = False
-            ctx._baseline_locations.clear()
-            ctx._hook_injected = False
-            ctx._shop_baseline_established = False
-            ctx.pm = None
-            await asyncio.sleep(3)
+            # A transient read/state error (e.g. a read during a load screen, or a
+            # bug in one sub-step) must NOT tear down the whole session: wiping the
+            # baseline here re-snapshots it on the next poll, which would mark any
+            # since-flipped location flag as "pre-existing" and silently drop the
+            # check. Surface the real error once, probe that the process is still
+            # alive, and only reconnect if it has actually gone. Baseline + checked
+            # state are preserved across the hiccup.
+            log_once(f"FF7 poll error (continuing): {exc!r}")
+            try:
+                pm.read_uchar(SAVEMAP_BASE)            # cheap liveness probe
+            except Exception:
+                logger.info("FF7 process lost — will reconnect.")
+                pm = None
+                ctx.game_connected = False
+                ctx._checked_this_session.clear()
+                ctx._boss_checks_sent.clear()
+                ctx._baseline_established = False
+                ctx._baseline_locations.clear()
+                ctx._hook_injected = False
+                ctx._shop_buys_path = None
+                ctx.pm = None
+            await asyncio.sleep(POLL_INTERVAL)
             continue
 
         await asyncio.sleep(POLL_INTERVAL)

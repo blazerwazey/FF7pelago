@@ -31,7 +31,7 @@ class TestFreeRoam(FF7TestBase):
         their maps (gnmk, zz3) to regions; make sure they stay in the pool."""
         names = {loc.name for loc in self.multiworld.get_locations(self.player)}
         for expected in (
-            "Meltdown Reactor - Titan",
+            "Gongaga Reactor - Titan",
             "Chocobo Sage's house - Enemy Skill",
         ):
             with self.subTest(expected):

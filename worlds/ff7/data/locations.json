@@ -88,7 +88,7 @@
     "bit": 7
   },
   {
-    "name": "Cave - Elixir",
+    "name": "Great Glacier Cave - Elixir",
     "code": 200008,
     "map": "hyou8_2",
     "maps": ["hyou8_2"],
@@ -110,7 +110,7 @@
     "bit": 1
   },
   {
-    "name": "Cave - Safety Bit",
+    "name": "Great Glacier Cave - Safety Bit",
     "code": 200010,
     "map": "hyou5_3",
     "maps": ["hyou5_3"],
@@ -132,7 +132,7 @@
     "bit": 3
   },
   {
-    "name": "Weapon Store - Sneak Glove",
+    "name": "Wall Market Weapon Store - Sneak Glove",
     "code": 200012,
     "map": "mkt_w",
     "maps": ["mkt_w"],
@@ -143,7 +143,7 @@
     "bit": 4
   },
   {
-    "name": "Item Store - Premium Heart",
+    "name": "Wall Market Item Store - Premium Heart",
     "code": 200013,
     "map": "mkt_ia",
     "maps": ["mkt_ia"],
@@ -407,7 +407,7 @@
     "bit": 0
   },
   {
-    "name": "House: 1f - Ether #1",
+    "name": "Kalm House: 1f - Ether #1",
     "code": 200287,
     "map": "elmin1_1",
     "maps": ["elmin1_1"],
@@ -440,7 +440,7 @@
     "bit": 3
   },
   {
-    "name": "House: 1f - Ether #2",
+    "name": "Kalm House: 1f - Ether #2",
     "code": 200290,
     "map": "elmin4_1",
     "maps": ["elmin4_1"],
@@ -495,7 +495,7 @@
     "bit": 0
   },
   {
-    "name": "Research Room - Double Cut",
+    "name": "Sunken Gelnika Research Room - Double Cut",
     "code": 200295,
     "map": "q_3",
     "maps": ["q_3"],
@@ -506,7 +506,7 @@
     "bit": 1
   },
   {
-    "name": "Cargo Room - Highwind",
+    "name": "Sunken Gelnika Cargo Room - Highwind",
     "code": 200296,
     "map": "q_4",
     "maps": ["q_4"],
@@ -550,44 +550,44 @@
     "bit": 5
   },
   {
-    "name": "House: 2f - Show Underwater",
+    "name": "Kalm House: 2f - Show Guide Book",
     "code": 200300,
     "map": "elmin4_2",
     "maps": ["elmin4_2"],
-    "item_text": "Show Underwater",
+    "item_text": "Show Guidebook",
     "category": "standard",
     "bank": 13,
     "address": 87,
     "bit": 0
   },
   {
-    "name": "House: 2f - Show Master Command",
+    "name": "Kalm House: 2f - Show Earth Harp 1",
     "code": 200301,
     "map": "elmin4_2",
     "maps": ["elmin4_2"],
-    "item_text": "Show Master Command",
+    "item_text": "Show Earth Harp 1",
     "category": "standard",
     "bank": 13,
     "address": 87,
     "bit": 1
   },
   {
-    "name": "House: 2f - Show Master Magic",
+    "name": "Kalm House: 2f - Show Earth Harp 2",
     "code": 200302,
     "map": "elmin4_2",
     "maps": ["elmin4_2"],
-    "item_text": "Show Master Magic",
+    "item_text": "Show Earth Harp 2",
     "category": "standard",
     "bank": 13,
     "address": 87,
     "bit": 2
   },
   {
-    "name": "House: 2f - Show Gold Chocobo",
+    "name": "Kalm House: 2f - Show Desert Rose",
     "code": 200304,
     "map": "elmin4_2",
     "maps": ["elmin4_2"],
-    "item_text": "Show Gold Chocobo",
+    "item_text": "Show Desert Rose",
     "category": "standard",
     "bank": 13,
     "address": 87,
@@ -957,7 +957,7 @@
     "bit": 3
   },
   {
-    "name": "Winding Tunnel - W-Item",
+    "name": "Bone Village - W-Item",
     "code": 200339,
     "map": "tunnel_4",
     "maps": ["tunnel_4", "bonevil"],
@@ -1298,7 +1298,7 @@
     "bit": 2
   },
   {
-    "name": "Mideel,House2 - Elixir",
+    "name": "Mideel,House 2 - Elixir",
     "code": 200371,
     "map": "itmin2",
     "maps": ["itmin2"],
@@ -1540,7 +1540,7 @@
     "bit": 0
   },
   {
-    "name": "Watch Room - Megalixir",
+    "name": "Fort Condor Watch Room - Megalixir",
     "code": 300038,
     "map": "convil_2",
     "maps": ["convil_2"],
@@ -1551,7 +1551,7 @@
     "bit": 6
   },
   {
-    "name": "Watch Room - Peace Ring",
+    "name": "Fort Condor Watch Room - Peace Ring",
     "code": 300040,
     "map": "convil_2",
     "maps": ["convil_2"],
@@ -1562,7 +1562,7 @@
     "bit": 5
   },
   {
-    "name": "Watch Room - Magic Comb",
+    "name": "Fort Condor Watch Room - Magic Comb",
     "code": 300041,
     "map": "convil_2",
     "maps": ["convil_2"],
@@ -1661,7 +1661,7 @@
     "bit": 1
   },
   {
-    "name": "Hotel - Elixir",
+    "name": "Ghost Hotel - Elixir",
     "code": 300068,
     "map": "ghotin_2",
     "maps": ["ghotin_2"],
@@ -1749,7 +1749,7 @@
     "bit": 1
   },
   {
-    "name": "Meltdown Reactor - Titan",
+    "name": "Gongaga Reactor - Titan",
     "code": 300078,
     "map": "gnmk",
     "maps": ["gnmk"],
@@ -1760,7 +1760,7 @@
     "bit": 7
   },
   {
-    "name": "Jungle - Deathblow",
+    "name": "Gongaga Jungle - Deathblow",
     "code": 300079,
     "map": "gonjun1",
     "maps": ["gonjun1"],
@@ -1815,7 +1815,7 @@
     "bit": 6
   },
   {
-    "name": "Platform - Umbrella",
+    "name": "Gold Saucer Rollercoaster - Umbrella",
     "code": 300089,
     "map": "jetin1",
     "maps": ["jetin1"],
@@ -1826,7 +1826,7 @@
     "bit": 2
   },
   {
-    "name": "Platform - Flayer",
+    "name": "Gold Saucer Rollercoaster - Flayer",
     "code": 300090,
     "map": "jetin1",
     "maps": ["jetin1"],
@@ -2530,7 +2530,7 @@
     "bit": 6
   },
   {
-    "name": "Mansion, 1f. - Twin Viper",
+    "name": "Shinra Mansion, 1f. - Twin Viper",
     "code": 300228,
     "map": "sinin1_2",
     "maps": ["sinin1_2"],
@@ -2541,7 +2541,7 @@
     "bit": 1
   },
   {
-    "name": "Mansion, 1f. - Silver M-phone",
+    "name": "Shinra Mansion, 1f. - Silver M-phone",
     "code": 300229,
     "map": "sinin1_2",
     "maps": ["sinin1_2"],
@@ -2552,7 +2552,7 @@
     "bit": 2
   },
   {
-    "name": "Mansion, 2f. - Enemy Launcher",
+    "name": "Shinra Mansion, 2f. - Enemy Launcher",
     "code": 300230,
     "map": "sinin2_1",
     "maps": ["sinin2_1"],
@@ -2563,7 +2563,7 @@
     "bit": 3
   },
   {
-    "name": "Mansion, 2f. - Odin",
+    "name": "Shinra Mansion, 2f. - Odin",
     "code": 300231,
     "map": "sinin2_1",
     "maps": ["sinin2_1"],
@@ -2574,7 +2574,7 @@
     "bit": 4
   },
   {
-    "name": "Mansion, 2f. - Magic Source",
+    "name": "Shinra Mansion, 2f. - Magic Source",
     "code": 300232,
     "map": "sinin2_2",
     "maps": ["sinin2_2"],
@@ -2585,7 +2585,7 @@
     "bit": 4
   },
   {
-    "name": "Mansion, Basement - Destruct",
+    "name": "Shinra Mansion, Basement - Destruct",
     "code": 300233,
     "map": "sininb42",
     "maps": ["sininb42"],
@@ -2728,7 +2728,7 @@
     "bit": 4
   },
   {
-    "name": "Old man's house - Bolt Ring",
+    "name": "Old Man in Cave - Bolt Ring",
     "code": 300269,
     "map": "zz1",
     "maps": ["zz1"],
@@ -2739,7 +2739,7 @@
     "bit": 7
   },
   {
-    "name": "Weapon seller - Great Gospel",
+    "name": "Weapon Seller - Great Gospel",
     "code": 300270,
     "map": "zz2",
     "maps": ["zz2"],
@@ -2750,7 +2750,7 @@
     "bit": 1
   },
   {
-    "name": "Weapon seller - Gold Armlet",
+    "name": "Weapon Seller - Gold Armlet",
     "code": 300271,
     "map": "zz2",
     "maps": ["zz2"],
@@ -2772,7 +2772,7 @@
     "bit": 6
   },
   {
-    "name": "??? - Chaos",
+    "name": "Lurecia's Cave - Chaos",
     "code": 300274,
     "map": "zz4",
     "maps": ["zz4"],
@@ -3223,7 +3223,7 @@
     "bit": 0
   },
   {
-    "name": "uta_im - HP Absorb",
+    "name": "Wutai Weapons Store - HP Absorb",
     "code": 310009,
     "map": "uta_im",
     "maps": ["uta_im"],
@@ -3751,7 +3751,7 @@
     "bit": 6
   },
   {
-    "name": "bugin1b - Bahamut Zero",
+    "name": "Bugenhagen's Observatory - Bahamut Zero",
     "code": 310057,
     "map": "bugin1b",
     "maps": ["bugin1b", "bonevil"],
@@ -4136,11 +4136,11 @@
     "bit": 3
   },
   {
-    "name": "Kalm - Show Master Summon",
+    "name": "Kalm - Show Earth Harp 3",
     "code": 310092,
     "map": "elmin4_2",
     "maps": ["elmin4_2"],
-    "item_text": "Show Master Summon",
+    "item_text": "Show Earth Harp 3",
     "category": "standard",
     "bank": 13,
     "address": 87,

@@ -20,7 +20,7 @@
   {
     "name": "All Creation",
     "code": 100003,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 92
   },
   {
@@ -195,7 +195,7 @@
   {
     "name": "Catastrophe",
     "code": 100031,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 88
   },
   {
@@ -231,7 +231,7 @@
   {
     "name": "Chaos",
     "code": 100037,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 93
   },
   {
@@ -261,7 +261,7 @@
   {
     "name": "Conformer",
     "code": 100042,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 228
   },
   {
@@ -273,7 +273,7 @@
   {
     "name": "Cosmo Memory",
     "code": 100044,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 91
   },
   {
@@ -339,7 +339,7 @@
   {
     "name": "Death Penalty",
     "code": 100055,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 254
   },
   {
@@ -457,18 +457,6 @@
     "ff7_id": 5
   },
   {
-    "name": "Empty Item",
-    "code": 100075,
-    "classification": "filler",
-    "ff7_id": 511
-  },
-  {
-    "name": "Empty Item Data",
-    "code": 100076,
-    "classification": "filler",
-    "ff7_id": 65535
-  },
-  {
     "name": "Enemy Launcher",
     "code": 100077,
     "classification": "filler",
@@ -513,7 +501,7 @@
   {
     "name": "Final Heaven",
     "code": 100084,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 89
   },
   {
@@ -769,9 +757,9 @@
     "ff7_id": 23
   },
   {
-    "name": "Hp Shout",
+    "name": "HP Shout",
     "code": 100125,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 241
   },
   {
@@ -879,7 +867,7 @@
   {
     "name": "Limited Moon",
     "code": 100143,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 189
   },
   {
@@ -1017,7 +1005,7 @@
   {
     "name": "Missing Score",
     "code": 100165,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 175
   },
   {
@@ -1095,7 +1083,7 @@
   {
     "name": "Omnislash",
     "code": 100179,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 87
   },
   {
@@ -1233,13 +1221,13 @@
   {
     "name": "Premium Heart",
     "code": 100202,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 159
   },
   {
     "name": "Princess Guard",
     "code": 100203,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 200
   },
   {
@@ -1677,7 +1665,7 @@
   {
     "name": "Ultima Weapon",
     "code": 100275,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 143
   },
   {
@@ -1707,7 +1695,7 @@
   {
     "name": "Venus Gospel",
     "code": 100280,
-    "classification": "filler",
+    "classification": "useful",
     "ff7_id": 214
   },
   {

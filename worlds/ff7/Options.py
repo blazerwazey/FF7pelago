@@ -144,6 +144,18 @@ class WeaponFightChecks(DefaultOnToggle):
     display_name = "Weapon Fight Checks"
 
 
+class StartWithChocoboLure(Toggle):
+    """Start with a Chocobo Lure materia in your inventory.
+
+    Chocobo Lure raises the chocobo encounter rate on chocobo tracks, making it
+    easier to find (and catch) chocobos early. When enabled you begin the game
+    with one Chocobo Lure already in your materia stock, in addition to any that
+    may appear in the item pool.
+    """
+    display_name = "Start with Chocobo Lure"
+    default = False
+
+
 # ---------------------------------------------------------------------------
 # Options dataclass
 # ---------------------------------------------------------------------------
@@ -173,6 +185,7 @@ class FF7Options(PerGameCommonOptions):
     ap_multiplier: APMultiplier
     disable_gold_saucer: DisableGoldSaucer
     weapon_fight_checks: WeaponFightChecks
+    start_with_chocobo_lure: StartWithChocoboLure
 
     # Goal
     victory_condition: VictoryCondition

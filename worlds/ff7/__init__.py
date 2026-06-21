@@ -280,6 +280,9 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "tower5":     "Wutai",
     "yufy1":      "Wutai",
     "utapb":      "Wutai",
+    "hideway1":   "Wutai",   # Wutai Hidden Passage — Magic Shuriken
+    "hideway2":   "Wutai",   # Wutai Hidden Passage — Hairpin
+    "hideway3":   "Wutai",   # Wutai Hidden Passage — HP Absorb
 
     # --- Temple of the Ancients: NOT mapped. The temple collapses at the end
     #     of the Keystone/Black Materia sequence (~moment 1000), so at Free Roam
@@ -474,6 +477,8 @@ _FREE_ROAM_WEAPON_BOSSES = {
     "Defeat Ultimate Weapon": "ocean",      # roams the world map (chase by Gold/Highwind)
     "Defeat Emerald Weapon":  "underwater", # deep underwater — Submarine
     "Defeat Ruby Weapon":     "ocean",      # Gold Saucer desert (western continent)
+    # Diamond Weapon is omitted: his world-map model never renders in Free Roam, so
+    # he is fully hidden (ambient spawn neutralized in wm0.ev) and is not a check.
 }
 
 # Kalm Traveler (House: 2f, elmin4_2) trades — each check requires its rare-item
@@ -562,6 +567,7 @@ class FF7Web(WebWorld):
                 "exp_multiplier",
                 "gil_multiplier",
                 "ap_multiplier",
+                "start_with_chocobo_lure",
             ],
         ),
         OptionGroup(
@@ -807,7 +813,9 @@ class FF7World(World):
             lambda state: _ocean(state) and state.has("Lunar Harp", player)
         )
         world_map.connect(sub_regions["Great Glacier"]).access_rule = (
-            lambda state: _ocean(state) and state.has("Snowboard", player)
+            lambda state: _ocean(state)
+            and state.has("Snowboard", player)
+            and state.has("Glacier Map", player)
         )
 
         # --- Northern Crater interior: Highwind + All Characters + 4 Huge Materia ---
@@ -906,6 +914,11 @@ class FF7World(World):
 
     def create_items(self) -> None:
         free_roam = bool(self.options.free_roam)
+        # Optional starter: begin with a Chocobo Lure materia. Precollected items
+        # are delivered to the client as received items (the runtime writes the
+        # materia), and don't occupy a location, so the pool fill below is unchanged.
+        if self.options.start_with_chocobo_lure:
+            self.multiworld.push_precollected(self.create_item("Chocobo Lure"))
         # Count only locations that still need an item. The victory location is
         # pre-filled with a locked item in create_regions; counting it here would
         # create one item too many for the available spots and break fill.

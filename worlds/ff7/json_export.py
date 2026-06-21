@@ -22,29 +22,9 @@ from .Locations import ALL_LOCATION_TABLE
 if TYPE_CHECKING:
     from .__init__ import FF7World
 
-# Bank 1 is the only bank we can reliably both (a) write to via the FF7 field
-# script BITON opcode AND (b) poll from FF7Client via the live savemap mirror
-# — banks 3+ don't reliably persist into the polled region.  Within bank 1 we
-# start above the 0x40-0x46 key-item flags at 0x80, walking the "z_16/z_18/
-# z_19" unknown regions documented by ff7tk's FF7SLOT struct.
-#
-# Specific bytes are skipped because they are vanilla NPC-quest-state vars
-# whose bits the field engine reads as game logic (e.g. Var[1][0xA1] = the
-# Wall Market old-man tracker, Var[1][0xA2] = pharmacy / materia-shop owner
-# state, bm_progress1/2 at 0xE1/0xE2).  Allocating BITONs on those addresses
-# silently triggers vanilla side-effects (Deodorant flag flips, Materia Shop
-# owner var flips, PHS menu unlocks, etc.) — the symptoms the user labelled
-# i03 / i07 / i12 / i13 / i19 / i20 / i21.
-_AP_BITON_BANK = 1
-_AP_BITON_ADDR_BASE = 0x80
-# Skip these bank-1 addresses entirely (known NPC quest-state collisions).
-_AP_BITON_SKIP_ADDRS = frozenset({
-    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5,  # mktpb / Pharmacy / Materia Shop NPC vars
-    0xB7,                                 # Bone Village collision - triggers in Midgar
-    0xE1, 0xE2,                           # bm_progress1 / bm_progress2
-})
-# Hard upper bound (last byte of bank 1).
-_AP_BITON_ADDR_MAX = 0xFF
+# (The old bank-1 BITON auto-allocator was removed — placements now use each
+# pickup's own natural "taken" flag from locations.json / field_pickup_flags.json,
+# which is collision-free. See build_biton_map_dict below.)
 
 
 def _load_key_item_biton_map() -> Dict[str, Dict[str, int]]:

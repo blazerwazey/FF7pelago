@@ -70,3 +70,19 @@ class TestWeaponFightChecksOff(FF7TestBase):
         for boss in _WEAPON_BOSSES:
             with self.subTest(boss):
                 self.assertNotIn(boss, names)
+
+
+class TestStartWithChocoboLureOn(FF7TestBase):
+    options = {"free_roam": True, "start_with_chocobo_lure": True}
+
+    def test_chocobo_lure_precollected(self) -> None:
+        precollected = self.multiworld.precollected_items[self.player]
+        self.assertTrue(any(it.name == "Chocobo Lure" for it in precollected))
+
+
+class TestStartWithChocoboLureOff(FF7TestBase):
+    options = {"free_roam": True, "start_with_chocobo_lure": False}
+
+    def test_chocobo_lure_not_precollected(self) -> None:
+        precollected = self.multiworld.precollected_items[self.player]
+        self.assertFalse(any(it.name == "Chocobo Lure" for it in precollected))
