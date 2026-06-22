@@ -5,7 +5,7 @@
 - **Final Fantasy VII** — Steam / PC release (`FF7_EN.exe`, US v1.02).
 - **7th Heaven** mod manager (used to launch the game with FFNx).
 - **Gold Saucer** — the FF7 randomizer that patches the game files from the seed and ships `shophook.dll`.
-- **Archipelago** (0.5.1+) with the **Final Fantasy VII** apworld installed.
+- **Archipelago** (0.6.7+) with the **Final Fantasy VII** apworld installed.
 
 > ⚠️ Always keep a clean backup of your FF7 install. Gold Saucer writes to a separate output folder, but the client
 > injects a DLL into the running game.

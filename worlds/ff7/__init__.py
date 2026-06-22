@@ -600,7 +600,7 @@ class FF7World(World):
     location_name_to_id: ClassVar[dict[str, int]] = location_name_to_id
     item_name_groups: ClassVar[dict[str, set[str]]] = item_name_groups
     location_name_groups: ClassVar[dict[str, set[str]]] = location_name_groups
-    required_client_version: ClassVar[tuple[int, int, int]] = (0, 5, 1)
+    required_client_version: ClassVar[tuple[int, int, int]] = (0, 6, 7)
     web: ClassVar[FF7Web] = FF7Web()
 
     victory_location_name = "Northern Crater - Defeat Sephiroth"

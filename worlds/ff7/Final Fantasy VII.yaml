@@ -16,7 +16,7 @@ description: FF7 template       # free-text note shown in the spoiler/host
 
 game: Final Fantasy VII
 requires:
-  version: 0.5.1                # minimum Archipelago version
+  version: 0.6.7                # minimum Archipelago version
 
 Final Fantasy VII:
   # ── Core AP options ──────────────────────────────────────────────────────

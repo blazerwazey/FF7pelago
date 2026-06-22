@@ -45,6 +45,7 @@ EnemizerCLI/
 /SNI/
 /sni-*/
 /appimagetool*
+/VC_redist.x64.exe
 /host.yaml
 /options.yaml
 /config.yaml
@@ -198,5 +199,3 @@ _speedups.html
 .LSOverride
 Thumbs.db
 [Dd]esktop.ini
-worlds/ff7.apworld
-worlds/ff7/validate_locations.py
