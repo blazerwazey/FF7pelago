@@ -352,10 +352,14 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "subin_1a":   "Underwater Reactor",
 
     # --- Sunken Gelnika (Submarine only) ---
-    "q_1":        "Gelnika",
-    "q_2":        "Gelnika",
-    "q_3":        "Gelnika",
-    "q_4":        "Gelnika",
+    # NOTE: the Sunken Gelnika field maps are named qa/qb/qc/qd in flevel.lgp
+    # (NOT q_1-q_4). The map name must match the LGP field name so Gold Saucer's
+    # (map,item_text) pickup match works — otherwise the chests/materia keep
+    # their vanilla item grant (double-dip with the AP check).
+    "qa":         "Gelnika",   # was "q_1" (Heaven's Cloud)
+    "qb":         "Gelnika",   # was "q_2" (no AP checks)
+    "qc":         "Gelnika",   # was "q_3" (Double Cut, Escort Guard, Conformer, Megalixir)
+    "qd":         "Gelnika",   # was "q_4" (Hades, Highwind, Outsider, Spirit Lance, Megalixir)
 }
 
 # Items that only belong in the pool when Free Roam is enabled (world-map
@@ -443,7 +447,7 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     300100,
     # Removed by request: all Underwater Reactor locations (semkin_6/7, subin_1a)
     200336, 200342, 200343,   # Leviathan Scales, Scimitar, Battle Trumpet
-    310012, 310013,           # Huge Materia (Underwater), Key to Ancients
+    310012,                   # Huge Materia (Underwater)  (Key to Ancients 310013 RE-ENABLED 2026-06-23)
     # Removed by request: all Corneo mansion locations (colne_*; Sewer already above)
     300029,                   # Corneo Hall, 2f - Phoenix Down (colne_3)
     300030,                   # Torture Room - Ether (colne_4)
@@ -468,6 +472,24 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # "Cargo Room" (q_4, 200296/310090) which stays in.
     300224, 300225, 300226,                          # Ether, All, Wind Slash
     320065, 320066, 320067, 320068,                  # Cargo Ship Item - AP Slots 1-4
+    # Removed by request (2026-06-22):
+    200351,                                          # Materia Room - Huge Materia: Rocket
+    200371,                                          # Mideel, House 2 - Elixir
+    300038, 300040, 300041,                          # Fort Condor Watch Room (all rewards)
+    300175,                                          # North Corel - Ultima #2
+    310017,                                          # Corel - Huge Materia: Corel
+    300208,                                          # Rocket Town - Yoshiyuki
+    300250,                                          # Under Junon - Shiva
+    310067,                                          # Midgar Sector 5 - Lingerie
+    200321, 200322,                                  # Mt. Corel - Star Pendant / Wizard Staff
+    310036,                                          # Midgar Sector 5 - Batteries
+    300177, 300193,                                  # Nibelheim Luck Sources (Inn / House)
+    310044,                                          # Nibelheim - Mind Plus
+    # Corneo dress key items still live (rest of the chain already excluded above):
+    310066,                                          # Midgar Sector 5 - Bikini briefs
+    # All Shinra HQ shop locations (the Shinra Bldg./blin* field checks are already
+    # excluded above; these are the 4 AP shop slots).
+    320029, 320030, 320031, 320032,                  # Shinra HQ - AP Slots 1-4
 })
 
 # Weapon boss locations (detected by their savemap defeat flag) and the traversal
@@ -492,6 +514,12 @@ _FREE_ROAM_LOCATION_ITEM_GATES = {
     310092: "Earth Harp",    # Show Master Summon
     200304: "Desert Rose",   # Show Gold Chocobo
     310070: "Tifa",          # Nibelheim - Final Heaven
+    # Wutai Da-chao Statue (datiao_8) — the cave/statue rewards require the
+    # Leviathan Scales key item in-game (the client also sets the field's
+    # "has Leviathan Scales" flag on receipt). Leviathan Scales is progression.
+    200337: "Leviathan Scales",   # Da-chao Statue - Steal-As-Well
+    200338: "Leviathan Scales",   # Da-chao Statue - Dragoon Lance
+    200346: "Leviathan Scales",   # Da-chao Statue - Oritsuru
 }
 
 
@@ -773,8 +801,16 @@ class FF7World(World):
         world_map.connect(sub_regions["Junon Lower"]).access_rule = _mountain
         world_map.connect(sub_regions["Junon Upper"]).access_rule = _mountain
 
-        # --- Chocobo Sage's house (chocobo / Highwind only, mountain-enclosed) ---
-        world_map.connect(sub_regions["Chocobo Sage"]).access_rule = _mountain
+        # --- Chocobo Sage's house (northern continent, mountain-enclosed) ---
+        # Needs BOTH ocean-crossing AND mountain capability: Black/Gold chocobo or
+        # the Highwind. (NOT _mountain — that allows Green, which can't cross the
+        # ocean to reach this continent; NOT _ocean — that allows Blue, which is
+        # ocean-only and can't enter the mountain-walled area.)
+        world_map.connect(sub_regions["Chocobo Sage"]).access_rule = (
+            lambda state: (state.has("Black Chocobo", player)
+                           or state.has("Gold Chocobo", player)
+                           or state.has("Highwind", player))
+        )
 
         # --- North Corel + Gold Saucer (Submarine reaches these; or Gold/Highwind) ---
         world_map.connect(sub_regions["Corel"]).access_rule = _sub

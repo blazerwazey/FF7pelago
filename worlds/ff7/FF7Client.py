@@ -123,6 +123,25 @@ _FREE_ROAM_FORCE_FLAGS = [
     (0x0C26, 3),   # #3 Elena punched Cloud
     (0x0C26, 4),   # #4 Cloud woke in Gast home
     (0x0C26, 7),   # #7 First time snowboarding
+    # Junon "Junon area story flags" — Var[1][129] (0xBA4+0x81 = 0xC25). Force the
+    # whole byte (all 8 bits = 0xFF) so the one-time Junon arrival sequence (Priscilla
+    # CPR, climb-the-tower, top-of-pole, etc.) is marked done and won't re-trigger on
+    # Free Roam entry.
+    (0x0C25, 0),   # #0 Priscilla warnings given
+    (0x0C25, 1),   # #1 Oldman: "Do CPR!"
+    (0x0C25, 2),   # #2 Free rest offer made
+    (0x0C25, 3),   # #3 Talk about black cape man
+    (0x0C25, 4),   # #4 Priscilla: "Gets deeper..."
+    (0x0C25, 5),   # #5 Tifa: "5 years ago"
+    (0x0C25, 6),   # #6 Cloud: "Hey!" (climb tower)
+    (0x0C25, 7),   # #7 Reached top of pole
+    # Yuffie forest encounter flag — Var[1][133] (0xBA4+0x85 = 0xC29), LSB only.
+    # Bit 0 ON = Yuffie can be encountered in forests (so she's recruitable in
+    # Free Roam, where the story flag that normally enables it is skipped).
+    (0x0C29, 0),   # bit 0 — "can Yuffie be found in forests"
+    # Var[3][189] bit 4 (the "& 16" field-script gate) — bank 3 base 0xCA4 + 0xBD
+    # = 0xD61. Forced ON so the gated branch (else goto label 1) is taken.
+    (0x0D61, 4),   # Var[3][189] & 16
     # NOTE: Ruby Weapon's spawn (0xF2B.4) is NOT forced here anymore. Ruby's model
     # geometry only renders at world_progress 4, which the overworld init reaches
     # only after Ultimate is dead — so forcing his spawn early just produced an
@@ -142,6 +161,14 @@ _FREE_ROAM_ITEM_GATE_FLAGS = [
     ("Glacier Map", 0x0C26, 6),        # Snow story flag #6 "Glacier Map key item" — Var[1][130].6
                                        # (0xBA4+0x82 = 0xC26). Set only once the AP Glacier Map is
                                        # received, so the Great Glacier map/navigation works.
+    ("Submarine", 0x0EF4, 3),          # "Gray submarine" OWNED flag — bank-13 byte (0xEA4+0x50 =
+                                       # 0xEF4), bit 3 (0x08). This is what makes the world map spawn
+                                       # the parked submarine model (next to Junon, via the sub_world
+                                       # coord). VEHICLE_ITEM_FLAGS only sets tut_sub (0xC1E.2 = skips
+                                       # the tutorial / grants access) — without the owned flag the
+                                       # submarine never appears. Re-asserted each poll so it spawns on
+                                       # the next world-map entry after receipt. ("Red submarine" 0xEF6.2
+                                       # is the enemy sub, not set here.)
 ]
 # Boss checks: the only tracked bosses are Ultimate/Emerald/Ruby Weapon, and
 # they are detected like any other location via their savemap defeat flag
@@ -2004,6 +2031,16 @@ async def game_watcher(ctx: FF7Context) -> None:
                 try:
                     if pm.read_uchar(SAVEMAP_BASE + DISC_OFFSET) != FREE_ROAM_DISC:
                         pm.write_uchar(SAVEMAP_BASE + DISC_OFFSET, FREE_ROAM_DISC)
+                except Exception:
+                    pass
+                # Own all 6 Chocobo Farm stables from the start (vanilla buys them
+                # one at a time from Choco Billy). Each AP chocobo can then be
+                # stabled immediately instead of the owned-count creeping up per
+                # delivery. Re-asserted each poll; occupancy (0x0CFD/0x0CFF) is still
+                # managed per chocobo by _deliver_chocobo.
+                try:
+                    if pm.read_uchar(SAVEMAP_BASE + _CHOCO_STABLES) != _CHOCO_MAX_SLOTS:
+                        pm.write_uchar(SAVEMAP_BASE + _CHOCO_STABLES, _CHOCO_MAX_SLOTS)
                 except Exception:
                     pass
                 # Keep delivered optional characters playable: re-seed their record
