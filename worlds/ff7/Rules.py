@@ -66,13 +66,36 @@ def _apply_linear_rules(world: "FF7World") -> None:
             location.item_rule = lambda item, prog_items=progression_items: item.name not in prog_items
 
 
-def _apply_free_roam_rules(world: "FF7World") -> None:
-    """Free Roam mode: access is enforced by region connections, no item_rule restrictions needed.
+# Regions reachable with only the forced-early/starter traversal (Green Chocobo +
+# Submarine, both pushed into sphere 1) or a single key item — i.e. NOT requiring
+# true open-ocean (Blue/Black Chocobo) or the Highwind:
+#   foot:            Kalm, Mythril Mines, Chocobo Farm, Fort Condor
+#   Green (mountain):Junon Lower, Junon Upper
+#   Submarine (_sub):Corel, Gold Saucer Area
+#   Key to Sector 5: Midgar Sector 5
+# Gold Chocobo is a "skeleton key" (satisfies mountain + ocean + sub at once), so
+# we keep it OUT of these regions — the player can't get it until they already have
+# real ocean/Highwind traversal, making it a convenience upgrade, not the first key.
+_GOLD_CHOCOBO_EARLY_REGIONS = frozenset({
+    "Kalm", "Mythril Mines", "Chocobo Farm", "Fort Condor",
+    "Junon Lower", "Junon Upper",
+    "Corel", "Gold Saucer Area",
+    "Midgar Sector 5",
+})
 
-    Region gates already ensure:
-      - Junon Upper / Corel require Tiny Bronco
-      - Gold Saucer Area requires Gold Ticket
-      - Midgar Sector 5 requires Key to Sector 5
-    Sphere-1 locations (Kalm, Junon Lower) are always reachable from the start.
-    """
-    pass
+
+def _apply_free_roam_rules(world: "FF7World") -> None:
+    """Free Roam: region connections enforce most access. Additionally keep the
+    Gold Chocobo out of the early, starter-reachable regions (incl. their shop
+    slots) so it can't be obtained before real ocean/Highwind traversal. Safe:
+    Gold Chocobo is never a sole requirement (every gate that accepts it also
+    accepts Green/Blue/Black/Submarine/Highwind, and the goal needs Highwind), so
+    restricting where it can be placed cannot soft-lock a seed."""
+    player = world.player
+    for location in world.multiworld.get_locations(player):
+        region = location.parent_region
+        if region is not None and region.name in _GOLD_CHOCOBO_EARLY_REGIONS:
+            prev = location.item_rule
+            location.item_rule = (
+                lambda item, _prev=prev: _prev(item) and item.name != "Gold Chocobo"
+            )

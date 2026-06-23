@@ -447,7 +447,7 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     300100,
     # Removed by request: all Underwater Reactor locations (semkin_6/7, subin_1a)
     200336, 200342, 200343,   # Leviathan Scales, Scimitar, Battle Trumpet
-    310012,                   # Huge Materia (Underwater)  (Key to Ancients 310013 RE-ENABLED 2026-06-23)
+    310012, 310013,           # Huge Materia (Underwater), Key to Ancients
     # Removed by request: all Corneo mansion locations (colne_*; Sewer already above)
     300029,                   # Corneo Hall, 2f - Phoenix Down (colne_3)
     300030,                   # Torture Room - Ether (colne_4)
@@ -1044,8 +1044,11 @@ class FF7World(World):
         In Free Roam mode, prioritize vehicles and Key to Sector 5 instead.
         """
         if self.options.free_roam:
+            # NOTE: Gold Chocobo is deliberately NOT prioritized early — it's a
+            # do-everything traversal item; keeping it off this list (plus the
+            # early-region item_rule in Rules.py) stops it landing in sphere 1.
             early_priority_items = [
-                "Green Chocobo", "Submarine", "Gold Chocobo", "Highwind",
+                "Green Chocobo", "Submarine", "Highwind",
                 "Gold Ticket", "Key to Sector 5",
             ]
         else:
