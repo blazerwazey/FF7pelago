@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import random
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -81,6 +82,11 @@ GAME_MODULE_WORLD   = 3
 GAME_MODULE_ENDING  = 25        # post-final-battle ending sequence
 GAME_MODULE_GAMEOVER = 26
 GAME_MODULE_CREDITS = 28        # staff roll
+
+# Free Roam game-over recovery: number of consecutive in-game (Field/World) polls
+# required after a Game Over before we re-deliver all received items. Gives the
+# new-game md1stin savemap seeding time to finish so our re-writes aren't clobbered.
+_RESUME_REDELIVER_TICKS = 3
 
 # Live battle formation index (u16). ff7-ultima "battle_id". Used to detect a
 # won Ruby/Emerald battle and register the kill (their weapons_killed flags are
@@ -152,23 +158,47 @@ _FREE_ROAM_FORCE_FLAGS = [
 # been received (the field gate softlocks otherwise, but opening it without the
 # item would break the AP logic). Read on field load, so re-asserted each poll.
 _FREE_ROAM_ITEM_GATE_FLAGS = [
-    ("Basement Key", 0x0C8C, 1),       # Shinra Mansion basement — Var[1][232].1 (0xBA4+0xE8)
+    # NOTE: Basement Key intentionally has NO entry here. Its gate flag
+    # (Var[1][232].1 = 0x0C8C.1) doubles as the "Key To Basement" pickup's
+    # detection bit, so setting it on receipt made that AP check uncheckable.
+    # Gold Saucer now re-gates the sininb2 basement on the possession bit
+    # (Var[1][0x43].4, set by KEY_ITEM_FLAGS), so the door opens from holding
+    # the key while 0x0C8C.1 is freed for the (re-introduced) check. See the
+    # FieldPickup patch "BASEMENT_GATE".
     ("Leviathan Scales", 0x1031, 0),   # "has Leviathan Scales" prerequisite — Var[15][141].0
                                        # (0xFA4+0x8D). Field scripts gate their reward branches
                                        # on this being ON. NOT setting Var[15][137].* — those are
                                        # per-NPC "reward already given" bits, checked OFF, so
                                        # setting them would block the rewards.
-    ("Glacier Map", 0x0C26, 6),        # Snow story flag #6 "Glacier Map key item" — Var[1][130].6
-                                       # (0xBA4+0x82 = 0xC26). Set only once the AP Glacier Map is
-                                       # received, so the Great Glacier map/navigation works.
+    # NOTE: Glacier Map deliberately has NO gate-flag entry. Its "Glacier Map key
+    # item obtained" story flag (Var[1][130].6 = 0xC26.6) is ALSO the in-game
+    # pickup's detection flag for location 310019 ("Icicle Inn - Glacier Map"):
+    # setting it on receipt made the field hide the pickup AND auto-suppressed the
+    # AP check, leaving it permanently unobtainable. No snow/glacier field reads
+    # Var[1][130] for navigation (verified by full-game field scan) — the in-game
+    # map feature is driven by the key-item POSSESSION bit (KEY_ITEM_FLAGS, 0x45.4),
+    # which is still set on receipt. So this location now behaves like every other
+    # working key-item pickup.
     ("Submarine", 0x0EF4, 3),          # "Gray submarine" OWNED flag — bank-13 byte (0xEA4+0x50 =
-                                       # 0xEF4), bit 3 (0x08). This is what makes the world map spawn
-                                       # the parked submarine model (next to Junon, via the sub_world
-                                       # coord). VEHICLE_ITEM_FLAGS only sets tut_sub (0xC1E.2 = skips
-                                       # the tutorial / grants access) — without the owned flag the
-                                       # submarine never appears. Re-asserted each poll so it spawns on
-                                       # the next world-map entry after receipt. ("Red submarine" 0xEF6.2
-                                       # is the enemy sub, not set here.)
+                                       # 0xEF4), bit 3 (0x08). The system overworld init checks this to
+                                       # LOAD the submarine model, so this is what makes it APPEAR next
+                                       # to Junon. VEHICLE_ITEM_FLAGS also sets tut_sub (0xC1E.2 = skips
+                                       # the acquisition tutorial). Re-asserted each poll so it spawns on
+                                       # the next world-map entry after receipt.
+    ("Submarine", 0x0EF6, 2),          # Persistent "submarine parked & drivable on the world map" flag —
+                                       # bank-13 byte 0xEF6, bit 2. Despite the "Red submarine" label in
+                                       # some savemap docs, the model-13 init in wm0.ev REQUIRES this for
+                                       # its steady-state spawn path (the one vanilla takes on every
+                                       # world-map entry once tut_sub is set): that path is gated on
+                                       # owned(0xEF4.3) AND tut_sub(0xC1E.2) AND 0xEF6.2 AND being in the
+                                       # Junon mesh AND NOT(0xF2A.1). The Junon-raid field script normally
+                                       # sets 0xEF6.2; Free Roam skips that script, so without this the
+                                       # model loaded (owned flag) and APPEARED but no init path ran to
+                                       # POSITION/REGISTER it as a drivable vehicle — the sub showed up at
+                                       # Junon but could not be driven out to sea. Checked in 6 places in
+                                       # wm0.ev, set in none, so it must come from the savemap. NOT(0xF2A.1)
+                                       # holds because the client only ever writes 0xF2A bits 3/4 (weapon
+                                       # pre-arm), never bit 1.
 ]
 # Boss checks: the only tracked bosses are Ultimate/Emerald/Ruby Weapon, and
 # they are detected like any other location via their savemap defeat flag
@@ -559,6 +589,21 @@ class FF7CommandProcessor(ClientCommandProcessor):
             logger.warning(f"[weapons] failed: {exc}")
         return True
 
+    def _cmd_resync(self) -> bool:
+        """Re-deliver every AP item you've received. Use this after a game over
+        in Free Roam: a game over reloads the baseline and wipes your delivered
+        items, and /resync restores your key items, vehicles, party members,
+        chocobos and inventory. (The client also does this automatically when it
+        detects you've returned to play after a Game Over.) Best run right after
+        the wipe — re-running it while items are still in your inventory can
+        duplicate stackable items and materia."""
+        n = _requeue_all_received_items(self.ctx)
+        if n:
+            logger.info(f"Re-delivering {n} received AP item(s) on the next tick…")
+        else:
+            logger.info("No received AP items to re-deliver yet.")
+        return True
+
     def _cmd_rewards(self) -> bool:
         """[Debug] Diagnose the EXP/Gil/AP battle multipliers: the values from
         slot_data, whether the exe patch sites match the expected build, and the
@@ -700,6 +745,12 @@ class FF7Context(CommonContext):
         # Item delivery state (persists across poll cycles)
         self._delivered_item_indices: Set[int] = set()
         self._pending_items: List[Tuple[int, object]] = []
+        # Free Roam game-over recovery: latched when the live module hits the
+        # Game Over screen (26); once gameplay resumes for a few stable ticks we
+        # re-deliver every received item, because the game over reloaded the
+        # wiped md1stin baseline. _resume_debounce counts the post-resume ticks.
+        self._game_over_seen: bool = False
+        self._resume_debounce: int = 0
         # Boss checks that have been sent (location_id)
         self._boss_checks_sent: Set[int] = set()
         # Weapon-boss kill latched from a battle formation, applied to
@@ -711,6 +762,11 @@ class FF7Context(CommonContext):
         # false-report them as fresh checks.
         self._baseline_locations: Set[int] = set()
         self._baseline_established: bool = False
+        # Reverse index (savemap-rel offset, bit) -> [location codes] built from
+        # biton_map, so a CLIENT-driven flag write (gate/force/key-item flag) can
+        # suppress any location that shares that exact bit (else the client setting
+        # a gate flag fires the original pickup location as a phantom check).
+        self._biton_rev: Dict[Tuple[int, int], List[int]] = {}
         # Whether the shop hook DLL has been injected this game connection.
         self._hook_injected: bool = False
         # Victory condition: 0 = defeat_sephiroth (default), 1 = escape_midgar
@@ -860,6 +916,19 @@ def _biton_byte_addr(bank: int, address: int) -> int:
     return SAVEMAP_BASE + base + address
 
 
+def _suppress_client_flag_locations(ctx: "FF7Context", rel_offset: int, bit: int) -> None:
+    """Mark any tracked location whose detection BITON is exactly (rel_offset, bit)
+    as already-handled, so a CLIENT-driven savemap write (item-gate flag, force
+    flag, key-item flag) can't fire the original pickup location as a phantom
+    check. ``rel_offset`` is relative to SAVEMAP_BASE — i.e.
+    ``_biton_byte_addr(bank, addr) - SAVEMAP_BASE``. No-op until the reverse index
+    (_biton_rev) is built at baseline. Legitimate in-game pickups are unaffected:
+    they set the same bit, but detection (run at the top of the poll) fires them
+    before the client's write/suppression at the bottom of the poll."""
+    for code in ctx._biton_rev.get((rel_offset, bit), ()):
+        ctx._checked_this_session.add(code)
+
+
 # ── Key item flag map ─────────────────────────────────────────────────────────
 # Each entry maps an item name to the list of (bank_address, bit) pairs to set
 # in the FF7 savemap at SAVEMAP_BASE + 0x0BA4 + address.
@@ -999,56 +1068,28 @@ def _ensure_mktpb_old_man_processed(pm: "pymem.Pymem") -> None:
 
 
 # Sector 5 walkmesh gate side-effect.
-# Entry to Midgar runs through field mds5_5, whose script keeps the passage open
-# only while the "owns Key to Sector 5" flag is ON:
-#     If Var[15][38] bitOFF 3  ->  Deactivate the triangle #4   (blocks the way)
-# So that flag — not the AP-internal Key-to-Sector-5 inventory bit (bank-1 0x43.5)
-# that delivery also sets — is what must be ON. Var[15][38] is a savemap bit.
-# The field-script savemap banks (authoritative ff7-lib/ff7-ultima map: bank pairs
-# 1/2,3/4 -> 0xBA4,0xCA4; 11/12 -> 0xDA4; 13/14 -> 0xEA4; 7/15 -> 0xFA4; 5/6 = temp)
-# put bank 15 at region 0xFA4, so Var[15][38] = 0xFA4 + 0x26 = 0x0FCA, bit 3.
-# (Earlier 0x10CA was wrong — there is no 0x10A4 savemap region; bank 6 is temp.)
-_SECTOR5_GATE_OFFSET = 0x0FCA   # FF7SLOT offset (live addr = SAVEMAP_BASE + this)
-_SECTOR5_GATE_BIT    = 3        # bit 3 (mask 0x08)
+# NOTE: We no longer set the mds5_5 walkmesh gate flag (Var[15][38].3 = 0x0FCA.3)
+# from the client. That flag is ALSO the Bone Village "Key To Sector 5" pickup's
+# detection bit, so setting it on receipt broke that AP check (same failure mode
+# as Glacier Map / Snowboard). Instead, Gold Saucer re-gates the mds5_5 entry
+# triangle on the key-item POSSESSION bit Var[1][0x43].5 (set by KEY_ITEM_FLAGS
+# below), so Midgar entry opens from holding the key while 0x0FCA.3 is freed for
+# the check. The old gate-flag helper is gone; see the Gold Saucer FieldPickup
+# patch "SECTOR5_GATE" (mds5_5 entry triangle repointed to Var[1][0x43].5).
+# Historically the client set Var[15][38].3 (0x0FCA.3) here; mds5_5 gated the
+# Midgar-entry triangle on it ("If Var[15][38] bitOFF 3 -> deactivate triangle
+# #4"). That bit doubles as the Bone Village pickup's detection flag, hence the
+# move to gating on possession instead.
 
 
-def _ensure_sector5_walkmesh_gate(pm: "pymem.Pymem") -> None:
-    """Open the mds5_5 walkmesh passage into Midgar (Free Roam) by setting the
-    Key-to-Sector-5 possession flag Var[15][38].3 the field script gates on."""
-    try:
-        addr = SAVEMAP_BASE + _SECTOR5_GATE_OFFSET
-        current = pm.read_uchar(addr)
-        if not (current & (1 << _SECTOR5_GATE_BIT)):
-            pm.write_uchar(addr, current | (1 << _SECTOR5_GATE_BIT))
-            logger.debug(
-                "Sector 5 side-effect: set mds5_5 walkmesh gate flag "
-                f"(0x{_SECTOR5_GATE_OFFSET:04X} bit {_SECTOR5_GATE_BIT})"
-            )
-    except Exception as exc:
-        logger.debug(f"Sector 5 walkmesh-gate side-effect failed: {exc}")
-
-
-# Snow-area "Snowboard key item obtained" story flag. Ultima Bank 1 (field bank
-# pair 1/2 = savemap region 0 @0xBA4), address #130 (0x82), bit 1 → savemap
-# 0xBA4 + 0x82 = 0xC26, bit 1. The AP-internal Snowboard inventory bit (bank-1
-# 0x46.2) isn't this story flag, so set it explicitly on Snowboard delivery.
-_SNOWBOARD_FLAG_OFFSET = 0x0C26
-_SNOWBOARD_FLAG_BIT    = 1
-
-
-def _ensure_snowboard_flag(pm: "pymem.Pymem") -> None:
-    """Set the 'Snowboard key item obtained' story flag (Bank 1 #130 bit 1)."""
-    try:
-        addr = SAVEMAP_BASE + _SNOWBOARD_FLAG_OFFSET
-        current = pm.read_uchar(addr)
-        if not (current & (1 << _SNOWBOARD_FLAG_BIT)):
-            pm.write_uchar(addr, current | (1 << _SNOWBOARD_FLAG_BIT))
-            logger.debug(
-                "Snowboard side-effect: set 'Snowboard key item obtained' flag "
-                f"(0x{_SNOWBOARD_FLAG_OFFSET:04X} bit {_SNOWBOARD_FLAG_BIT})"
-            )
-    except Exception as exc:
-        logger.debug(f"Snowboard flag side-effect failed: {exc}")
+# NOTE: We deliberately do NOT set the "Snowboard key item obtained" story flag
+# (Var[1][130].1 = 0xC26.1) on Snowboard delivery. That flag is ALSO the in-game
+# pickup's detection flag for location 310018 ("Icicle Inn - Snowboard"): setting
+# it on receipt made the field hide the pickup, leaving the AP check unobtainable
+# (same failure mode as Glacier Map). No snow field reads Var[1][130] for
+# progression (verified by full-game field scan); the snowboard itself is granted
+# via the key-item POSSESSION bit (KEY_ITEM_FLAGS, 0x46.2), so progression is
+# unaffected and the location is once again checkable.
 
 
 def _deliver_key_item_flag(pm: "pymem.Pymem", item_name: str) -> bool:
@@ -1065,10 +1106,9 @@ def _deliver_key_item_flag(pm: "pymem.Pymem", item_name: str) -> bool:
         logger.debug(f"Delivered key item: {item_name}")
         if item_name in _DRESS_ITEMS:
             _ensure_mktpb_old_man_processed(pm)
-        if item_name == "Key to Sector 5":
-            _ensure_sector5_walkmesh_gate(pm)
-        if item_name == "Snowboard":
-            _ensure_snowboard_flag(pm)
+        # Key to Sector 5 needs no special flag: Gold Saucer re-gates the mds5_5
+        # Midgar-entry walkmesh on the possession bit (0x43.5) set just above.
+        # Snowboard intentionally sets no story flag here — see note above.
         return True
     except Exception as exc:
         logger.debug(f"Key item flag write failed for '{item_name}': {exc}")
@@ -1421,6 +1461,14 @@ _PARTY_OFFSET       = 0x04F8   # qint8 party[3] — active party member ids
 # visibility bit SET and its lock bit CLEAR.
 _PHS_LOCK_OFFSET    = 0x10A4   # quint16 — who is LOCKED (un-swappable) in the PHS
 _PHS_VISIBLE_OFFSET = 0x10A6   # quint16 — who is visible/available in the PHS
+# Main-menu visibility mask (ff7tk savemap: quint16 menu_visible @0x0BC0). A SET
+# bit = that menu option is shown; MENUPHS = bit 8. In Free Roam the PHS option
+# is hidden until the player has received this many party members via AP, so the
+# party-swap menu can't be opened before there's anyone to swap to.
+_MENU_VISIBLE_OFFSET = 0x0BC0
+_MENU_PHS_BIT        = 8           # MENUPHS (ff7tk FF7Save::MENUITEMS)
+_PHS_UNLOCK_CHARACTERS = 3
+_CHARACTER_ITEM_NAMES = frozenset(_CHARACTER_IDS)
 _CHARS_OFFSET       = 0x0054   # FF7CHAR chars[9]
 _CHAR_RECORD_SIZE   = 132      # bytes per character record (FF7CHAR)
 
@@ -1465,16 +1513,21 @@ def _init_character_record(pm: "pymem.Pymem", cid: int) -> None:
     record in Free Roam, so their savemap slot reads all-zero — which the engine
     treats as id 0 ("Cloud") with 0 max HP (instant death). We clone Cloud's
     record (guaranteed valid, level/stat-consistent) and retarget it: own id,
-    name and first weapon, no armor/accessory, empty materia, and HP/MP collapsed
-    to the unequipped base so the values stay self-consistent."""
+    name, first weapon and a basic armor, no accessory, empty materia, and HP/MP
+    collapsed to the unequipped base so the values stay self-consistent."""
     chars = SAVEMAP_BASE + _CHARS_OFFSET
     rec = bytearray(pm.read_bytes(chars, _CHAR_RECORD_SIZE))  # Cloud (slot 0)
     rec[_CHR_ID] = cid
     rec[_CHR_NAME:_CHR_NAME + 12] = _encode_ff7_name(
         _CHAR_DEFAULT_NAMES.get(cid, "AP Char"))
     rec[_CHR_WEAPON] = _CHAR_DEFAULT_WEAPONS.get(cid, 0x00)
-    rec[_CHR_ARMOR] = 0xFF          # no armor
-    rec[_CHR_ACCESSORY] = 0xFF      # no accessory
+    # FF7 has NO "empty armor" state (a character always has armor equipped), so an
+    # 0xFF armor id renders as a garbage name in the menus. Equip a RANDOM valid
+    # armor (number 0x00-0x1F = the 32 armors, composite 0x100-0x11F). Accessory DOES
+    # support empty (0xFF), so leave it none. (Materia stays empty below, so the
+    # armor's slot count doesn't matter; HP/MP collapse to base ignores any bonus.)
+    rec[_CHR_ARMOR] = random.randint(0x00, 0x1F)   # random valid armor (NOT 0xFF)
+    rec[_CHR_ACCESSORY] = 0xFF      # no accessory (0xFF is a valid empty accessory)
     rec[_CHR_STATUS] = 0x00         # normal (clear sadness/fury)
     rec[_CHR_ROW] = 0x01            # front row
     rec[_CHR_MATERIA:_CHR_MATERIA + 16 * 4] = b"\xFF" * (16 * 4)  # empty slots
@@ -1623,6 +1676,41 @@ def _apply_reward_multipliers(pm: "pymem.Pymem", ctx: FF7Context) -> None:
         ctx._reward_mult_applied = True
     except Exception as exc:
         logger.debug(f"Reward multiplier patch failed: {exc}")
+
+
+def _enable_materia_menu(pm: "pymem.Pymem") -> None:
+    """Unlock the Materia main-menu option (savemap 0x0BC0 bit 3).
+
+    Set on connect and re-asserted on game-over recovery — a Free Roam game
+    over reloads the md1stin baseline, which does not enable this menu."""
+    try:
+        addr = SAVEMAP_BASE + 0x0BC0
+        cur = pm.read_uchar(addr)
+        if not (cur & 0x08):
+            pm.write_uchar(addr, cur | 0x08)
+            logger.debug("Materia menu enabled")
+    except Exception as e:
+        logger.debug(f"Could not enable materia menu: {e}")
+
+
+def _requeue_all_received_items(ctx: "FF7Context") -> int:
+    """Re-arm delivery of every AP item already received for this slot.
+
+    Clears the delivered-index set and re-queues ``ctx.items_received`` (the
+    authoritative full list CommonContext maintains across the connection), so
+    the next delivery pass re-applies everything. Used by the Free Roam
+    game-over recovery and the ``/resync`` command: a game over reloads the
+    md1stin baseline and wipes every client-delivered item, so re-delivery
+    restores them. This is a correct *restore* only when the savemap was
+    actually wiped (inventory empty). Flag-type deliveries (key items,
+    vehicles, party members, chocobos) are idempotent, but stackable items /
+    materia would duplicate if re-run with items still present — which is why
+    the auto path only fires after a confirmed game over.
+    """
+    received = list(getattr(ctx, "items_received", None) or [])
+    ctx._delivered_item_indices.clear()
+    ctx._pending_items = list(enumerate(received))
+    return len(received)
 
 
 def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
@@ -1873,16 +1961,7 @@ async def game_watcher(ctx: FF7Context) -> None:
                     ctx.pm = pm
                     
                     # ── Enable materia menu from start ─────────────────────
-                    # Set bit 3 of savemap byte 0x0BC0 (bank 1, address 0x1C)
-                    # This unlocks the Materia menu option in the main menu
-                    try:
-                        materia_menu_addr = SAVEMAP_BASE + 0x0BC0
-                        current_val = pm.read_uchar(materia_menu_addr)
-                        if not (current_val & 0x08):  # Bit 3 not set
-                            pm.write_uchar(materia_menu_addr, current_val | 0x08)
-                            logger.debug("Materia menu enabled from game start")
-                    except Exception as e:
-                        logger.debug(f"Could not enable materia menu: {e}")
+                    _enable_materia_menu(pm)
 
                     # ── Inject the shop hook DLL (Tier-3 shops) ────────────
                     # Opt-in: only if shophook.dll sits next to FF7_EN.exe.
@@ -1936,6 +2015,34 @@ async def game_watcher(ctx: FF7Context) -> None:
         # ── Battle reward multipliers (one-time exe patch once connected) ──
         _apply_reward_multipliers(pm, ctx)
 
+        # ── Free Roam game-over redundancy ─────────────────────────────────
+        # A game over reloads the md1stin baseline, wiping every client-
+        # delivered AP item (key items, vehicles, party, chocobos, inventory).
+        # Watch the live module: when the player returns to gameplay after a
+        # Game Over (26), re-queue all received items so nothing is lost. The
+        # debounce lets the new-game savemap seeding finish before we re-write,
+        # and module 26 is an unambiguous signal (no false positives → no
+        # duplicate grants during normal play). Mirrors the /resync command.
+        try:
+            _module = pm.read_uchar(GAME_MODULE_ADDR)
+        except Exception:
+            _module = None
+        if _module == GAME_MODULE_GAMEOVER:
+            ctx._game_over_seen = True
+            ctx._resume_debounce = 0
+        elif ctx._game_over_seen and _module in (GAME_MODULE_FIELD, GAME_MODULE_WORLD):
+            ctx._resume_debounce += 1
+            if ctx._resume_debounce >= _RESUME_REDELIVER_TICKS:
+                ctx._game_over_seen = False
+                ctx._resume_debounce = 0
+                _enable_materia_menu(pm)   # md1stin baseline disables it again
+                _n = _requeue_all_received_items(ctx)
+                if _n:
+                    logger.info(
+                        f"Recovered from a game over — re-delivering {_n} "
+                        "received AP item(s)."
+                    )
+
         # ── Deliver queued items ──────────────────────────────────────────
         if ctx._pending_items:
             _deliver_items_to_game(pm, ctx)
@@ -1978,6 +2085,12 @@ async def game_watcher(ctx: FF7Context) -> None:
                     except Exception:
                         pass
                 ctx._baseline_established = True
+                # Build the (rel-offset, bit) -> [codes] reverse index so the
+                # client's own flag writes can suppress matching pickup locations.
+                ctx._biton_rev = {}
+                for _c, (_bk, _ad, _bt) in ctx.biton_map.items():
+                    _rel = _biton_byte_addr(_bk, _ad) - SAVEMAP_BASE
+                    ctx._biton_rev.setdefault((_rel, _bt), []).append(_c)
                 if ctx._baseline_locations:
                     logger.debug(
                         f"Baseline: suppressing {len(ctx._baseline_locations)} "
@@ -2013,13 +2126,6 @@ async def game_watcher(ctx: FF7Context) -> None:
             # ── Drive the Northern Crater gate flag from received goal items ───
             _enforce_crater_lock(pm, ctx)
 
-            # ── Keep the mds5_5 walkmesh open once Key to Sector 5 is owned ─────
-            # The gate flag (Var[15][38].3) is read on each field load, so re-set
-            # it every poll: this self-heals re-entering mds5_5 and keys received
-            # before this gate flag was wired up (one-time delivery already past).
-            if "Key to Sector 5" in ctx._received_item_names:
-                _ensure_sector5_walkmesh_gate(pm)
-
             # ── Free Roam: finish Ultimate Weapon once the player has engaged him ─
             if ctx.free_roam:
                 _resolve_ultimate_weapon(pm)
@@ -2049,6 +2155,21 @@ async def game_watcher(ctx: FF7Context) -> None:
                     if _cname in ctx._received_item_names:
                         if _ensure_character_record(pm, _cid):
                             logger.debug(f"Re-seeded {_cname} record (was invalid)")
+                # Lock the PHS (party-swap) menu until enough characters have been
+                # received via AP. Re-asserted each poll (idempotent) so it holds
+                # through game-over reloads / md1stin re-seeding; once the player
+                # has _PHS_UNLOCK_CHARACTERS members it stays unlocked.
+                try:
+                    _have = len(ctx._received_item_names & _CHARACTER_ITEM_NAMES)
+                    _maddr = SAVEMAP_BASE + _MENU_VISIBLE_OFFSET
+                    _mmask = 1 << _MENU_PHS_BIT
+                    _mcur = pm.read_ushort(_maddr)
+                    _mwant = (_mcur | _mmask) if _have >= _PHS_UNLOCK_CHARACTERS \
+                        else (_mcur & ~_mmask)
+                    if _mwant != _mcur:
+                        pm.write_ushort(_maddr, _mwant)
+                except Exception:
+                    pass
                 # Force open field gates that would otherwise softlock (e.g. the
                 # Mt. Corel mtcrl_2 door, read on field load).
                 for _off, _bit in _FREE_ROAM_FORCE_FLAGS:
@@ -2059,6 +2180,8 @@ async def game_watcher(ctx: FF7Context) -> None:
                             pm.write_uchar(_a, _v | (1 << _bit))
                     except Exception:
                         pass
+                    # The client owns this bit — never let it fire a pickup location.
+                    _suppress_client_flag_locations(ctx, _off, _bit)
                 # Item-conditional gates (open only once the key item is received).
                 for _gitem, _goff, _gbit in _FREE_ROAM_ITEM_GATE_FLAGS:
                     if _gitem in ctx._received_item_names:
@@ -2069,6 +2192,10 @@ async def game_watcher(ctx: FF7Context) -> None:
                                 pm.write_uchar(_a, _v | (1 << _gbit))
                         except Exception:
                             pass
+                        # This gate flag is client-set once the item is received;
+                        # suppress any pickup location sharing the bit so the
+                        # client's own write can't fire it as a phantom check.
+                        _suppress_client_flag_locations(ctx, _goff, _gbit)
 
             # ── Shop purchases: detect token buys, swap to Potion, fire checks ─
             shop_checks = _process_shop_purchases(pm, ctx)

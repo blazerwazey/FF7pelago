@@ -7,7 +7,7 @@ from typing import ClassVar
 import settings
 
 from BaseClasses import Item, ItemClassification, MultiWorld, Region, Tutorial
-from Options import OptionGroup, PerGameCommonOptions
+from Options import DeathLink, OptionGroup, PerGameCommonOptions
 from worlds.AutoWorld import WebWorld, World
 from worlds.LauncherComponents import Component, Type, components, launch
 
@@ -16,7 +16,23 @@ from .Locations import (
     ALL_LOCATION_TABLE, FF7Location, PLACEABLE_LOCATION_CODES,
     SHOP_LOCATION_TABLE, location_name_groups, location_name_to_id,
 )
-from .Options import FF7Options
+from .Options import (
+    FF7Options,
+    RandomizeFieldItems,
+    FieldItemsMode,
+    FieldItemsKeepType,
+    RandomizeShops,
+    RandomizeStartingEquipment,
+    StartingEquipmentTier,
+    FreeRoam,
+    DisableGoldSaucer,
+    WeaponFightChecks,
+    ExpMultiplier,
+    GilMultiplier,
+    APMultiplier,
+    StartWithChocoboLure,
+    VictoryCondition,
+)
 from .Rules import apply_rules
 from .json_export import FF7JSONExporter
 
@@ -484,7 +500,13 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     200321, 200322,                                  # Mt. Corel - Star Pendant / Wizard Staff
     310036,                                          # Midgar Sector 5 - Batteries
     300177, 300193,                                  # Nibelheim Luck Sources (Inn / House)
+    300182,                                          # Nibelheim Item Store - Elixir
     310044,                                          # Nibelheim - Mind Plus
+    # 310043 (Nibelheim - Key To Basement) RE-INTRODUCED: Gold Saucer now re-gates
+    # the sininb2 basement on the Basement-Key possession bit (Var[1][0x43].4)
+    # instead of 0x0C8C.1, and the client no longer sets 0x0C8C.1 — so that flag is
+    # free to serve purely as this pickup's detection bit again. (Pairs with the
+    # "BASEMENT_GATE" FieldPickup patch + the client gate-flag removal.)
     # Corneo dress key items still live (rest of the chain already excluded above):
     310066,                                          # Midgar Sector 5 - Bikini briefs
     # All Shinra HQ shop locations (the Shinra Bldg./blin* field checks are already
@@ -573,36 +595,36 @@ class FF7Web(WebWorld):
         OptionGroup(
             "Randomizers",
             [
-                "randomize_field_items",
-                "field_items_mode",
-                "field_items_keep_type",
-                "randomize_shops",
-                "randomize_starting_equipment",
-                "starting_equipment_tier",
+                RandomizeFieldItems,
+                FieldItemsMode,
+                FieldItemsKeepType,
+                RandomizeShops,
+                RandomizeStartingEquipment,
+                StartingEquipmentTier,
             ],
         ),
         OptionGroup(
             "World",
             [
-                "free_roam",
-                "disable_gold_saucer",
-                "weapon_fight_checks",
+                FreeRoam,
+                DisableGoldSaucer,
+                WeaponFightChecks,
             ],
         ),
         OptionGroup(
             "Gameplay",
             [
-                "exp_multiplier",
-                "gil_multiplier",
-                "ap_multiplier",
-                "start_with_chocobo_lure",
+                ExpMultiplier,
+                GilMultiplier,
+                APMultiplier,
+                StartWithChocoboLure,
             ],
         ),
         OptionGroup(
             "Goal",
             [
-                "victory_condition",
-                "death_link",
+                VictoryCondition,
+                DeathLink,
             ],
         ),
     ]
