@@ -3,7 +3,9 @@
     "name": "Train Graveyard - Hi-Potion #1",
     "code": 200000,
     "map": "mds7st1",
-    "maps": ["mds7st1"],
+    "maps": [
+      "mds7st1"
+    ],
     "item_text": "Hi-Potion",
     "category": "standard",
     "bank": 1,
@@ -14,7 +16,9 @@
     "name": "No. 1 Reactor - Potion",
     "code": 200001,
     "map": "mds7st1",
-    "maps": ["mds7st1"],
+    "maps": [
+      "mds7st1"
+    ],
     "item_text": "Echo Screen",
     "category": "standard",
     "bank": 1,
@@ -25,7 +29,9 @@
     "name": "Train Graveyard - Potion #1",
     "code": 200002,
     "map": "mds7st2",
-    "maps": ["mds7st2"],
+    "maps": [
+      "mds7st2"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 1,
@@ -36,7 +42,9 @@
     "name": "Train Graveyard - Ether",
     "code": 200003,
     "map": "mds7st2",
-    "maps": ["mds7st2"],
+    "maps": [
+      "mds7st2"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 1,
@@ -47,7 +55,9 @@
     "name": "Train Graveyard - Hi-Potion #2",
     "code": 200004,
     "map": "mds7st1",
-    "maps": ["mds7st1"],
+    "maps": [
+      "mds7st1"
+    ],
     "item_text": "Hi-Potion",
     "category": "standard",
     "bank": 1,
@@ -58,7 +68,9 @@
     "name": "Train Graveyard - Potion #2",
     "code": 200005,
     "map": "mds7st1",
-    "maps": ["mds7st1"],
+    "maps": [
+      "mds7st1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 1,
@@ -69,7 +81,9 @@
     "name": "Train Graveyard - Potion #3",
     "code": 200006,
     "map": "mds7st1",
-    "maps": ["mds7st1"],
+    "maps": [
+      "mds7st1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 1,
@@ -80,7 +94,9 @@
     "name": "Train Graveyard - Hi-Potion #3",
     "code": 200007,
     "map": "mds7st2",
-    "maps": ["mds7st2"],
+    "maps": [
+      "mds7st2"
+    ],
     "item_text": "Hi-Potion",
     "category": "standard",
     "bank": 1,
@@ -91,7 +107,9 @@
     "name": "Great Glacier Cave - Elixir",
     "code": 200008,
     "map": "hyou8_2",
-    "maps": ["hyou8_2"],
+    "maps": [
+      "hyou8_2"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 1,
@@ -102,7 +120,9 @@
     "name": "Great Glacier - Potion",
     "code": 200009,
     "map": "hyou5_1",
-    "maps": ["hyou5_1"],
+    "maps": [
+      "hyou5_1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 1,
@@ -113,7 +133,9 @@
     "name": "Great Glacier Cave - Safety Bit",
     "code": 200010,
     "map": "hyou5_3",
-    "maps": ["hyou5_3"],
+    "maps": [
+      "hyou5_3"
+    ],
     "item_text": "Safety Bit",
     "category": "standard",
     "bank": 1,
@@ -124,7 +146,9 @@
     "name": "Great Glacier - Mind Source",
     "code": 200011,
     "map": "hyou2",
-    "maps": ["hyou2"],
+    "maps": [
+      "hyou2"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 1,
@@ -135,7 +159,9 @@
     "name": "Wall Market Weapon Store - Sneak Glove",
     "code": 200012,
     "map": "mkt_w",
-    "maps": ["mkt_w"],
+    "maps": [
+      "mkt_w"
+    ],
     "item_text": "Sneak Glove",
     "category": "standard",
     "bank": 1,
@@ -146,7 +172,9 @@
     "name": "Wall Market Item Store - Premium Heart",
     "code": 200013,
     "map": "mkt_ia",
-    "maps": ["mkt_ia"],
+    "maps": [
+      "mkt_ia"
+    ],
     "item_text": "Premium Heart",
     "category": "standard",
     "bank": 1,
@@ -157,7 +185,9 @@
     "name": "Sector 8 - Potion",
     "code": 200014,
     "map": "md8_3",
-    "maps": ["md8_3"],
+    "maps": [
+      "md8_3"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 1,
@@ -168,7 +198,9 @@
     "name": "Defeat Ultimate Weapon",
     "code": 200015,
     "map": "wm0",
-    "maps": ["wm0"],
+    "maps": [
+      "wm0"
+    ],
     "item_text": "Boss: Ultimate Weapon",
     "category": "boss",
     "bank": 1,
@@ -179,7 +211,9 @@
     "name": "Aerith's House - Ether",
     "code": 200016,
     "map": "eals_1",
-    "maps": ["eals_1"],
+    "maps": [
+      "eals_1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 1,
@@ -190,7 +224,9 @@
     "name": "Aerith's House - Cover",
     "code": 200017,
     "map": "eals_1",
-    "maps": ["eals_1"],
+    "maps": [
+      "eals_1"
+    ],
     "item_text": "Cover",
     "category": "standard",
     "bank": 1,
@@ -201,7 +237,9 @@
     "name": "Chocobo farm - Choco/Mog",
     "code": 200018,
     "map": "farm",
-    "maps": ["farm"],
+    "maps": [
+      "farm"
+    ],
     "item_text": "Choco/Mog",
     "category": "standard",
     "bank": 1,
@@ -212,7 +250,9 @@
     "name": "Sector 6 park - Sense",
     "code": 200019,
     "map": "mds6_22",
-    "maps": ["mds6_22"],
+    "maps": [
+      "mds6_22"
+    ],
     "item_text": "Sense",
     "category": "standard",
     "bank": 1,
@@ -223,7 +263,9 @@
     "name": "Old man's house - KeyItem: Mythril",
     "code": 200021,
     "map": "zz1",
-    "maps": ["zz1"],
+    "maps": [
+      "zz1"
+    ],
     "item_text": "KeyItem: Mythril",
     "category": "key_item",
     "bank": 1,
@@ -234,7 +276,9 @@
     "name": "Materia Cave - Quadra Magic",
     "code": 200024,
     "map": "zz7",
-    "maps": ["zz7"],
+    "maps": [
+      "zz7"
+    ],
     "item_text": "Quadra Magic",
     "category": "standard",
     "bank": 1,
@@ -245,7 +289,9 @@
     "name": "Materia Cave - Knights of the Round",
     "code": 200025,
     "map": "zz8",
-    "maps": ["zz8"],
+    "maps": [
+      "zz8"
+    ],
     "item_text": "Knights of the Round",
     "category": "materia",
     "bank": 1,
@@ -256,7 +302,10 @@
     "name": "Inside Northern Cave - Elixir #1",
     "code": 200026,
     "map": "las3_1",
-    "maps": ["las3_1", "las4_0"],
+    "maps": [
+      "las3_1",
+      "las4_0"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 1,
@@ -267,7 +316,9 @@
     "name": "Inside Northern Cave - X-Potion #1",
     "code": 200027,
     "map": "las3_1",
-    "maps": ["las3_1"],
+    "maps": [
+      "las3_1"
+    ],
     "item_text": "X-Potion",
     "category": "standard",
     "bank": 1,
@@ -278,7 +329,10 @@
     "name": "Inside Northern Cave - Turbo Ether #1",
     "code": 200028,
     "map": "las3_2",
-    "maps": ["las3_2", "las4_0"],
+    "maps": [
+      "las3_2",
+      "las4_0"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 1,
@@ -289,7 +343,10 @@
     "name": "Inside Northern Cave - Vaccine #1",
     "code": 200029,
     "map": "las3_2",
-    "maps": ["las3_2", "las4_0"],
+    "maps": [
+      "las3_2",
+      "las4_0"
+    ],
     "item_text": "Vaccine",
     "category": "standard",
     "bank": 1,
@@ -300,7 +357,9 @@
     "name": "Gold Saucer Wonder Square - EXP Plus",
     "code": 200125,
     "map": "games_1",
-    "maps": ["games_1"],
+    "maps": [
+      "games_1"
+    ],
     "item_text": "Exp Plus",
     "category": "standard",
     "bank": 3,
@@ -311,7 +370,9 @@
     "name": "Shinra Bldg. 64f. - HP Shout",
     "code": 200135,
     "map": "blin64",
-    "maps": ["blin64"],
+    "maps": [
+      "blin64"
+    ],
     "item_text": "Hp Shout",
     "category": "standard",
     "bank": 3,
@@ -322,7 +383,9 @@
     "name": "Inside of Gaea's Cliff - Fire Armlet",
     "code": 200183,
     "map": "gaiin_5",
-    "maps": ["gaiin_5"],
+    "maps": [
+      "gaiin_5"
+    ],
     "item_text": "Fire Armlet",
     "category": "standard",
     "bank": 13,
@@ -333,7 +396,9 @@
     "name": "Inside of Gaea's Cliff - Elixir",
     "code": 200184,
     "map": "gaiin_3",
-    "maps": ["gaiin_3"],
+    "maps": [
+      "gaiin_3"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 13,
@@ -344,7 +409,9 @@
     "name": "Forgotten Capital - Guard Source",
     "code": 200266,
     "map": "losin2",
-    "maps": ["losin2"],
+    "maps": [
+      "losin2"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -355,7 +422,9 @@
     "name": "Forgotten Capital - Magic Source",
     "code": 200267,
     "map": "losin3",
-    "maps": ["losin3"],
+    "maps": [
+      "losin3"
+    ],
     "item_text": "Magic Source",
     "category": "standard",
     "bank": 13,
@@ -366,7 +435,9 @@
     "name": "Rocket Town - Drill Arm",
     "code": 200280,
     "map": "rktsid",
-    "maps": ["rktsid"],
+    "maps": [
+      "rktsid"
+    ],
     "item_text": "Drill Arm",
     "category": "standard",
     "bank": 13,
@@ -377,7 +448,9 @@
     "name": "Rocket Town - Power Source",
     "code": 200281,
     "map": "rktmin2",
-    "maps": ["rktmin2"],
+    "maps": [
+      "rktmin2"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -388,7 +461,9 @@
     "name": "Kalm Tower - Peacemaker",
     "code": 200285,
     "map": "elmtow",
-    "maps": ["elmtow"],
+    "maps": [
+      "elmtow"
+    ],
     "item_text": "Peacemaker",
     "category": "standard",
     "bank": 13,
@@ -399,7 +474,9 @@
     "name": "Forgotten Capital - Enemy Skill",
     "code": 200286,
     "map": "losinn",
-    "maps": ["losinn"],
+    "maps": [
+      "losinn"
+    ],
     "item_text": "Enemy Skill",
     "category": "standard",
     "bank": 13,
@@ -410,7 +487,9 @@
     "name": "Kalm House: 1f - Ether #1",
     "code": 200287,
     "map": "elmin1_1",
-    "maps": ["elmin1_1"],
+    "maps": [
+      "elmin1_1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -421,7 +500,9 @@
     "name": "Inside Northern Cave - Magic Source #1",
     "code": 200288,
     "map": "las0_5",
-    "maps": ["las0_5"],
+    "maps": [
+      "las0_5"
+    ],
     "item_text": "Magic Source",
     "category": "standard",
     "bank": 13,
@@ -432,7 +513,9 @@
     "name": "Kalm House: 2f - Guard Source",
     "code": 200289,
     "map": "elmin3_2",
-    "maps": ["elmin3_2"],
+    "maps": [
+      "elmin3_2"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -443,7 +526,9 @@
     "name": "Kalm House: 1f - Ether #2",
     "code": 200290,
     "map": "elmin4_1",
-    "maps": ["elmin4_1"],
+    "maps": [
+      "elmin4_1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -454,7 +539,9 @@
     "name": "Rocket Town Weapons Store - Fourth Bracelet",
     "code": 200291,
     "map": "rkt_w",
-    "maps": ["rkt_w"],
+    "maps": [
+      "rkt_w"
+    ],
     "item_text": "Fourth Bracelet",
     "category": "standard",
     "bank": 13,
@@ -465,7 +552,9 @@
     "name": "Rocket Town Item Store - Guard Source",
     "code": 200292,
     "map": "rkt_i",
-    "maps": ["rkt_i"],
+    "maps": [
+      "rkt_i"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -476,7 +565,9 @@
     "name": "Kalm Inn - Megalixir",
     "code": 200293,
     "map": "elminn_2",
-    "maps": ["elminn_2"],
+    "maps": [
+      "elminn_2"
+    ],
     "item_text": "Megalixir",
     "category": "reward",
     "bank": 13,
@@ -487,7 +578,9 @@
     "name": "Inside Northern Cave - Guard Source #1",
     "code": 200294,
     "map": "las0_5",
-    "maps": ["las0_5"],
+    "maps": [
+      "las0_5"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -498,7 +591,9 @@
     "name": "Sunken Gelnika Research Room - Double Cut",
     "code": 200295,
     "map": "qc",
-    "maps": ["q_3"],
+    "maps": [
+      "q_3"
+    ],
     "item_text": "Double Cut",
     "category": "standard",
     "bank": 13,
@@ -509,7 +604,9 @@
     "name": "Sunken Gelnika Cargo Room - Highwind",
     "code": 200296,
     "map": "qd",
-    "maps": ["q_4"],
+    "maps": [
+      "q_4"
+    ],
     "item_text": "Highwind",
     "category": "standard",
     "bank": 13,
@@ -520,7 +617,9 @@
     "name": "Inside Northern Cave - HP Absorb",
     "code": 200297,
     "map": "las0_5",
-    "maps": ["las0_5"],
+    "maps": [
+      "las0_5"
+    ],
     "item_text": "HP Absorb",
     "category": "standard",
     "bank": 13,
@@ -531,7 +630,9 @@
     "name": "Mythril Mine - Mind Source",
     "code": 200298,
     "map": "psdun_2",
-    "maps": ["psdun_2"],
+    "maps": [
+      "psdun_2"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -542,7 +643,9 @@
     "name": "Mythril Mine - Tent",
     "code": 200299,
     "map": "psdun_3",
-    "maps": ["psdun_3"],
+    "maps": [
+      "psdun_3"
+    ],
     "item_text": "Tent",
     "category": "standard",
     "bank": 13,
@@ -553,7 +656,9 @@
     "name": "Kalm House: 2f - Show Guide Book",
     "code": 200300,
     "map": "elmin4_2",
-    "maps": ["elmin4_2"],
+    "maps": [
+      "elmin4_2"
+    ],
     "item_text": "Show Guidebook",
     "category": "standard",
     "bank": 13,
@@ -564,7 +669,9 @@
     "name": "Kalm House: 2f - Show Earth Harp 1",
     "code": 200301,
     "map": "elmin4_2",
-    "maps": ["elmin4_2"],
+    "maps": [
+      "elmin4_2"
+    ],
     "item_text": "Show Earth Harp 1",
     "category": "standard",
     "bank": 13,
@@ -575,7 +682,9 @@
     "name": "Kalm House: 2f - Show Earth Harp 2",
     "code": 200302,
     "map": "elmin4_2",
-    "maps": ["elmin4_2"],
+    "maps": [
+      "elmin4_2"
+    ],
     "item_text": "Show Earth Harp 2",
     "category": "standard",
     "bank": 13,
@@ -586,7 +695,9 @@
     "name": "Kalm House: 2f - Show Desert Rose",
     "code": 200304,
     "map": "elmin4_2",
-    "maps": ["elmin4_2"],
+    "maps": [
+      "elmin4_2"
+    ],
     "item_text": "Show Desert Rose",
     "category": "standard",
     "bank": 13,
@@ -597,7 +708,9 @@
     "name": "Temple of the Ancients - Morph",
     "code": 200305,
     "map": "kuro_3",
-    "maps": ["kuro_3"],
+    "maps": [
+      "kuro_3"
+    ],
     "item_text": "Morph",
     "category": "standard",
     "bank": 13,
@@ -608,7 +721,9 @@
     "name": "Temple of the Ancients - Luck Plus",
     "code": 200306,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Luck Plus",
     "category": "standard",
     "bank": 13,
@@ -619,7 +734,9 @@
     "name": "Temple of the Ancients - Turbo Ether",
     "code": 200307,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 13,
@@ -630,7 +747,9 @@
     "name": "Temple of the Ancients - Mind Source",
     "code": 200308,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -641,7 +760,9 @@
     "name": "Temple of the Ancients - Princess Guard",
     "code": 200309,
     "map": "kuro_6",
-    "maps": ["kuro_6"],
+    "maps": [
+      "kuro_6"
+    ],
     "item_text": "Princess Guard",
     "category": "standard",
     "bank": 13,
@@ -652,7 +773,9 @@
     "name": "Temple of the Ancients - Trumpet Shell",
     "code": 200310,
     "map": "kuro_6",
-    "maps": ["kuro_6"],
+    "maps": [
+      "kuro_6"
+    ],
     "item_text": "Trumpet Shell",
     "category": "standard",
     "bank": 13,
@@ -663,7 +786,9 @@
     "name": "Temple of the Ancients - Megalixir",
     "code": 200311,
     "map": "kuro_6",
-    "maps": ["kuro_6"],
+    "maps": [
+      "kuro_6"
+    ],
     "item_text": "Megalixir",
     "category": "reward",
     "bank": 13,
@@ -674,7 +799,9 @@
     "name": "Temple of the Ancients - Trident",
     "code": 200313,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Trident",
     "category": "standard",
     "bank": 13,
@@ -685,7 +812,9 @@
     "name": "Temple of the Ancients - Rocket Punch",
     "code": 200314,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Rocket Punch",
     "category": "standard",
     "bank": 13,
@@ -696,7 +825,9 @@
     "name": "Temple of the Ancients - Ribbon",
     "code": 200315,
     "map": "kuro_1",
-    "maps": ["kuro_1"],
+    "maps": [
+      "kuro_1"
+    ],
     "item_text": "Ribbon",
     "category": "reward",
     "bank": 13,
@@ -707,7 +838,9 @@
     "name": "Temple of the Ancients - Silver Rifle",
     "code": 200316,
     "map": "kuro_2",
-    "maps": ["kuro_2"],
+    "maps": [
+      "kuro_2"
+    ],
     "item_text": "Silver Rifle",
     "category": "standard",
     "bank": 13,
@@ -718,7 +851,9 @@
     "name": "Costa Del Sol Cellar - Motor Drive",
     "code": 200317,
     "map": "delmin12",
-    "maps": ["delmin12"],
+    "maps": [
+      "delmin12"
+    ],
     "item_text": "Motor Drive",
     "category": "standard",
     "bank": 13,
@@ -729,7 +864,9 @@
     "name": "Costa Del Sol Cellar - Fire Ring",
     "code": 200318,
     "map": "delmin12",
-    "maps": ["delmin12"],
+    "maps": [
+      "delmin12"
+    ],
     "item_text": "Fire Ring",
     "category": "standard",
     "bank": 13,
@@ -740,7 +877,9 @@
     "name": "Costa Del Sol Cellar - Power Source",
     "code": 200319,
     "map": "delmin12",
-    "maps": ["delmin12"],
+    "maps": [
+      "delmin12"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -751,7 +890,9 @@
     "name": "Cloud's Villa - Purchased The House",
     "code": 200320,
     "map": "delmin1",
-    "maps": ["delmin1"],
+    "maps": [
+      "delmin1"
+    ],
     "item_text": "Purchased The House",
     "category": "standard",
     "bank": 13,
@@ -762,7 +903,9 @@
     "name": "Mt. Corel - Star Pendant",
     "code": 200321,
     "map": "mtcrl_5",
-    "maps": ["mtcrl_5"],
+    "maps": [
+      "mtcrl_5"
+    ],
     "item_text": "Star Pendant",
     "category": "standard",
     "bank": 13,
@@ -773,7 +916,9 @@
     "name": "Mt. Corel - Wizard Staff",
     "code": 200322,
     "map": "mtcrl_5",
-    "maps": ["mtcrl_5"],
+    "maps": [
+      "mtcrl_5"
+    ],
     "item_text": "Wizard Staff",
     "category": "standard",
     "bank": 13,
@@ -784,7 +929,9 @@
     "name": "Mt. Corel - W Machine Gun",
     "code": 200323,
     "map": "mtcrl_4",
-    "maps": ["mtcrl_4"],
+    "maps": [
+      "mtcrl_4"
+    ],
     "item_text": "W Machine Gun",
     "category": "standard",
     "bank": 13,
@@ -795,7 +942,9 @@
     "name": "Mt. Corel - Transform",
     "code": 200324,
     "map": "mtcrl_4",
-    "maps": ["mtcrl_4"],
+    "maps": [
+      "mtcrl_4"
+    ],
     "item_text": "Transform",
     "category": "standard",
     "bank": 13,
@@ -806,7 +955,9 @@
     "name": "Mt. Corel - Turbo Ether",
     "code": 200325,
     "map": "mtcrl_4",
-    "maps": ["mtcrl_4"],
+    "maps": [
+      "mtcrl_4"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 13,
@@ -817,7 +968,9 @@
     "name": "Mt. Corel - Mind Source",
     "code": 200326,
     "map": "mtcrl_7",
-    "maps": ["mtcrl_7"],
+    "maps": [
+      "mtcrl_7"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -828,7 +981,9 @@
     "name": "Mt. Corel - Power Source",
     "code": 200327,
     "map": "mtcrl_7",
-    "maps": ["mtcrl_7"],
+    "maps": [
+      "mtcrl_7"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -839,7 +994,9 @@
     "name": "Mt. Corel - Tent",
     "code": 200328,
     "map": "mtcrl_7",
-    "maps": ["mtcrl_7"],
+    "maps": [
+      "mtcrl_7"
+    ],
     "item_text": "Tent",
     "category": "standard",
     "bank": 13,
@@ -850,7 +1007,9 @@
     "name": "Barracks - Mind Source",
     "code": 200329,
     "map": "junmin2",
-    "maps": ["junmin2"],
+    "maps": [
+      "junmin2"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -861,7 +1020,9 @@
     "name": "Barracks - Power Source",
     "code": 200330,
     "map": "junmin3",
-    "maps": ["junmin3"],
+    "maps": [
+      "junmin3"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -872,7 +1033,9 @@
     "name": "Barracks - Guard Source",
     "code": 200331,
     "map": "junmin3",
-    "maps": ["junmin3"],
+    "maps": [
+      "junmin3"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -883,7 +1046,9 @@
     "name": "Barracks - Luck Source",
     "code": 200332,
     "map": "junmin2",
-    "maps": ["junmin2"],
+    "maps": [
+      "junmin2"
+    ],
     "item_text": "Luck Source",
     "category": "standard",
     "bank": 13,
@@ -894,7 +1059,9 @@
     "name": "Barracks - 1/35 soldier #1",
     "code": 200333,
     "map": "junmin2",
-    "maps": ["junmin2"],
+    "maps": [
+      "junmin2"
+    ],
     "item_text": "1/35 soldier",
     "category": "standard",
     "bank": 13,
@@ -905,7 +1072,9 @@
     "name": "Barracks - Speed Source",
     "code": 200334,
     "map": "junmin4",
-    "maps": ["junmin4"],
+    "maps": [
+      "junmin4"
+    ],
     "item_text": "Speed Source",
     "category": "standard",
     "bank": 13,
@@ -916,7 +1085,9 @@
     "name": "Barracks - 1/35 soldier #2",
     "code": 200335,
     "map": "junmin5",
-    "maps": ["junmin5"],
+    "maps": [
+      "junmin5"
+    ],
     "item_text": "1/35 soldier",
     "category": "standard",
     "bank": 13,
@@ -927,7 +1098,9 @@
     "name": "Underwater Reactor - KeyItem: Leviathan Scales",
     "code": 200336,
     "map": "semkin_7",
-    "maps": ["semkin_7"],
+    "maps": [
+      "semkin_7"
+    ],
     "item_text": "KeyItem: Leviathan Scales",
     "category": "key_item",
     "bank": 13,
@@ -938,7 +1111,9 @@
     "name": "Wutai, Da-chao Statue - Steal-As-Well",
     "code": 200337,
     "map": "datiao_8",
-    "maps": ["datiao_8"],
+    "maps": [
+      "datiao_8"
+    ],
     "item_text": "Steal-As-Well",
     "category": "standard",
     "bank": 13,
@@ -949,7 +1124,9 @@
     "name": "Wutai, Da-chao Statue - Dragoon Lance",
     "code": 200338,
     "map": "datiao_8",
-    "maps": ["datiao_8"],
+    "maps": [
+      "datiao_8"
+    ],
     "item_text": "Dragoon Lance",
     "category": "standard",
     "bank": 13,
@@ -960,7 +1137,10 @@
     "name": "Bone Village - W-Item",
     "code": 200339,
     "map": "tunnel_4",
-    "maps": ["tunnel_4", "bonevil"],
+    "maps": [
+      "tunnel_4",
+      "bonevil"
+    ],
     "item_text": "W-Item",
     "category": "standard",
     "bank": 13,
@@ -971,7 +1151,9 @@
     "name": "Sector 8, Underground - Max Ray",
     "code": 200340,
     "map": "md8_b1",
-    "maps": ["md8_b1"],
+    "maps": [
+      "md8_b1"
+    ],
     "item_text": "Max Ray",
     "category": "standard",
     "bank": 13,
@@ -982,7 +1164,9 @@
     "name": "Sector 8, Underground - Aegis Armlet",
     "code": 200341,
     "map": "md8_b1",
-    "maps": ["md8_b1"],
+    "maps": [
+      "md8_b1"
+    ],
     "item_text": "Aegis Armlet",
     "category": "standard",
     "bank": 13,
@@ -993,7 +1177,9 @@
     "name": "Underwater Reactor - Scimitar",
     "code": 200342,
     "map": "semkin_7",
-    "maps": ["semkin_7"],
+    "maps": [
+      "semkin_7"
+    ],
     "item_text": "Scimitar",
     "category": "standard",
     "bank": 13,
@@ -1004,7 +1190,9 @@
     "name": "Underwater Reactor - Battle Trumpet",
     "code": 200343,
     "map": "semkin_6",
-    "maps": ["semkin_6"],
+    "maps": [
+      "semkin_6"
+    ],
     "item_text": "Battle Trumpet",
     "category": "standard",
     "bank": 13,
@@ -1015,7 +1203,9 @@
     "name": "Wutai, Godo's Pagoda - Leviathan",
     "code": 200344,
     "map": "tower5",
-    "maps": ["tower5"],
+    "maps": [
+      "tower5"
+    ],
     "item_text": "Leviathan",
     "category": "standard",
     "bank": 13,
@@ -1026,7 +1216,9 @@
     "name": "Sector 8, Underground - Megalixir",
     "code": 200345,
     "map": "md8_b1",
-    "maps": ["md8_b1"],
+    "maps": [
+      "md8_b1"
+    ],
     "item_text": "Megalixir",
     "category": "reward",
     "bank": 13,
@@ -1037,7 +1229,9 @@
     "name": "Wutai, Da-chao Statue - Oritsuru",
     "code": 200346,
     "map": "datiao_8",
-    "maps": ["datiao_8"],
+    "maps": [
+      "datiao_8"
+    ],
     "item_text": "Oritsuru",
     "category": "standard",
     "bank": 13,
@@ -1048,7 +1242,9 @@
     "name": "Sector 8, Underground - Starlight Phone",
     "code": 200347,
     "map": "md8_b2",
-    "maps": ["md8_b2"],
+    "maps": [
+      "md8_b2"
+    ],
     "item_text": "Starlight Phone",
     "category": "standard",
     "bank": 13,
@@ -1059,7 +1255,9 @@
     "name": "Sector 8, Underground - Elixir #1",
     "code": 200348,
     "map": "md8_b2",
-    "maps": ["md8_b2"],
+    "maps": [
+      "md8_b2"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 13,
@@ -1070,7 +1268,9 @@
     "name": "Sector 8, Underground - Elixir #2",
     "code": 200349,
     "map": "md8_b1",
-    "maps": ["md8_b1"],
+    "maps": [
+      "md8_b1"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 13,
@@ -1081,7 +1281,9 @@
     "name": "Winding Tunnel - Magic Source",
     "code": 200350,
     "map": "tunnel_5",
-    "maps": ["tunnel_5"],
+    "maps": [
+      "tunnel_5"
+    ],
     "item_text": "Magic Source",
     "category": "standard",
     "bank": 13,
@@ -1092,7 +1294,9 @@
     "name": "Materia Room - KeyItem: Huge Materia: Rocket",
     "code": 200351,
     "map": "rcktin4",
-    "maps": ["rcktin4"],
+    "maps": [
+      "rcktin4"
+    ],
     "item_text": "KeyItem: Huge Materia: Rocket",
     "category": "key_item",
     "bank": 13,
@@ -1103,7 +1307,9 @@
     "name": "Winding Tunnel - Mind Source",
     "code": 200352,
     "map": "tunnel_5",
-    "maps": ["tunnel_5"],
+    "maps": [
+      "tunnel_5"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -1114,7 +1320,9 @@
     "name": "Winding Tunnel - Power Source",
     "code": 200353,
     "map": "tunnel_5",
-    "maps": ["tunnel_5"],
+    "maps": [
+      "tunnel_5"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -1125,7 +1333,9 @@
     "name": "Winding Tunnel - Guard Source",
     "code": 200354,
     "map": "tunnel_5",
-    "maps": ["tunnel_5"],
+    "maps": [
+      "tunnel_5"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -1136,7 +1346,9 @@
     "name": "Midgar, Sector 8 - Mystile",
     "code": 200355,
     "map": "md8_32",
-    "maps": ["md8_32"],
+    "maps": [
+      "md8_32"
+    ],
     "item_text": "Mystile",
     "category": "standard",
     "bank": 13,
@@ -1147,7 +1359,9 @@
     "name": "Mako Cannon - Missing Score",
     "code": 200356,
     "map": "canon_1",
-    "maps": ["canon_1"],
+    "maps": [
+      "canon_1"
+    ],
     "item_text": "Missing Score",
     "category": "standard",
     "bank": 13,
@@ -1158,7 +1372,9 @@
     "name": "Midgar, Sector 8 - Elixir",
     "code": 200357,
     "map": "md8_32",
-    "maps": ["md8_32"],
+    "maps": [
+      "md8_32"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 13,
@@ -1169,7 +1385,9 @@
     "name": "Inside Northern Cave - Megalixir #1",
     "code": 200358,
     "map": "las0_7",
-    "maps": ["las0_7"],
+    "maps": [
+      "las0_7"
+    ],
     "item_text": "Megalixir",
     "category": "reward",
     "bank": 13,
@@ -1180,7 +1398,9 @@
     "name": "Inside Northern Cave - Power Source #1",
     "code": 200359,
     "map": "las0_7",
-    "maps": ["las0_7"],
+    "maps": [
+      "las0_7"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -1191,7 +1411,9 @@
     "name": "Inside Northern Cave - Guard Source #2",
     "code": 200360,
     "map": "las0_7",
-    "maps": ["las0_7"],
+    "maps": [
+      "las0_7"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -1202,7 +1424,10 @@
     "name": "Inside Northern Cave - Magic Source #2",
     "code": 200361,
     "map": "las2_2",
-    "maps": ["las2_2", "las4_0"],
+    "maps": [
+      "las2_2",
+      "las4_0"
+    ],
     "item_text": "Magic Source",
     "category": "standard",
     "bank": 13,
@@ -1213,7 +1438,10 @@
     "name": "Inside Northern Cave - Remedy #1",
     "code": 200362,
     "map": "las2_2",
-    "maps": ["las2_2", "las4_0"],
+    "maps": [
+      "las2_2",
+      "las4_0"
+    ],
     "item_text": "Remedy",
     "category": "standard",
     "bank": 13,
@@ -1224,7 +1452,10 @@
     "name": "Inside Northern Cave - Hero Drink #1",
     "code": 200363,
     "map": "las2_3",
-    "maps": ["las2_3", "las4_0"],
+    "maps": [
+      "las2_3",
+      "las4_0"
+    ],
     "item_text": "Hero Drink",
     "category": "standard",
     "bank": 13,
@@ -1235,7 +1466,9 @@
     "name": "Inside Northern Cave - Vaccine #2",
     "code": 200364,
     "map": "las2_3",
-    "maps": ["las2_3"],
+    "maps": [
+      "las2_3"
+    ],
     "item_text": "Vaccine",
     "category": "standard",
     "bank": 13,
@@ -1246,7 +1479,10 @@
     "name": "Inside Northern Cave - Shield",
     "code": 200365,
     "map": "las2_3",
-    "maps": ["las2_3", "las4_0"],
+    "maps": [
+      "las2_3",
+      "las4_0"
+    ],
     "item_text": "Shield",
     "category": "standard",
     "bank": 13,
@@ -1257,7 +1493,10 @@
     "name": "Inside Northern Cave - W-Magic #1",
     "code": 200367,
     "map": "las0_4",
-    "maps": ["las0_4", "las4_0"],
+    "maps": [
+      "las0_4",
+      "las4_0"
+    ],
     "item_text": "W-Magic",
     "category": "standard",
     "bank": 13,
@@ -1268,7 +1507,10 @@
     "name": "Inside Northern Cave - Imperial Guard",
     "code": 200368,
     "map": "las2_3",
-    "maps": ["las2_3", "las4_0"],
+    "maps": [
+      "las2_3",
+      "las4_0"
+    ],
     "item_text": "Imperial Guard",
     "category": "standard",
     "bank": 13,
@@ -1279,7 +1521,9 @@
     "name": "Inside Northern Cave - Mind Source #1",
     "code": 200369,
     "map": "las0_6",
-    "maps": ["las0_6"],
+    "maps": [
+      "las0_6"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -1290,7 +1534,9 @@
     "name": "Inside Northern Cave - Hero Drink #2",
     "code": 200370,
     "map": "las0_6",
-    "maps": ["las0_6"],
+    "maps": [
+      "las0_6"
+    ],
     "item_text": "Hero Drink",
     "category": "standard",
     "bank": 13,
@@ -1301,7 +1547,9 @@
     "name": "Mideel,House 2 - Elixir",
     "code": 200371,
     "map": "itmin2",
-    "maps": ["itmin2"],
+    "maps": [
+      "itmin2"
+    ],
     "item_text": "Elixir",
     "category": "reward",
     "bank": 13,
@@ -1312,7 +1560,9 @@
     "name": "Mideel - Contain",
     "code": 200372,
     "map": "itown1b",
-    "maps": ["itown1b"],
+    "maps": [
+      "itown1b"
+    ],
     "item_text": "Contain",
     "category": "standard",
     "bank": 13,
@@ -1323,7 +1573,9 @@
     "name": "Ancient Forest - Minerva Band",
     "code": 300000,
     "map": "anfrst_1",
-    "maps": ["anfrst_1"],
+    "maps": [
+      "anfrst_1"
+    ],
     "item_text": "Minerva Band",
     "category": "standard",
     "bank": 13,
@@ -1334,7 +1586,9 @@
     "name": "Ancient Forest - Slash-All",
     "code": 300001,
     "map": "anfrst_1",
-    "maps": ["anfrst_1"],
+    "maps": [
+      "anfrst_1"
+    ],
     "item_text": "Slash-All",
     "category": "materia",
     "bank": 13,
@@ -1345,7 +1599,9 @@
     "name": "Ancient Forest - Supershot ST",
     "code": 300003,
     "map": "anfrst_3",
-    "maps": ["anfrst_3"],
+    "maps": [
+      "anfrst_3"
+    ],
     "item_text": "Supershot ST",
     "category": "standard",
     "bank": 13,
@@ -1356,7 +1612,9 @@
     "name": "Ancient Forest - Spring Gun Clip",
     "code": 300004,
     "map": "anfrst_3",
-    "maps": ["anfrst_3"],
+    "maps": [
+      "anfrst_3"
+    ],
     "item_text": "Spring Gun Clip",
     "category": "standard",
     "bank": 13,
@@ -1367,7 +1625,9 @@
     "name": "Ancient Forest - Apocalypse",
     "code": 300005,
     "map": "anfrst_5",
-    "maps": ["anfrst_5"],
+    "maps": [
+      "anfrst_5"
+    ],
     "item_text": "Apocalypse",
     "category": "standard",
     "bank": 13,
@@ -1378,7 +1638,9 @@
     "name": "Ancient Forest - Elixir",
     "code": 300006,
     "map": "anfrst_5",
-    "maps": ["anfrst_5"],
+    "maps": [
+      "anfrst_5"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -1389,7 +1651,9 @@
     "name": "Shinra Bldg. 2f. Shop - Pile Banger",
     "code": 300007,
     "map": "blin2_i",
-    "maps": ["blin2_i"],
+    "maps": [
+      "blin2_i"
+    ],
     "item_text": "Pile Banger",
     "category": "standard",
     "bank": 1,
@@ -1400,7 +1664,9 @@
     "name": "Shinra Bldg. 2f. Shop - Master Fist",
     "code": 300008,
     "map": "blin2_i",
-    "maps": ["blin2_i"],
+    "maps": [
+      "blin2_i"
+    ],
     "item_text": "Master Fist",
     "category": "standard",
     "bank": 1,
@@ -1411,7 +1677,9 @@
     "name": "Shinra Bldg. 62f. - Elemental",
     "code": 300011,
     "map": "blin62_1",
-    "maps": ["blin62_1"],
+    "maps": [
+      "blin62_1"
+    ],
     "item_text": "Elemental",
     "category": "materia",
     "bank": 3,
@@ -1422,7 +1690,9 @@
     "name": "Shinra Bldg. 63f. - Star Pendant",
     "code": 300012,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "Star Pendant",
     "category": "standard",
     "bank": 3,
@@ -1433,7 +1703,9 @@
     "name": "Shinra Bldg. 63f. - Four Slots",
     "code": 300013,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "Four Slots",
     "category": "standard",
     "bank": 3,
@@ -1444,7 +1716,9 @@
     "name": "Shinra Bldg. 63f. - Hourglass",
     "code": 300014,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "Hourglass",
     "category": "standard",
     "bank": 3,
@@ -1455,7 +1729,9 @@
     "name": "Shinra Bldg. 63f. - Grow Lance",
     "code": 300016,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "Grow Lance",
     "category": "standard",
     "bank": 3,
@@ -1466,7 +1742,9 @@
     "name": "Shinra Bldg. 63f. - All",
     "code": 300017,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 3,
@@ -1477,7 +1755,9 @@
     "name": "Shinra Bldg. 64f. - Ether",
     "code": 300018,
     "map": "blin64",
-    "maps": ["blin64"],
+    "maps": [
+      "blin64"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 3,
@@ -1488,7 +1768,9 @@
     "name": "Shinra Bldg. Stairs - Elixir",
     "code": 300022,
     "map": "blinst_2",
-    "maps": ["blinst_2"],
+    "maps": [
+      "blinst_2"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 1,
@@ -1499,7 +1781,9 @@
     "name": "Corneo Hall,2f. - Phoenix Down",
     "code": 300029,
     "map": "colne_3",
-    "maps": ["colne_3"],
+    "maps": [
+      "colne_3"
+    ],
     "item_text": "Phoenix Down",
     "category": "standard",
     "bank": 1,
@@ -1510,7 +1794,9 @@
     "name": "Torture Room - Ether",
     "code": 300030,
     "map": "colne_4",
-    "maps": ["colne_4"],
+    "maps": [
+      "colne_4"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 1,
@@ -1521,7 +1807,9 @@
     "name": "Sewer - Potion",
     "code": 300031,
     "map": "colne_b1",
-    "maps": ["colne_b1"],
+    "maps": [
+      "colne_b1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -1532,7 +1820,9 @@
     "name": "Sewer - Steal",
     "code": 300032,
     "map": "colne_b1",
-    "maps": ["colne_b1"],
+    "maps": [
+      "colne_b1"
+    ],
     "item_text": "Steal",
     "category": "materia",
     "bank": 13,
@@ -1543,7 +1833,9 @@
     "name": "Fort Condor Watch Room - Megalixir",
     "code": 300038,
     "map": "convil_2",
-    "maps": ["convil_2"],
+    "maps": [
+      "convil_2"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 1,
@@ -1554,7 +1846,9 @@
     "name": "Fort Condor Watch Room - Peace Ring",
     "code": 300040,
     "map": "convil_2",
-    "maps": ["convil_2"],
+    "maps": [
+      "convil_2"
+    ],
     "item_text": "Peace Ring",
     "category": "standard",
     "bank": 1,
@@ -1565,7 +1859,9 @@
     "name": "Fort Condor Watch Room - Magic Comb",
     "code": 300041,
     "map": "convil_2",
-    "maps": ["convil_2"],
+    "maps": [
+      "convil_2"
+    ],
     "item_text": "Magic Comb",
     "category": "standard",
     "bank": 1,
@@ -1576,7 +1872,9 @@
     "name": "Shildra Inn - Elixir",
     "code": 300043,
     "map": "cosmin6",
-    "maps": ["cosmin6"],
+    "maps": [
+      "cosmin6"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 1,
@@ -1587,7 +1885,9 @@
     "name": "Cosmo Canyon Item Store - Full Cure",
     "code": 300046,
     "map": "cosmin7",
-    "maps": ["cosmin7"],
+    "maps": [
+      "cosmin7"
+    ],
     "item_text": "Full Cure",
     "category": "materia",
     "bank": 1,
@@ -1595,10 +1895,25 @@
     "bit": 7
   },
   {
+    "name": "Cosmo Canyon Item Store - Elixir & Magic Source",
+    "code": 300047,
+    "map": "cosmin7",
+    "maps": [
+      "cosmin7"
+    ],
+    "item_text": "Elixir",
+    "category": "standard",
+    "bank": 1,
+    "address": 56,
+    "bit": 5
+  },
+  {
     "name": "Kalm House: 2f - Ether",
     "code": 300055,
     "map": "elmin2_2",
-    "maps": ["elmin2_2"],
+    "maps": [
+      "elmin2_2"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -1609,7 +1924,9 @@
     "name": "Chocobo farm - Chocobo Lure",
     "code": 300062,
     "map": "farm",
-    "maps": ["farm"],
+    "maps": [
+      "farm"
+    ],
     "item_text": "Chocobo Lure",
     "category": "materia",
     "bank": 5,
@@ -1620,7 +1937,9 @@
     "name": "Inside of Gaea's Cliff - Javelin",
     "code": 300063,
     "map": "gaiin_1",
-    "maps": ["gaiin_1"],
+    "maps": [
+      "gaiin_1"
+    ],
     "item_text": "Javelin",
     "category": "standard",
     "bank": 13,
@@ -1631,7 +1950,9 @@
     "name": "Inside of Gaea's Cliff - Ribbon",
     "code": 300064,
     "map": "gaiin_1",
-    "maps": ["gaiin_1"],
+    "maps": [
+      "gaiin_1"
+    ],
     "item_text": "Ribbon",
     "category": "standard",
     "bank": 13,
@@ -1642,7 +1963,9 @@
     "name": "Inside of Gaea's Cliff - Speed Source",
     "code": 300065,
     "map": "gaiin_3",
-    "maps": ["gaiin_3"],
+    "maps": [
+      "gaiin_3"
+    ],
     "item_text": "Speed Source",
     "category": "standard",
     "bank": 13,
@@ -1653,7 +1976,9 @@
     "name": "Inside of Gaea's Cliff - Enhance Sword",
     "code": 300066,
     "map": "gaiin_4",
-    "maps": ["gaiin_4"],
+    "maps": [
+      "gaiin_4"
+    ],
     "item_text": "Enhance Sword",
     "category": "standard",
     "bank": 13,
@@ -1664,7 +1989,9 @@
     "name": "Ghost Hotel - Elixir",
     "code": 300068,
     "map": "ghotin_2",
-    "maps": ["ghotin_2"],
+    "maps": [
+      "ghotin_2"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 1,
@@ -1675,7 +2002,9 @@
     "name": "Cave of the Gi - Added Effect",
     "code": 300069,
     "map": "gidun_1",
-    "maps": ["gidun_1"],
+    "maps": [
+      "gidun_1"
+    ],
     "item_text": "Added Effect",
     "category": "materia",
     "bank": 1,
@@ -1686,7 +2015,9 @@
     "name": "Cave of the Gi - Black M-phone",
     "code": 300070,
     "map": "gidun_2",
-    "maps": ["gidun_2"],
+    "maps": [
+      "gidun_2"
+    ],
     "item_text": "Black M-phone",
     "category": "standard",
     "bank": 1,
@@ -1697,7 +2028,9 @@
     "name": "Cave of the Gi - Ether",
     "code": 300071,
     "map": "gidun_2",
-    "maps": ["gidun_2"],
+    "maps": [
+      "gidun_2"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 1,
@@ -1708,7 +2041,9 @@
     "name": "Cave of the Gi - Fairy Ring",
     "code": 300073,
     "map": "gidun_4",
-    "maps": ["gidun_4"],
+    "maps": [
+      "gidun_4"
+    ],
     "item_text": "Fairy Ring",
     "category": "standard",
     "bank": 1,
@@ -1719,7 +2054,9 @@
     "name": "Cave of the Gi - X-Potion",
     "code": 300074,
     "map": "gidun_4",
-    "maps": ["gidun_4"],
+    "maps": [
+      "gidun_4"
+    ],
     "item_text": "X-Potion",
     "category": "standard",
     "bank": 1,
@@ -1730,7 +2067,9 @@
     "name": "Cave of the Gi - Turbo Ether",
     "code": 300075,
     "map": "gidun_4",
-    "maps": ["gidun_4"],
+    "maps": [
+      "gidun_4"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 3,
@@ -1741,7 +2080,9 @@
     "name": "Gongaga Inn - X-Potion",
     "code": 300077,
     "map": "gninn",
-    "maps": ["gninn"],
+    "maps": [
+      "gninn"
+    ],
     "item_text": "X-Potion",
     "category": "standard",
     "bank": 13,
@@ -1752,7 +2093,9 @@
     "name": "Gongaga Reactor - Titan",
     "code": 300078,
     "map": "gnmk",
-    "maps": ["gnmk"],
+    "maps": [
+      "gnmk"
+    ],
     "item_text": "Titan",
     "category": "materia",
     "bank": 13,
@@ -1763,7 +2106,9 @@
     "name": "Gongaga Jungle - Deathblow",
     "code": 300079,
     "map": "gonjun1",
-    "maps": ["gonjun1"],
+    "maps": [
+      "gonjun1"
+    ],
     "item_text": "Deathblow",
     "category": "materia",
     "bank": 13,
@@ -1774,7 +2119,9 @@
     "name": "Gongaga Mayor's Home - White M-phone",
     "code": 300080,
     "map": "goson",
-    "maps": ["goson"],
+    "maps": [
+      "goson"
+    ],
     "item_text": "White M-phone",
     "category": "standard",
     "bank": 13,
@@ -1785,7 +2132,9 @@
     "name": "Hidden Passage - Magic Shuriken",
     "code": 300081,
     "map": "hideway1",
-    "maps": ["hideway1"],
+    "maps": [
+      "hideway1"
+    ],
     "item_text": "Magic Shuriken",
     "category": "standard",
     "bank": 1,
@@ -1796,7 +2145,9 @@
     "name": "Hidden Passage - HP Absorb",
     "code": 300082,
     "map": "hideway3",
-    "maps": ["hideway3"],
+    "maps": [
+      "hideway3"
+    ],
     "item_text": "HP Absorb",
     "category": "materia",
     "bank": 1,
@@ -1807,7 +2158,9 @@
     "name": "Cave - All",
     "code": 300084,
     "map": "hyou12",
-    "maps": ["hyou12"],
+    "maps": [
+      "hyou12"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 1,
@@ -1818,7 +2171,9 @@
     "name": "Gold Saucer Rollercoaster - Umbrella",
     "code": 300089,
     "map": "jetin1",
-    "maps": ["jetin1"],
+    "maps": [
+      "jetin1"
+    ],
     "item_text": "Umbrella",
     "category": "standard",
     "bank": 1,
@@ -1829,7 +2184,9 @@
     "name": "Gold Saucer Rollercoaster - Flayer",
     "code": 300090,
     "map": "jetin1",
-    "maps": ["jetin1"],
+    "maps": [
+      "jetin1"
+    ],
     "item_text": "Flayer",
     "category": "standard",
     "bank": 1,
@@ -1840,7 +2197,9 @@
     "name": "Junon Training Hall - Potion",
     "code": 300100,
     "map": "junpb_2",
-    "maps": ["junpb_2"],
+    "maps": [
+      "junpb_2"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 3,
@@ -1851,7 +2210,9 @@
     "name": "Junon Training Hall - Enemy Skill",
     "code": 300104,
     "map": "junpb_2",
-    "maps": ["junpb_2"],
+    "maps": [
+      "junpb_2"
+    ],
     "item_text": "Enemy Skill",
     "category": "materia",
     "bank": 3,
@@ -1862,7 +2223,9 @@
     "name": "Temple of the Ancients - Nail Bat",
     "code": 300109,
     "map": "kuro_5",
-    "maps": ["kuro_5"],
+    "maps": [
+      "kuro_5"
+    ],
     "item_text": "Nail Bat",
     "category": "standard",
     "bank": 3,
@@ -1873,7 +2236,9 @@
     "name": "Temple of the Ancients - Work Glove",
     "code": 300111,
     "map": "kuro_7",
-    "maps": ["kuro_7"],
+    "maps": [
+      "kuro_7"
+    ],
     "item_text": "Work Glove",
     "category": "standard",
     "bank": 3,
@@ -1884,7 +2249,9 @@
     "name": "Inside Northern Cave - Save Crystal",
     "code": 300113,
     "map": "las0_4",
-    "maps": ["las0_4"],
+    "maps": [
+      "las0_4"
+    ],
     "item_text": "Save Crystal",
     "category": "standard",
     "bank": 13,
@@ -1895,7 +2262,10 @@
     "name": "Inside Northern Cave - Guard Source #3",
     "code": 300114,
     "map": "las0_4",
-    "maps": ["las0_4", "las4_0"],
+    "maps": [
+      "las0_4",
+      "las4_0"
+    ],
     "item_text": "Guard Source",
     "category": "standard",
     "bank": 13,
@@ -1906,7 +2276,10 @@
     "name": "Inside Northern Cave - Mind Source #2",
     "code": 300115,
     "map": "las0_5",
-    "maps": ["las0_5", "las4_0"],
+    "maps": [
+      "las0_5",
+      "las4_0"
+    ],
     "item_text": "Mind Source",
     "category": "standard",
     "bank": 13,
@@ -1917,7 +2290,9 @@
     "name": "Inside Northern Cave - Power Source #2",
     "code": 300116,
     "map": "las0_5",
-    "maps": ["las0_5"],
+    "maps": [
+      "las0_5"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -1928,7 +2303,9 @@
     "name": "Inside Northern Cave - Elixir #2",
     "code": 300117,
     "map": "las0_5",
-    "maps": ["las0_5"],
+    "maps": [
+      "las0_5"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -1939,7 +2316,10 @@
     "name": "Inside Northern Cave - Elixir #3",
     "code": 300119,
     "map": "las1_2",
-    "maps": ["las1_2", "las4_0"],
+    "maps": [
+      "las1_2",
+      "las4_0"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -1950,7 +2330,10 @@
     "name": "Inside Northern Cave - Mystile",
     "code": 300120,
     "map": "las1_2",
-    "maps": ["las1_2", "las4_0"],
+    "maps": [
+      "las1_2",
+      "las4_0"
+    ],
     "item_text": "Mystile",
     "category": "standard",
     "bank": 13,
@@ -1961,7 +2344,11 @@
     "name": "Inside Northern Cave - Speed Source #1",
     "code": 300121,
     "map": "las1_2",
-    "maps": ["las1_2", "las1_3", "las0_4"],
+    "maps": [
+      "las1_2",
+      "las1_3",
+      "las0_4"
+    ],
     "item_text": "Speed Source",
     "category": "standard",
     "bank": 13,
@@ -1972,7 +2359,9 @@
     "name": "Inside Northern Cave - Tetra Elemental",
     "code": 300122,
     "map": "las1_3",
-    "maps": ["las1_3"],
+    "maps": [
+      "las1_3"
+    ],
     "item_text": "Tetra Elemental",
     "category": "standard",
     "bank": 13,
@@ -1983,7 +2372,10 @@
     "name": "Inside Northern Cave - Megalixir #2",
     "code": 300124,
     "map": "las1_3",
-    "maps": ["las1_3", "las4_0"],
+    "maps": [
+      "las1_3",
+      "las4_0"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -1994,7 +2386,10 @@
     "name": "Inside Northern Cave - Remedy #2",
     "code": 300128,
     "map": "las3_1",
-    "maps": ["las3_1", "las4_0"],
+    "maps": [
+      "las3_1",
+      "las4_0"
+    ],
     "item_text": "Remedy",
     "category": "standard",
     "bank": 1,
@@ -2005,7 +2400,9 @@
     "name": "Inside Northern Cave - Magic Counter",
     "code": 300129,
     "map": "las3_2",
-    "maps": ["las3_2"],
+    "maps": [
+      "las3_2"
+    ],
     "item_text": "Magic Counter",
     "category": "materia",
     "bank": 1,
@@ -2016,7 +2413,10 @@
     "name": "Inside Northern Cave - Speed Source #3",
     "code": 300130,
     "map": "las3_3",
-    "maps": ["las3_3", "las4_0"],
+    "maps": [
+      "las3_3",
+      "las4_0"
+    ],
     "item_text": "Speed Source",
     "category": "standard",
     "bank": 1,
@@ -2027,7 +2427,9 @@
     "name": "Inside Northern Cave - Turbo Ether #2",
     "code": 300131,
     "map": "las3_3",
-    "maps": ["las3_3"],
+    "maps": [
+      "las3_3"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 1,
@@ -2038,7 +2440,9 @@
     "name": "Inside Northern Cave - X-Potion #2",
     "code": 300132,
     "map": "las3_3",
-    "maps": ["las3_3"],
+    "maps": [
+      "las3_3"
+    ],
     "item_text": "X-Potion",
     "category": "standard",
     "bank": 1,
@@ -2049,7 +2453,10 @@
     "name": "Inside Northern Cave - Mega All",
     "code": 300133,
     "map": "las3_3",
-    "maps": ["las3_3", "las4_0"],
+    "maps": [
+      "las3_3",
+      "las4_0"
+    ],
     "item_text": "Mega All",
     "category": "materia",
     "bank": 1,
@@ -2060,7 +2467,9 @@
     "name": "Bottom of Northern Cave - Luck Source",
     "code": 300151,
     "map": "las4_1",
-    "maps": ["las4_1"],
+    "maps": [
+      "las4_1"
+    ],
     "item_text": "Luck Source",
     "category": "standard",
     "bank": 1,
@@ -2071,7 +2480,9 @@
     "name": "Forgotten City - Comet",
     "code": 300152,
     "map": "losin1",
-    "maps": ["losin1"],
+    "maps": [
+      "losin1"
+    ],
     "item_text": "Comet",
     "category": "materia",
     "bank": 13,
@@ -2082,7 +2493,9 @@
     "name": "Forgotten Capital - Elixir",
     "code": 300153,
     "map": "losinn",
-    "maps": ["losinn"],
+    "maps": [
+      "losinn"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -2093,7 +2506,9 @@
     "name": "Forgotten City - Aurora Armlet",
     "code": 300155,
     "map": "loslake1",
-    "maps": ["loslake1"],
+    "maps": [
+      "loslake1"
+    ],
     "item_text": "Aurora Armlet",
     "category": "standard",
     "bank": 13,
@@ -2104,7 +2519,9 @@
     "name": "Platform - Potion #1",
     "code": 300156,
     "map": "md1stin",
-    "maps": ["md1stin"],
+    "maps": [
+      "md1stin"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -2115,7 +2532,9 @@
     "name": "Beginner's Hall - Ether",
     "code": 300160,
     "map": "mds7_w2",
-    "maps": ["mds7_w2"],
+    "maps": [
+      "mds7_w2"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 3,
@@ -2126,7 +2545,9 @@
     "name": "Beginner's Hall - All",
     "code": 300161,
     "map": "mds7_w2",
-    "maps": ["mds7_w2"],
+    "maps": [
+      "mds7_w2"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 3,
@@ -2137,7 +2558,9 @@
     "name": "Sector 5 House 2f. - Turbo Ether",
     "code": 300163,
     "map": "min51_2",
-    "maps": ["min51_2"],
+    "maps": [
+      "min51_2"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 3,
@@ -2148,7 +2571,9 @@
     "name": "Great Glacier - Added Cut",
     "code": 300165,
     "map": "move_d",
-    "maps": ["move_d"],
+    "maps": [
+      "move_d"
+    ],
     "item_text": "Added Cut",
     "category": "materia",
     "bank": 1,
@@ -2159,7 +2584,9 @@
     "name": "Mt. Nibel - Rune Blade",
     "code": 300169,
     "map": "mtnvl2",
-    "maps": ["mtnvl2"],
+    "maps": [
+      "mtnvl2"
+    ],
     "item_text": "Rune Blade",
     "category": "standard",
     "bank": 13,
@@ -2170,7 +2597,9 @@
     "name": "Mt. Nibel - Plus Barrette",
     "code": 300170,
     "map": "mtnvl2",
-    "maps": ["mtnvl2"],
+    "maps": [
+      "mtnvl2"
+    ],
     "item_text": "Plus Barrette",
     "category": "standard",
     "bank": 13,
@@ -2181,7 +2610,9 @@
     "name": "North Corel - Ether",
     "code": 300172,
     "map": "ncoin1",
-    "maps": ["ncoin1"],
+    "maps": [
+      "ncoin1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -2192,7 +2623,9 @@
     "name": "North Corel - Catastrophe",
     "code": 300174,
     "map": "ncoin3",
-    "maps": ["ncoin3"],
+    "maps": [
+      "ncoin3"
+    ],
     "item_text": "Catastrophe",
     "category": "standard",
     "bank": 13,
@@ -2203,7 +2636,10 @@
     "name": "North Corel - Ultima #2",
     "code": 300175,
     "map": "ncorel2",
-    "maps": ["ncorel2", "ncorel3"],
+    "maps": [
+      "ncorel2",
+      "ncorel3"
+    ],
     "item_text": "Ultima",
     "category": "materia",
     "bank": 1,
@@ -2214,7 +2650,9 @@
     "name": "Nibelheim Inn - Luck Source",
     "code": 300177,
     "map": "nivinn_1",
-    "maps": ["nivinn_1"],
+    "maps": [
+      "nivinn_1"
+    ],
     "item_text": "Luck Source",
     "category": "standard",
     "bank": 3,
@@ -2225,7 +2663,9 @@
     "name": "Tifa's House - Turbo Ether",
     "code": 300179,
     "map": "niv_ti1",
-    "maps": ["niv_ti1"],
+    "maps": [
+      "niv_ti1"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 3,
@@ -2236,7 +2676,9 @@
     "name": "Tifa's House - Platinum Fist",
     "code": 300180,
     "map": "niv_ti2",
-    "maps": ["niv_ti2"],
+    "maps": [
+      "niv_ti2"
+    ],
     "item_text": "Platinum Fist",
     "category": "standard",
     "bank": 3,
@@ -2247,7 +2689,9 @@
     "name": "Nibelheim Item Store - Elixir",
     "code": 300182,
     "map": "niv_w",
-    "maps": ["niv_w"],
+    "maps": [
+      "niv_w"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 3,
@@ -2258,7 +2702,9 @@
     "name": "No.1 Reactor - Phoenix Down",
     "code": 300183,
     "map": "nmkin_1",
-    "maps": ["nmkin_1"],
+    "maps": [
+      "nmkin_1"
+    ],
     "item_text": "Phoenix Down",
     "category": "standard",
     "bank": 13,
@@ -2269,7 +2715,9 @@
     "name": "No.1 Reactor - Potion",
     "code": 300184,
     "map": "nmkin_3",
-    "maps": ["nmkin_3"],
+    "maps": [
+      "nmkin_3"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -2280,7 +2728,9 @@
     "name": "Mt. Nibel - Powersoul",
     "code": 300186,
     "map": "nvdun1",
-    "maps": ["nvdun1"],
+    "maps": [
+      "nvdun1"
+    ],
     "item_text": "Powersoul",
     "category": "standard",
     "bank": 13,
@@ -2291,7 +2741,9 @@
     "name": "Mt. Nibel - All",
     "code": 300187,
     "map": "nvdun1",
-    "maps": ["nvdun1"],
+    "maps": [
+      "nvdun1"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 13,
@@ -2302,7 +2754,9 @@
     "name": "Mt. Nibel Cave - Elixir",
     "code": 300189,
     "map": "nvdun2",
-    "maps": ["nvdun2"],
+    "maps": [
+      "nvdun2"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -2313,7 +2767,9 @@
     "name": "Mt. Nibel Cave - Elemental",
     "code": 300190,
     "map": "nvdun3",
-    "maps": ["nvdun3"],
+    "maps": [
+      "nvdun3"
+    ],
     "item_text": "Elemental",
     "category": "materia",
     "bank": 13,
@@ -2324,7 +2780,9 @@
     "name": "Mt. Nibel Cave - Sniper CR",
     "code": 300191,
     "map": "nvdun4",
-    "maps": ["nvdun4"],
+    "maps": [
+      "nvdun4"
+    ],
     "item_text": "Sniper CR",
     "category": "standard",
     "bank": 13,
@@ -2335,7 +2793,9 @@
     "name": "Nibelheim House - Luck Source",
     "code": 300193,
     "map": "nvmin1_2",
-    "maps": ["nvmin1_2"],
+    "maps": [
+      "nvmin1_2"
+    ],
     "item_text": "Luck Source",
     "category": "standard",
     "bank": 3,
@@ -2346,7 +2806,9 @@
     "name": "Mythril Mine - Ether",
     "code": 300196,
     "map": "psdun_3",
-    "maps": ["psdun_3"],
+    "maps": [
+      "psdun_3"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -2357,7 +2819,9 @@
     "name": "Mythril Mine - Long Range",
     "code": 300197,
     "map": "psdun_3",
-    "maps": ["psdun_3"],
+    "maps": [
+      "psdun_3"
+    ],
     "item_text": "Long Range",
     "category": "materia",
     "bank": 13,
@@ -2368,7 +2832,9 @@
     "name": "Mythril Mine - Hi-Potion",
     "code": 300198,
     "map": "psdun_4",
-    "maps": ["psdun_4"],
+    "maps": [
+      "psdun_4"
+    ],
     "item_text": "Hi-Potion",
     "category": "standard",
     "bank": 13,
@@ -2379,7 +2845,9 @@
     "name": "Mythril Mine - Elixir",
     "code": 300199,
     "map": "psdun_4",
-    "maps": ["psdun_4"],
+    "maps": [
+      "psdun_4"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -2390,7 +2858,9 @@
     "name": "Rocket Town - Yoshiyuki",
     "code": 300208,
     "map": "rckt",
-    "maps": ["rckt"],
+    "maps": [
+      "rckt"
+    ],
     "item_text": "Yoshiyuki",
     "category": "standard",
     "bank": 13,
@@ -2401,7 +2871,9 @@
     "name": "Rocket Town - Venus Gospel",
     "code": 300209,
     "map": "rckt2",
-    "maps": ["rckt2"],
+    "maps": [
+      "rckt2"
+    ],
     "item_text": "Venus Gospel",
     "category": "standard",
     "bank": 13,
@@ -2412,7 +2884,9 @@
     "name": "Corel Valley Cave - Megalixir",
     "code": 300214,
     "map": "sandun_1",
-    "maps": ["sandun_1"],
+    "maps": [
+      "sandun_1"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -2423,7 +2897,9 @@
     "name": "Corel Valley Cave - Magic Plus",
     "code": 300215,
     "map": "sandun_1",
-    "maps": ["sandun_1"],
+    "maps": [
+      "sandun_1"
+    ],
     "item_text": "Magic Plus",
     "category": "materia",
     "bank": 13,
@@ -2434,7 +2910,9 @@
     "name": "Corel Valley Cave - Power Source",
     "code": 300216,
     "map": "sandun_2",
-    "maps": ["sandun_2"],
+    "maps": [
+      "sandun_2"
+    ],
     "item_text": "Power Source",
     "category": "standard",
     "bank": 13,
@@ -2445,7 +2923,9 @@
     "name": "Corel Valley - Water Ring",
     "code": 300217,
     "map": "sango1",
-    "maps": ["sango1"],
+    "maps": [
+      "sango1"
+    ],
     "item_text": "Water Ring",
     "category": "standard",
     "bank": 13,
@@ -2456,7 +2936,9 @@
     "name": "Forgotten City - Viper Halberd",
     "code": 300218,
     "map": "sango3",
-    "maps": ["sango3"],
+    "maps": [
+      "sango3"
+    ],
     "item_text": "Viper Halberd",
     "category": "standard",
     "bank": 13,
@@ -2467,7 +2949,9 @@
     "name": "4th Street Plate Int. - Ether",
     "code": 300219,
     "map": "sbwy4_1",
-    "maps": ["sbwy4_1"],
+    "maps": [
+      "sbwy4_1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -2478,7 +2962,9 @@
     "name": "4th Street Plate Int. - Potion",
     "code": 300220,
     "map": "sbwy4_3",
-    "maps": ["sbwy4_3"],
+    "maps": [
+      "sbwy4_3"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -2489,7 +2975,9 @@
     "name": "Lower Sector 4 Plate - Tent",
     "code": 300221,
     "map": "sbwy4_6",
-    "maps": ["sbwy4_6"],
+    "maps": [
+      "sbwy4_6"
+    ],
     "item_text": "Tent",
     "category": "standard",
     "bank": 13,
@@ -2500,7 +2988,9 @@
     "name": "Cargo Ship - Ether",
     "code": 300224,
     "map": "shpin_2",
-    "maps": ["shpin_2"],
+    "maps": [
+      "shpin_2"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 1,
@@ -2511,7 +3001,9 @@
     "name": "Cargo Ship - All",
     "code": 300225,
     "map": "shpin_2",
-    "maps": ["shpin_2"],
+    "maps": [
+      "shpin_2"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 1,
@@ -2522,7 +3014,9 @@
     "name": "Cargo Ship - Wind Slash",
     "code": 300226,
     "map": "shpin_3",
-    "maps": ["shpin_3"],
+    "maps": [
+      "shpin_3"
+    ],
     "item_text": "Wind Slash",
     "category": "standard",
     "bank": 1,
@@ -2533,7 +3027,9 @@
     "name": "Shinra Mansion, 1f. - Twin Viper",
     "code": 300228,
     "map": "sinin1_2",
-    "maps": ["sinin1_2"],
+    "maps": [
+      "sinin1_2"
+    ],
     "item_text": "Twin Viper",
     "category": "standard",
     "bank": 13,
@@ -2544,7 +3040,9 @@
     "name": "Shinra Mansion, 1f. - Silver M-phone",
     "code": 300229,
     "map": "sinin1_2",
-    "maps": ["sinin1_2"],
+    "maps": [
+      "sinin1_2"
+    ],
     "item_text": "Silver M-phone",
     "category": "standard",
     "bank": 13,
@@ -2555,7 +3053,9 @@
     "name": "Shinra Mansion, 2f. - Enemy Launcher",
     "code": 300230,
     "map": "sinin2_1",
-    "maps": ["sinin2_1"],
+    "maps": [
+      "sinin2_1"
+    ],
     "item_text": "Enemy Launcher",
     "category": "standard",
     "bank": 13,
@@ -2566,7 +3066,9 @@
     "name": "Shinra Mansion, 2f. - Odin",
     "code": 300231,
     "map": "sinin2_1",
-    "maps": ["sinin2_1"],
+    "maps": [
+      "sinin2_1"
+    ],
     "item_text": "Odin",
     "category": "materia",
     "bank": 13,
@@ -2577,7 +3079,9 @@
     "name": "Shinra Mansion, 2f. - Magic Source",
     "code": 300232,
     "map": "sinin2_2",
-    "maps": ["sinin2_2"],
+    "maps": [
+      "sinin2_2"
+    ],
     "item_text": "Magic Source",
     "category": "standard",
     "bank": 13,
@@ -2588,7 +3092,9 @@
     "name": "Shinra Mansion, Basement - Destruct",
     "code": 300233,
     "map": "sininb42",
-    "maps": ["sininb42"],
+    "maps": [
+      "sininb42"
+    ],
     "item_text": "Destruct",
     "category": "materia",
     "bank": 13,
@@ -2599,7 +3105,9 @@
     "name": "Sleeping Forest - Kujata",
     "code": 300234,
     "map": "slfrst_2",
-    "maps": ["slfrst_2"],
+    "maps": [
+      "slfrst_2"
+    ],
     "item_text": "Kujata",
     "category": "materia",
     "bank": 13,
@@ -2610,7 +3118,9 @@
     "name": "No.5 Reactor - Ether",
     "code": 300235,
     "map": "smkin_1",
-    "maps": ["smkin_1"],
+    "maps": [
+      "smkin_1"
+    ],
     "item_text": "Ether",
     "category": "standard",
     "bank": 13,
@@ -2621,7 +3131,9 @@
     "name": "Icicle Inn - X-Potion",
     "code": 300237,
     "map": "sninn_2",
-    "maps": ["sninn_2"],
+    "maps": [
+      "sninn_2"
+    ],
     "item_text": "X-Potion",
     "category": "standard",
     "bank": 13,
@@ -2632,7 +3144,9 @@
     "name": "Gast's House - Turbo Ether",
     "code": 300239,
     "map": "snmayor",
-    "maps": ["snmayor"],
+    "maps": [
+      "snmayor"
+    ],
     "item_text": "Turbo Ether",
     "category": "standard",
     "bank": 13,
@@ -2643,7 +3157,9 @@
     "name": "Icicle Inn - Hero Drink",
     "code": 300240,
     "map": "snmin2",
-    "maps": ["snmin2"],
+    "maps": [
+      "snmin2"
+    ],
     "item_text": "Hero Drink",
     "category": "standard",
     "bank": 13,
@@ -2654,7 +3170,9 @@
     "name": "Icicle Inn - Vaccine",
     "code": 300241,
     "map": "snmin2",
-    "maps": ["snmin2"],
+    "maps": [
+      "snmin2"
+    ],
     "item_text": "Vaccine",
     "category": "standard",
     "bank": 13,
@@ -2665,7 +3183,9 @@
     "name": "Whirlwind Maze - Poison Ring",
     "code": 300248,
     "map": "trnad_4",
-    "maps": ["trnad_4"],
+    "maps": [
+      "trnad_4"
+    ],
     "item_text": "Poison Ring",
     "category": "standard",
     "bank": 13,
@@ -2676,7 +3196,9 @@
     "name": "Whirlwind Maze - MP Turbo",
     "code": 300249,
     "map": "trnad_4",
-    "maps": ["trnad_4"],
+    "maps": [
+      "trnad_4"
+    ],
     "item_text": "MP Turbo",
     "category": "materia",
     "bank": 13,
@@ -2687,7 +3209,10 @@
     "name": "Under Junon - Shiva",
     "code": 300250,
     "map": "ujunon1",
-    "maps": ["ujunon1", "prisila"],
+    "maps": [
+      "ujunon1",
+      "prisila"
+    ],
     "item_text": "Shiva",
     "category": "materia",
     "bank": 1,
@@ -2698,7 +3223,9 @@
     "name": "Hidden Room - Swift Bolt",
     "code": 300259,
     "map": "uttmpin4",
-    "maps": ["uttmpin4"],
+    "maps": [
+      "uttmpin4"
+    ],
     "item_text": "Swift Bolt",
     "category": "standard",
     "bank": 1,
@@ -2709,7 +3236,9 @@
     "name": "Hidden Room - Elixir",
     "code": 300260,
     "map": "uttmpin4",
-    "maps": ["uttmpin4"],
+    "maps": [
+      "uttmpin4"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 1,
@@ -2720,7 +3249,9 @@
     "name": "Yuffie's House - MP Absorb",
     "code": 300265,
     "map": "yufy1",
-    "maps": ["yufy1"],
+    "maps": [
+      "yufy1"
+    ],
     "item_text": "MP Absorb",
     "category": "materia",
     "bank": 3,
@@ -2731,7 +3262,9 @@
     "name": "Old Man in Cave - Bolt Ring",
     "code": 300269,
     "map": "zz1",
-    "maps": ["zz1"],
+    "maps": [
+      "zz1"
+    ],
     "item_text": "Bolt Ring",
     "category": "standard",
     "bank": 1,
@@ -2742,7 +3275,9 @@
     "name": "Weapon Seller - Great Gospel",
     "code": 300270,
     "map": "zz2",
-    "maps": ["zz2"],
+    "maps": [
+      "zz2"
+    ],
     "item_text": "Great Gospel",
     "category": "standard",
     "bank": 1,
@@ -2753,7 +3288,9 @@
     "name": "Weapon Seller - Gold Armlet",
     "code": 300271,
     "map": "zz2",
-    "maps": ["zz2"],
+    "maps": [
+      "zz2"
+    ],
     "item_text": "Gold Armlet",
     "category": "standard",
     "bank": 1,
@@ -2764,7 +3301,9 @@
     "name": "Chocobo Sage's house - Enemy Skill",
     "code": 300272,
     "map": "zz3",
-    "maps": ["zz3"],
+    "maps": [
+      "zz3"
+    ],
     "item_text": "Enemy Skill",
     "category": "materia",
     "bank": 1,
@@ -2775,7 +3314,9 @@
     "name": "Lurecia's Cave - Chaos",
     "code": 300274,
     "map": "zz4",
-    "maps": ["zz4"],
+    "maps": [
+      "zz4"
+    ],
     "item_text": "Chaos",
     "category": "standard",
     "bank": 1,
@@ -2786,7 +3327,9 @@
     "name": "Materia Cave - Mime",
     "code": 300275,
     "map": "zz5",
-    "maps": ["zz5"],
+    "maps": [
+      "zz5"
+    ],
     "item_text": "Mime",
     "category": "materia",
     "bank": 1,
@@ -2797,7 +3340,9 @@
     "name": "Shinra Bldg. 64f. - Phoenix Down",
     "code": 300281,
     "map": "blin64",
-    "maps": ["blin64"],
+    "maps": [
+      "blin64"
+    ],
     "item_text": "Phoenix Down",
     "category": "standard",
     "bank": 3,
@@ -2808,7 +3353,9 @@
     "name": "Shinra Bldg.67f. - Poison #2",
     "code": 300284,
     "map": "blin67_1",
-    "maps": ["blin67_1"],
+    "maps": [
+      "blin67_1"
+    ],
     "item_text": "Poison",
     "category": "materia",
     "bank": 13,
@@ -2819,7 +3366,9 @@
     "name": "Shinra Bldg.68f. - Potion",
     "code": 300285,
     "map": "blin68_1",
-    "maps": ["blin68_1"],
+    "maps": [
+      "blin68_1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -2830,7 +3379,9 @@
     "name": "Shinra Bldg. Stairs - Behemoth Horn",
     "code": 300286,
     "map": "blinst_2",
-    "maps": ["blinst_2"],
+    "maps": [
+      "blinst_2"
+    ],
     "item_text": "Behemoth Horn",
     "category": "standard",
     "bank": 1,
@@ -2841,7 +3392,9 @@
     "name": "Bone Village - Buntline",
     "code": 300287,
     "map": "bonevil",
-    "maps": ["bonevil"],
+    "maps": [
+      "bonevil"
+    ],
     "item_text": "Buntline",
     "category": "standard",
     "bank": 13,
@@ -2852,7 +3405,9 @@
     "name": "Bone Village - Megalixir",
     "code": 300289,
     "map": "bonevil",
-    "maps": ["bonevil"],
+    "maps": [
+      "bonevil"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -2863,7 +3418,9 @@
     "name": "Bone Village - Mop",
     "code": 300290,
     "map": "bonevil",
-    "maps": ["bonevil"],
+    "maps": [
+      "bonevil"
+    ],
     "item_text": "Mop",
     "category": "standard",
     "bank": 13,
@@ -2874,7 +3431,9 @@
     "name": "Corneo Hall,2f. - Hyper",
     "code": 300297,
     "map": "colne_6",
-    "maps": ["colne_6"],
+    "maps": [
+      "colne_6"
+    ],
     "item_text": "Hyper",
     "category": "standard",
     "bank": 1,
@@ -2885,7 +3444,9 @@
     "name": "Arena Lobby - Omnislash",
     "code": 300313,
     "map": "coloin1",
-    "maps": ["coloin1"],
+    "maps": [
+      "coloin1"
+    ],
     "item_text": "Omnislash",
     "category": "standard",
     "bank": 3,
@@ -2896,7 +3457,9 @@
     "name": "Arena Lobby - W-Summon",
     "code": 300321,
     "map": "coloin1",
-    "maps": ["coloin1"],
+    "maps": [
+      "coloin1"
+    ],
     "item_text": "W-Summon",
     "category": "materia",
     "bank": 3,
@@ -2907,7 +3470,9 @@
     "name": "Battle Square - Sprint Shoes",
     "code": 300322,
     "map": "coloss",
-    "maps": ["coloss"],
+    "maps": [
+      "coloss"
+    ],
     "item_text": "Sprint Shoes",
     "category": "standard",
     "bank": 3,
@@ -2918,7 +3483,9 @@
     "name": "Waiting Room - Ramuh",
     "code": 300346,
     "map": "crcin_2",
-    "maps": ["crcin_2"],
+    "maps": [
+      "crcin_2"
+    ],
     "item_text": "Ramuh",
     "category": "materia",
     "bank": 1,
@@ -2929,7 +3496,9 @@
     "name": "Gold Saucer Wonder Square - Gil Plus",
     "code": 300361,
     "map": "games_1",
-    "maps": ["games_1"],
+    "maps": [
+      "games_1"
+    ],
     "item_text": "Gil Plus",
     "category": "materia",
     "bank": 3,
@@ -2940,7 +3509,9 @@
     "name": "Gold Saucer Wonder Square - Speed Source",
     "code": 300362,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Speed Source",
     "category": "standard",
     "bank": 5,
@@ -2951,7 +3522,9 @@
     "name": "Gold Saucer Wonder Square - Safety Bit",
     "code": 300363,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Safety Bit",
     "category": "standard",
     "bank": 5,
@@ -2962,7 +3535,9 @@
     "name": "Gold Saucer Wonder Square - Crystal Bangle",
     "code": 300364,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Crystal Bangle",
     "category": "standard",
     "bank": 5,
@@ -2973,7 +3548,9 @@
     "name": "Gold Saucer Wonder Square - Ink",
     "code": 300365,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Ink",
     "category": "standard",
     "bank": 5,
@@ -2984,7 +3561,9 @@
     "name": "Gold Saucer Wonder Square - T/S Bomb",
     "code": 300366,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "T/S Bomb",
     "category": "standard",
     "bank": 5,
@@ -2995,7 +3574,9 @@
     "name": "Gold Saucer Wonder Square - Dragon Fang",
     "code": 300367,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Dragon Fang",
     "category": "standard",
     "bank": 5,
@@ -3006,7 +3587,9 @@
     "name": "Gold Saucer Wonder Square - Dragon Scales",
     "code": 300368,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Dragon Scales",
     "category": "standard",
     "bank": 5,
@@ -3017,7 +3600,9 @@
     "name": "Gold Saucer Wonder Square - Cauldron",
     "code": 300369,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "Cauldron",
     "category": "standard",
     "bank": 5,
@@ -3028,7 +3613,9 @@
     "name": "Gold Saucer Wonder Square - All",
     "code": 300370,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 5,
@@ -3039,7 +3626,9 @@
     "name": "Hidden Passage - Hairpin",
     "code": 300371,
     "map": "hideway2",
-    "maps": ["hideway2"],
+    "maps": [
+      "hideway2"
+    ],
     "item_text": "Hairpin",
     "category": "standard",
     "bank": 1,
@@ -3050,7 +3639,9 @@
     "name": "Corel Valley Cave - Bolt Armlet",
     "code": 300386,
     "map": "sandun_1",
-    "maps": ["sandun_1"],
+    "maps": [
+      "sandun_1"
+    ],
     "item_text": "Bolt Armlet",
     "category": "standard",
     "bank": 13,
@@ -3061,7 +3652,9 @@
     "name": "Corel Valley Cave - HypnoCrown",
     "code": 300387,
     "map": "sandun_1",
-    "maps": ["sandun_1"],
+    "maps": [
+      "sandun_1"
+    ],
     "item_text": "HypnoCrown",
     "category": "standard",
     "bank": 13,
@@ -3072,7 +3665,9 @@
     "name": "Platform - Potion #2",
     "code": 300390,
     "map": "md1stin",
-    "maps": ["md1stin"],
+    "maps": [
+      "md1stin"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -3083,7 +3678,9 @@
     "name": "blin61 - Keycard 62",
     "code": 300391,
     "map": "blin61",
-    "maps": ["blin61"],
+    "maps": [
+      "blin61"
+    ],
     "item_text": "Keycard 62",
     "category": "key_item",
     "bank": 1,
@@ -3094,7 +3691,9 @@
     "name": "trnad_1 - Black Materia",
     "code": 300398,
     "map": "trnad_1",
-    "maps": ["trnad_1"],
+    "maps": [
+      "trnad_1"
+    ],
     "item_text": "Black Materia",
     "category": "key_item",
     "bank": 1,
@@ -3105,7 +3704,9 @@
     "name": "Defeat Emerald Weapon",
     "code": 300438,
     "map": "wm0",
-    "maps": ["wm0"],
+    "maps": [
+      "wm0"
+    ],
     "item_text": "Boss: Emerald Weapon",
     "category": "boss",
     "bank": 1,
@@ -3116,7 +3717,9 @@
     "name": "Defeat Ruby Weapon",
     "code": 300439,
     "map": "wm0",
-    "maps": ["wm0"],
+    "maps": [
+      "wm0"
+    ],
     "item_text": "Boss: Ruby Weapon",
     "category": "boss",
     "bank": 1,
@@ -3127,7 +3730,9 @@
     "name": "Midgar Sector 5 - Phoenix Down",
     "code": 310000,
     "map": "ealin_1",
-    "maps": ["ealin_1"],
+    "maps": [
+      "ealin_1"
+    ],
     "item_text": "Phoenix Down",
     "category": "standard",
     "bank": 1,
@@ -3138,7 +3743,9 @@
     "name": "Materia Cave - HP <-> MP",
     "code": 310001,
     "map": "zz6",
-    "maps": ["zz6"],
+    "maps": [
+      "zz6"
+    ],
     "item_text": "HP <-> MP",
     "category": "standard",
     "bank": 1,
@@ -3149,7 +3756,9 @@
     "name": "blin65_1 - KeyItem: Midgar parts",
     "code": 310002,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Midgar parts",
     "category": "standard",
     "bank": 1,
@@ -3160,7 +3769,9 @@
     "name": "blin65_1 - KeyItem: Midgar parts #2",
     "code": 310003,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Midgar parts",
     "category": "standard",
     "bank": 1,
@@ -3171,7 +3782,9 @@
     "name": "blin65_1 - KeyItem: Midgar parts #3",
     "code": 310004,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Midgar parts",
     "category": "standard",
     "bank": 1,
@@ -3182,7 +3795,9 @@
     "name": "blin65_1 - KeyItem: Midgar parts #4",
     "code": 310005,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Midgar parts",
     "category": "standard",
     "bank": 1,
@@ -3193,7 +3808,9 @@
     "name": "blin65_1 - KeyItem: Midgar parts #5",
     "code": 310006,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Midgar parts",
     "category": "standard",
     "bank": 1,
@@ -3204,7 +3821,9 @@
     "name": "blin65_1 - KeyItem: Keycard 66",
     "code": 310007,
     "map": "blin65_1",
-    "maps": ["blin65_1"],
+    "maps": [
+      "blin65_1"
+    ],
     "item_text": "KeyItem: Keycard 66",
     "category": "standard",
     "bank": 1,
@@ -3215,7 +3834,9 @@
     "name": "blin61 - KeyItem: Keycard 62",
     "code": 310008,
     "map": "blin61",
-    "maps": ["blin61"],
+    "maps": [
+      "blin61"
+    ],
     "item_text": "KeyItem: Keycard 62",
     "category": "standard",
     "bank": 1,
@@ -3226,7 +3847,9 @@
     "name": "Wutai Weapons Store - HP Absorb",
     "code": 310009,
     "map": "uta_im",
-    "maps": ["uta_im"],
+    "maps": [
+      "uta_im"
+    ],
     "item_text": "HP Absorb",
     "category": "materia",
     "bank": 1,
@@ -3237,7 +3860,9 @@
     "name": "Midgar Sector 5 - KeyItem: Member's Card",
     "code": 310010,
     "map": "mrkt2",
-    "maps": ["mrkt2"],
+    "maps": [
+      "mrkt2"
+    ],
     "item_text": "KeyItem: Member's Card",
     "category": "standard",
     "bank": 1,
@@ -3248,29 +3873,37 @@
     "name": "Fort Condor - KeyItem: Huge Materia: Fort Condor",
     "code": 310011,
     "map": "convil_1",
-    "maps": ["convil_1"],
+    "maps": [
+      "convil_1"
+    ],
     "item_text": "KeyItem: Huge Materia: Fort Condor",
     "category": "standard",
-    "bank": 1,
-    "address": 66,
+    "bank": 13,
+    "address": 148,
     "bit": 4
   },
   {
-    "name": "World Map - KeyItem: Huge Materia: UnderWater Reactor",
+    "name": "Red Submarine - KeyItem: Huge Materia (Underwater)",
     "code": 310012,
     "map": "subin_1a",
-    "maps": ["subin_1a", "subin_1b"],
-    "item_text": "KeyItem: Huge Materia: UnderWater",
+    "maps": [
+      "subin_1a",
+      "subin_1b"
+    ],
+    "item_text": "KeyItem: Huge Materia (Underwater)",
     "category": "standard",
-    "bank": 1,
-    "address": 66,
-    "bit": 6
+    "bank": 11,
+    "address": 82,
+    "bit": 0
   },
   {
     "name": "World Map - KeyItem: Key to Ancients",
     "code": 310013,
     "map": "subin_1a",
-    "maps": ["subin_1a", "subin_1b"],
+    "maps": [
+      "subin_1a",
+      "subin_1b"
+    ],
     "item_text": "KeyItem: Key to Ancients",
     "category": "standard",
     "bank": 1,
@@ -3281,7 +3914,9 @@
     "name": "Kalm - KeyItem: PHS",
     "code": 310014,
     "map": "elminn_1",
-    "maps": ["elminn_1"],
+    "maps": [
+      "elminn_1"
+    ],
     "item_text": "KeyItem: PHS",
     "category": "standard",
     "bank": 1,
@@ -3292,7 +3927,9 @@
     "name": "Gold Saucer Area - KeyItem: Keystone",
     "code": 310015,
     "map": "clsin2_2",
-    "maps": ["clsin2_2"],
+    "maps": [
+      "clsin2_2"
+    ],
     "item_text": "KeyItem: Keystone",
     "category": "standard",
     "bank": 1,
@@ -3303,7 +3940,9 @@
     "name": "Whirlwind Maze - KeyItem: Black Materia",
     "code": 310016,
     "map": "trnad_1",
-    "maps": ["trnad_1"],
+    "maps": [
+      "trnad_1"
+    ],
     "item_text": "KeyItem: Black Materia",
     "category": "standard",
     "bank": 1,
@@ -3314,7 +3953,9 @@
     "name": "Corel - KeyItem: Huge Materia: Corel",
     "code": 310017,
     "map": "ncorel3",
-    "maps": ["ncorel3"],
+    "maps": [
+      "ncorel3"
+    ],
     "item_text": "KeyItem: Huge Materia: Corel",
     "category": "standard",
     "bank": 1,
@@ -3325,7 +3966,9 @@
     "name": "Icicle Inn - KeyItem: Snowboard",
     "code": 310018,
     "map": "snmin1",
-    "maps": ["snmin1"],
+    "maps": [
+      "snmin1"
+    ],
     "item_text": "KeyItem: Snowboard",
     "category": "standard",
     "bank": 1,
@@ -3336,7 +3979,9 @@
     "name": "Icicle Inn - KeyItem: Glacier Map",
     "code": 310019,
     "map": "snmin2",
-    "maps": ["snmin2"],
+    "maps": [
+      "snmin2"
+    ],
     "item_text": "KeyItem: Glacier Map",
     "category": "standard",
     "bank": 1,
@@ -3347,7 +3992,9 @@
     "name": "Midgar Sector 5 - KeyItem: Cologne",
     "code": 310020,
     "map": "mktpb",
-    "maps": ["mktpb"],
+    "maps": [
+      "mktpb"
+    ],
     "item_text": "KeyItem: Cologne",
     "category": "standard",
     "bank": 1,
@@ -3358,7 +4005,9 @@
     "name": "Midgar Sector 5 - KeyItem: Flower Cologne",
     "code": 310021,
     "map": "mktpb",
-    "maps": ["mktpb"],
+    "maps": [
+      "mktpb"
+    ],
     "item_text": "KeyItem: Flower Cologne",
     "category": "standard",
     "bank": 1,
@@ -3369,7 +4018,9 @@
     "name": "Midgar Sector 5 - KeyItem: Sexy Cologne",
     "code": 310022,
     "map": "mktpb",
-    "maps": ["mktpb"],
+    "maps": [
+      "mktpb"
+    ],
     "item_text": "KeyItem: Sexy Cologne",
     "category": "standard",
     "bank": 1,
@@ -3380,7 +4031,9 @@
     "name": "Midgar Sector 5 - KeyItem: Pharmacy Coupon",
     "code": 310023,
     "map": "mkt_s2",
-    "maps": ["mkt_s2"],
+    "maps": [
+      "mkt_s2"
+    ],
     "item_text": "KeyItem: Pharmacy Coupon",
     "category": "standard",
     "bank": 1,
@@ -3391,7 +4044,9 @@
     "name": "Midgar Sector 5 - KeyItem: Wig",
     "code": 310024,
     "map": "mkt_mens",
-    "maps": ["mkt_mens"],
+    "maps": [
+      "mkt_mens"
+    ],
     "item_text": "KeyItem: Wig",
     "category": "standard",
     "bank": 1,
@@ -3402,7 +4057,9 @@
     "name": "Midgar Sector 5 - KeyItem: Dyed Wig",
     "code": 310025,
     "map": "mkt_mens",
-    "maps": ["mkt_mens"],
+    "maps": [
+      "mkt_mens"
+    ],
     "item_text": "KeyItem: Dyed Wig",
     "category": "standard",
     "bank": 1,
@@ -3413,7 +4070,9 @@
     "name": "Midgar Sector 5 - KeyItem: Blonde Wig",
     "code": 310026,
     "map": "mkt_mens",
-    "maps": ["mkt_mens"],
+    "maps": [
+      "mkt_mens"
+    ],
     "item_text": "KeyItem: Blonde Wig",
     "category": "standard",
     "bank": 1,
@@ -3424,7 +4083,9 @@
     "name": "Midgar Sector 5 - KeyItem: Cotton Dress",
     "code": 310027,
     "map": "mkt_s1",
-    "maps": ["mkt_s1"],
+    "maps": [
+      "mkt_s1"
+    ],
     "item_text": "KeyItem: Cotton Dress",
     "category": "standard",
     "bank": 1,
@@ -3435,7 +4096,9 @@
     "name": "Midgar Sector 5 - KeyItem: Satin Dress",
     "code": 310028,
     "map": "mkt_s1",
-    "maps": ["mkt_s1"],
+    "maps": [
+      "mkt_s1"
+    ],
     "item_text": "KeyItem: Satin Dress",
     "category": "standard",
     "bank": 1,
@@ -3446,7 +4109,9 @@
     "name": "Midgar Sector 5 - KeyItem: Silk Dress",
     "code": 310029,
     "map": "mkt_s1",
-    "maps": ["mkt_s1"],
+    "maps": [
+      "mkt_s1"
+    ],
     "item_text": "KeyItem: Silk Dress",
     "category": "standard",
     "bank": 1,
@@ -3457,7 +4122,9 @@
     "name": "Midgar Sector 5 - KeyItem: Disinfectant",
     "code": 310030,
     "map": "mkt_s3",
-    "maps": ["mkt_s3"],
+    "maps": [
+      "mkt_s3"
+    ],
     "item_text": "KeyItem: Disinfectant",
     "category": "standard",
     "bank": 1,
@@ -3468,7 +4135,9 @@
     "name": "Midgar Sector 5 - KeyItem: Deodorant",
     "code": 310031,
     "map": "mkt_s3",
-    "maps": ["mkt_s3"],
+    "maps": [
+      "mkt_s3"
+    ],
     "item_text": "KeyItem: Deodorant",
     "category": "standard",
     "bank": 1,
@@ -3479,7 +4148,9 @@
     "name": "Midgar Sector 5 - KeyItem: Digestive",
     "code": 310032,
     "map": "mkt_s3",
-    "maps": ["mkt_s3"],
+    "maps": [
+      "mkt_s3"
+    ],
     "item_text": "KeyItem: Digestive",
     "category": "standard",
     "bank": 1,
@@ -3490,7 +4161,9 @@
     "name": "Midgar Sector 5 - KeyItem: Glass Tiara",
     "code": 310033,
     "map": "mkt_m",
-    "maps": ["mkt_m"],
+    "maps": [
+      "mkt_m"
+    ],
     "item_text": "KeyItem: Glass Tiara",
     "category": "standard",
     "bank": 1,
@@ -3501,7 +4174,9 @@
     "name": "Midgar Sector 5 - KeyItem: Ruby Tiara",
     "code": 310034,
     "map": "mkt_m",
-    "maps": ["mkt_m"],
+    "maps": [
+      "mkt_m"
+    ],
     "item_text": "KeyItem: Ruby Tiara",
     "category": "standard",
     "bank": 1,
@@ -3512,7 +4187,9 @@
     "name": "Midgar Sector 5 - KeyItem: Diamond Tiara",
     "code": 310035,
     "map": "mkt_m",
-    "maps": ["mkt_m"],
+    "maps": [
+      "mkt_m"
+    ],
     "item_text": "KeyItem: Diamond Tiara",
     "category": "standard",
     "bank": 1,
@@ -3523,7 +4200,9 @@
     "name": "Midgar Sector 5 - Batteries",
     "code": 310036,
     "map": "mkt_w",
-    "maps": ["mkt_w"],
+    "maps": [
+      "mkt_w"
+    ],
     "item_text": "Batteries",
     "category": "standard",
     "bank": 1,
@@ -3534,7 +4213,10 @@
     "name": "Fort Condor - Phoenix",
     "code": 310037,
     "map": "convil_4",
-    "maps": ["convil_4", "bonevil"],
+    "maps": [
+      "convil_4",
+      "bonevil"
+    ],
     "item_text": "Phoenix",
     "category": "standard",
     "bank": 1,
@@ -3545,7 +4227,9 @@
     "name": "Fort Condor - Super Ball",
     "code": 310038,
     "map": "convil_2",
-    "maps": ["convil_2"],
+    "maps": [
+      "convil_2"
+    ],
     "item_text": "Super Ball",
     "category": "standard",
     "bank": 1,
@@ -3556,7 +4240,9 @@
     "name": "Great Glacier - Alexander",
     "code": 310039,
     "map": "hyou13_2",
-    "maps": ["hyou13_2"],
+    "maps": [
+      "hyou13_2"
+    ],
     "item_text": "Alexander",
     "category": "standard",
     "bank": 1,
@@ -3567,7 +4253,9 @@
     "name": "Shinra Bldg. 62f. - Can Advance",
     "code": 310040,
     "map": "blin62_1",
-    "maps": ["blin62_1"],
+    "maps": [
+      "blin62_1"
+    ],
     "item_text": "Can Advance",
     "category": "standard",
     "bank": 1,
@@ -3578,7 +4266,9 @@
     "name": "Shinra Bldg.68f. - KeyItem: KeyCard 68",
     "code": 310041,
     "map": "blin68_1",
-    "maps": ["blin68_1"],
+    "maps": [
+      "blin68_1"
+    ],
     "item_text": "KeyItem: KeyCard 68",
     "category": "standard",
     "bank": 1,
@@ -3589,7 +4279,9 @@
     "name": "Bone Village - KeyItem: Lunar Harp",
     "code": 310042,
     "map": "bonevil",
-    "maps": ["bonevil"],
+    "maps": [
+      "bonevil"
+    ],
     "item_text": "KeyItem: Lunar Harp",
     "category": "standard",
     "bank": 1,
@@ -3597,11 +4289,13 @@
     "bit": 3
   },
   {
-    "name": "Nibelheim - KeyItem: Key To Basement",
+    "name": "Nibelheim - KeyItem: Basement Key",
     "code": 310043,
     "map": "sinin2_1",
-    "maps": ["sinin2_1"],
-    "item_text": "KeyItem: Key To Basement",
+    "maps": [
+      "sinin2_1"
+    ],
+    "item_text": "KeyItem: Basement Key",
     "category": "standard",
     "bank": 1,
     "address": 232,
@@ -3611,7 +4305,9 @@
     "name": "Nibelheim - Mind Plus",
     "code": 310044,
     "map": "nivl_3",
-    "maps": ["nivl_3"],
+    "maps": [
+      "nivl_3"
+    ],
     "item_text": "Mind Plus",
     "category": "standard",
     "bank": 3,
@@ -3622,7 +4318,10 @@
     "name": "Gold Saucer Area - KeyItem: Gold Ticket",
     "code": 310045,
     "map": "gldst",
-    "maps": ["gldst", "games_1"],
+    "maps": [
+      "gldst",
+      "games_1"
+    ],
     "item_text": "KeyItem: Gold Ticket",
     "category": "standard",
     "bank": 3,
@@ -3633,7 +4332,9 @@
     "name": "Midgar Sector 5 - Found hidden draw",
     "code": 310046,
     "map": "min51_2",
-    "maps": ["min51_2"],
+    "maps": [
+      "min51_2"
+    ],
     "item_text": "Found hidden draw",
     "category": "standard",
     "bank": 3,
@@ -3644,7 +4345,9 @@
     "name": "Midgar Sector 5 - Stole boys 5 gil",
     "code": 310047,
     "map": "min51_2",
-    "maps": ["min51_2"],
+    "maps": [
+      "min51_2"
+    ],
     "item_text": "Stole boys 5 gil",
     "category": "standard",
     "bank": 3,
@@ -3655,7 +4358,9 @@
     "name": "blin59 - KeyItem: Keycard 60",
     "code": 310048,
     "map": "blin59",
-    "maps": ["blin59"],
+    "maps": [
+      "blin59"
+    ],
     "item_text": "KeyItem: Keycard 60",
     "category": "standard",
     "bank": 3,
@@ -3666,7 +4371,9 @@
     "name": "Shinra Bldg. 63f. - Initialized the Machine",
     "code": 310049,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "Initialized the Machine",
     "category": "standard",
     "bank": 3,
@@ -3677,7 +4384,9 @@
     "name": "Shinra Bldg. 63f. - KeyItem: A Coupon",
     "code": 310050,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "KeyItem: A Coupon",
     "category": "standard",
     "bank": 3,
@@ -3688,7 +4397,9 @@
     "name": "Shinra Bldg. 63f. - KeyItem: B Coupon",
     "code": 310051,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "KeyItem: B Coupon",
     "category": "standard",
     "bank": 3,
@@ -3699,7 +4410,9 @@
     "name": "Shinra Bldg. 63f. - KeyItem: C Coupon",
     "code": 310052,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "KeyItem: C Coupon",
     "category": "standard",
     "bank": 3,
@@ -3710,7 +4423,9 @@
     "name": "Shinra Bldg. 64f. - Shinra Gym Special Drink",
     "code": 310053,
     "map": "blin64",
-    "maps": ["blin64"],
+    "maps": [
+      "blin64"
+    ],
     "item_text": "Shinra Gym Special Drink",
     "category": "standard",
     "bank": 3,
@@ -3721,7 +4436,9 @@
     "name": "Shinra Bldg. 64f. - Mind Source + Speed Source",
     "code": 310054,
     "map": "blin64",
-    "maps": ["blin64"],
+    "maps": [
+      "blin64"
+    ],
     "item_text": "Mind Source + Speed Source",
     "category": "standard",
     "bank": 3,
@@ -3732,7 +4449,9 @@
     "name": "Shinra Bldg. 62f. - KeyItem: Keycard 65",
     "code": 310055,
     "map": "blin62_1",
-    "maps": ["blin62_1"],
+    "maps": [
+      "blin62_1"
+    ],
     "item_text": "KeyItem: Keycard 65",
     "category": "standard",
     "bank": 3,
@@ -3743,7 +4462,9 @@
     "name": "Shinra Bldg. 63f. - All #2",
     "code": 310056,
     "map": "blin63_1",
-    "maps": ["blin63_1"],
+    "maps": [
+      "blin63_1"
+    ],
     "item_text": "All",
     "category": "materia",
     "bank": 3,
@@ -3754,7 +4475,10 @@
     "name": "Bugenhagen's Observatory - Bahamut Zero",
     "code": 310057,
     "map": "bugin1b",
-    "maps": ["bugin1b", "bonevil"],
+    "maps": [
+      "bugin1b",
+      "bonevil"
+    ],
     "item_text": "Bahamut Zero",
     "category": "standard",
     "bank": 3,
@@ -3765,7 +4489,9 @@
     "name": "Midgar Sector 5 - Turtle Paradise Flyer #1",
     "code": 310058,
     "map": "min51_2",
-    "maps": ["min51_2"],
+    "maps": [
+      "min51_2"
+    ],
     "item_text": "Turtle Paradise Flyer #1",
     "category": "standard",
     "bank": 3,
@@ -3776,7 +4502,9 @@
     "name": "blin1 - Turtle Paradise Flyer #2",
     "code": 310059,
     "map": "blin1",
-    "maps": ["blin1"],
+    "maps": [
+      "blin1"
+    ],
     "item_text": "Turtle Paradise Flyer #2",
     "category": "standard",
     "bank": 3,
@@ -3787,7 +4515,9 @@
     "name": "Gold Saucer Area - Turtle Paradise Flyer #3",
     "code": 310060,
     "map": "ghotin_1",
-    "maps": ["ghotin_1"],
+    "maps": [
+      "ghotin_1"
+    ],
     "item_text": "Turtle Paradise Flyer #3",
     "category": "standard",
     "bank": 3,
@@ -3798,7 +4528,9 @@
     "name": "cosin1 - Turtle Paradise Flyer #4",
     "code": 310061,
     "map": "cosin1",
-    "maps": ["cosin1"],
+    "maps": [
+      "cosin1"
+    ],
     "item_text": "Turtle Paradise Flyer #4",
     "category": "standard",
     "bank": 3,
@@ -3809,7 +4541,9 @@
     "name": "cosin3 - Turtle Paradise Flyer #5",
     "code": 310062,
     "map": "cosin3",
-    "maps": ["cosin3"],
+    "maps": [
+      "cosin3"
+    ],
     "item_text": "Turtle Paradise Flyer #5",
     "category": "standard",
     "bank": 3,
@@ -3820,7 +4554,9 @@
     "name": "yufy2 - Turtle Paradise Flyer #6",
     "code": 310063,
     "map": "yufy2",
-    "maps": ["yufy2"],
+    "maps": [
+      "yufy2"
+    ],
     "item_text": "Turtle Paradise Flyer #6",
     "category": "standard",
     "bank": 3,
@@ -3831,7 +4567,9 @@
     "name": "uutai1 - Turtle Paradise Flyer #7",
     "code": 310064,
     "map": "uutai1",
-    "maps": ["uutai1"],
+    "maps": [
+      "uutai1"
+    ],
     "item_text": "Turtle Paradise Flyer #7",
     "category": "standard",
     "bank": 3,
@@ -3842,7 +4580,9 @@
     "name": "Wutai - Rewarded for viewing all Turtle Paradise Flyers",
     "code": 310065,
     "map": "utapb",
-    "maps": ["utapb"],
+    "maps": [
+      "utapb"
+    ],
     "item_text": "Rewarded for viewing all Turtle Paradise Flyers",
     "category": "standard",
     "bank": 3,
@@ -3853,7 +4593,9 @@
     "name": "Midgar Sector 5 - KeyItem: Bikini briefs",
     "code": 310066,
     "map": "onna_52",
-    "maps": ["onna_52"],
+    "maps": [
+      "onna_52"
+    ],
     "item_text": "KeyItem: Bikini briefs",
     "category": "standard",
     "bank": 3,
@@ -3864,7 +4606,9 @@
     "name": "Midgar Sector 5 - KeyItem: Lingerie",
     "code": 310067,
     "map": "onna_52",
-    "maps": ["onna_52"],
+    "maps": [
+      "onna_52"
+    ],
     "item_text": "KeyItem: Lingerie",
     "category": "standard",
     "bank": 3,
@@ -3875,7 +4619,9 @@
     "name": "Gold Saucer Area - 30Gp from Mog's House",
     "code": 310068,
     "map": "games_2",
-    "maps": ["games_2"],
+    "maps": [
+      "games_2"
+    ],
     "item_text": "30Gp from Mog's House",
     "category": "standard",
     "bank": 5,
@@ -3886,7 +4632,9 @@
     "name": "Gold Saucer Area - Rewards From Ester",
     "code": 310069,
     "map": "crcin_1",
-    "maps": ["crcin_1"],
+    "maps": [
+      "crcin_1"
+    ],
     "item_text": "Rewards From Ester",
     "category": "standard",
     "bank": 5,
@@ -3897,7 +4645,9 @@
     "name": "Nibelheim Tifa's House - Final Heaven",
     "code": 310070,
     "map": "niv_ti2",
-    "maps": ["niv_ti2"],
+    "maps": [
+      "niv_ti2"
+    ],
     "item_text": "Final Heaven (+other stuff?)",
     "category": "standard",
     "bank": 11,
@@ -3908,7 +4658,9 @@
     "name": "Nibelheim - Played piano during flashback",
     "code": 310071,
     "map": "niv_ti2",
-    "maps": ["niv_ti2"],
+    "maps": [
+      "niv_ti2"
+    ],
     "item_text": "Played piano during flashback",
     "category": "standard",
     "bank": 11,
@@ -3919,7 +4671,9 @@
     "name": "Nibelheim - Elemental",
     "code": 310072,
     "map": "niv_ti2",
-    "maps": ["niv_ti2"],
+    "maps": [
+      "niv_ti2"
+    ],
     "item_text": "Elemental(+other stuff?)",
     "category": "standard",
     "bank": 11,
@@ -3930,7 +4684,9 @@
     "name": "Gaea's Cliff - Elixir",
     "code": 310073,
     "map": "gaiin_5",
-    "maps": ["gaiin_5"],
+    "maps": [
+      "gaiin_5"
+    ],
     "item_text": "Elixir",
     "category": "standard",
     "bank": 13,
@@ -3941,7 +4697,9 @@
     "name": "Whirlwind Maze - Neo Bahamut",
     "code": 310074,
     "map": "trnad_2",
-    "maps": ["trnad_2"],
+    "maps": [
+      "trnad_2"
+    ],
     "item_text": "Neo Bahamut",
     "category": "standard",
     "bank": 13,
@@ -3952,7 +4710,9 @@
     "name": "Whirlwind Maze - Hero Drink",
     "code": 310075,
     "map": "trnad_3",
-    "maps": ["trnad_3"],
+    "maps": [
+      "trnad_3"
+    ],
     "item_text": "Hero Drink",
     "category": "standard",
     "bank": 13,
@@ -3963,7 +4723,9 @@
     "name": "Shinra Bldg.68f. - Potion #2",
     "code": 310076,
     "map": "blin68_1",
-    "maps": ["blin68_1"],
+    "maps": [
+      "blin68_1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -3974,7 +4736,9 @@
     "name": "Shinra Bldg.68f. - Potion #3",
     "code": 310077,
     "map": "blin68_1",
-    "maps": ["blin68_1"],
+    "maps": [
+      "blin68_1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -3985,7 +4749,9 @@
     "name": "Shinra Bldg.68f. - Potion #4",
     "code": 310078,
     "map": "blin68_1",
-    "maps": ["blin68_1"],
+    "maps": [
+      "blin68_1"
+    ],
     "item_text": "Potion",
     "category": "standard",
     "bank": 13,
@@ -3996,7 +4762,10 @@
     "name": "Shinra Bldg.68f. - Enemy Skill",
     "code": 310079,
     "map": "blin68_1",
-    "maps": ["blin68_1", "blin68_2"],
+    "maps": [
+      "blin68_1",
+      "blin68_2"
+    ],
     "item_text": "Enemy Skill",
     "category": "materia",
     "bank": 13,
@@ -4007,7 +4776,9 @@
     "name": "Mt. Nibel - Counter",
     "code": 310080,
     "map": "nvdun1",
-    "maps": ["nvdun1"],
+    "maps": [
+      "nvdun1"
+    ],
     "item_text": "Counter",
     "category": "materia",
     "bank": 13,
@@ -4018,7 +4789,9 @@
     "name": "Ancient Forest - Typhon",
     "code": 310081,
     "map": "anfrst_2",
-    "maps": ["anfrst_2"],
+    "maps": [
+      "anfrst_2"
+    ],
     "item_text": "Typhon",
     "category": "standard",
     "bank": 13,
@@ -4029,7 +4802,9 @@
     "name": "Bone Village - KeyItem: Key To Sector 5",
     "code": 310082,
     "map": "bonevil",
-    "maps": ["bonevil"],
+    "maps": [
+      "bonevil"
+    ],
     "item_text": "KeyItem: Key To Sector 5",
     "category": "standard",
     "bank": 13,
@@ -4040,7 +4815,9 @@
     "name": "Sunken Gelnika - Hades",
     "code": 310083,
     "map": "qd",
-    "maps": ["q_4"],
+    "maps": [
+      "q_4"
+    ],
     "item_text": "Hades",
     "category": "standard",
     "bank": 13,
@@ -4051,7 +4828,9 @@
     "name": "Sunken Gelnika - Outsider",
     "code": 310084,
     "map": "qd",
-    "maps": ["q_4"],
+    "maps": [
+      "q_4"
+    ],
     "item_text": "Outsider",
     "category": "standard",
     "bank": 13,
@@ -4062,7 +4841,9 @@
     "name": "Sunken Gelnika - Escort Guard",
     "code": 310085,
     "map": "qc",
-    "maps": ["q_3"],
+    "maps": [
+      "q_3"
+    ],
     "item_text": "Escort Guard",
     "category": "standard",
     "bank": 13,
@@ -4073,7 +4854,9 @@
     "name": "Sunken Gelnika - Conformer",
     "code": 310086,
     "map": "qc",
-    "maps": ["q_3"],
+    "maps": [
+      "q_3"
+    ],
     "item_text": "Conformer",
     "category": "standard",
     "bank": 13,
@@ -4084,7 +4867,9 @@
     "name": "Sunken Gelnika - Spirit Lance",
     "code": 310087,
     "map": "qd",
-    "maps": ["q_4"],
+    "maps": [
+      "q_4"
+    ],
     "item_text": "Spirit Lance",
     "category": "standard",
     "bank": 13,
@@ -4095,7 +4880,9 @@
     "name": "Sunken Gelnika - Heaven's Cloud",
     "code": 310088,
     "map": "qa",
-    "maps": ["q_1"],
+    "maps": [
+      "q_1"
+    ],
     "item_text": "Heaven's Cloud",
     "category": "standard",
     "bank": 13,
@@ -4106,7 +4893,9 @@
     "name": "Sunken Gelnika Research Room - Megalixir",
     "code": 310089,
     "map": "qc",
-    "maps": ["q_3"],
+    "maps": [
+      "q_3"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -4117,7 +4906,9 @@
     "name": "Sunken Gelnika Cargo Room - Megalixir",
     "code": 310090,
     "map": "qd",
-    "maps": ["q_4"],
+    "maps": [
+      "q_4"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -4128,7 +4919,10 @@
     "name": "Northern Cave - Megalixir #2",
     "code": 310091,
     "map": "las1_3",
-    "maps": ["las1_3", "las4_0"],
+    "maps": [
+      "las1_3",
+      "las4_0"
+    ],
     "item_text": "Megalixir",
     "category": "standard",
     "bank": 13,
@@ -4139,7 +4933,9 @@
     "name": "Kalm - Show Earth Harp 3",
     "code": 310092,
     "map": "elmin4_2",
-    "maps": ["elmin4_2"],
+    "maps": [
+      "elmin4_2"
+    ],
     "item_text": "Show Earth Harp 3",
     "category": "standard",
     "bank": 13,
@@ -4150,7 +4946,9 @@
     "name": "Temple of the Ancients - Battle #645",
     "code": 310093,
     "map": "kuro_6",
-    "maps": ["kuro_6"],
+    "maps": [
+      "kuro_6"
+    ],
     "item_text": "Battle #645",
     "category": "standard",
     "bank": 13,
@@ -4161,7 +4959,9 @@
     "name": "Temple of the Ancients - Battle #649",
     "code": 310094,
     "map": "kuro_6",
-    "maps": ["kuro_6"],
+    "maps": [
+      "kuro_6"
+    ],
     "item_text": "Battle #649",
     "category": "standard",
     "bank": 13,
@@ -4172,7 +4972,9 @@
     "name": "Temple of the Ancients - Bahamut",
     "code": 310095,
     "map": "kuro_82",
-    "maps": ["kuro_82"],
+    "maps": [
+      "kuro_82"
+    ],
     "item_text": "Bahamut",
     "category": "standard",
     "bank": 13,
@@ -4183,7 +4985,10 @@
     "name": "Northern Cave - Counter",
     "code": 310096,
     "map": "las0_4",
-    "maps": ["las0_4", "las4_0"],
+    "maps": [
+      "las0_4",
+      "las4_0"
+    ],
     "item_text": "Counter",
     "category": "materia",
     "bank": 13,

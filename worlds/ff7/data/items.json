@@ -112,12 +112,6 @@
     "name": "Black M-phone",
     "code": 100300,
     "classification": "filler",
-    "ff7_id": 226
-  },
-  {
-    "name": "Black Mphone",
-    "code": 100018,
-    "classification": "filler",
     "ff7_id": 235
   },
   {
@@ -711,12 +705,6 @@
   {
     "name": "Heaven's Cloud",
     "code": 100303,
-    "classification": "filler",
-    "ff7_id": 140
-  },
-  {
-    "name": "Heavens Cloud",
-    "code": 100118,
     "classification": "filler",
     "ff7_id": 141
   },
@@ -1420,12 +1408,6 @@
     "name": "Silver M-phone",
     "code": 100301,
     "classification": "filler",
-    "ff7_id": 228
-  },
-  {
-    "name": "Silver Mphone",
-    "code": 100234,
-    "classification": "filler",
     "ff7_id": 236
   },
   {
@@ -1738,12 +1720,6 @@
     "name": "White M-phone",
     "code": 100299,
     "classification": "filler",
-    "ff7_id": 225
-  },
-  {
-    "name": "White Mphone",
-    "code": 100286,
-    "classification": "filler",
     "ff7_id": 234
   },
   {
@@ -1787,12 +1763,6 @@
     "code": 100294,
     "classification": "filler",
     "ff7_id": 2
-  },
-  {
-    "name": "Yellow Mphone",
-    "code": 100295,
-    "classification": "filler",
-    "ff7_id": 229
   },
   {
     "name": "Yoshiyuki",

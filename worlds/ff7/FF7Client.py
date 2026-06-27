@@ -128,6 +128,11 @@ _FREE_ROAM_FORCE_FLAGS = [
     (0x0C26, 0),   # #0 Man1: "It's dangerous!" handled
     (0x0C26, 3),   # #3 Elena punched Cloud
     (0x0C26, 4),   # #4 Cloud woke in Gast home
+    (0x0C26, 5),   # #5 moves the snmin1 cat off the snowboard. The cat's init
+                   #    gates its position on Var[1][130].5: OFF -> (-66,634) on top
+                   #    of the snowboard (blocks it); ON -> (-37,433), clearing it.
+                   #    The vanilla event that sets this is skipped in Free Roam. No
+                   #    location detects on bit 5 (snowboard=bit1, glacier map=bit6).
     (0x0C26, 7),   # #7 First time snowboarding
     # Junon "Junon area story flags" — Var[1][129] (0xBA4+0x81 = 0xC25). Force the
     # whole byte (all 8 bits = 0xFF) so the one-time Junon arrival sequence (Priscilla
@@ -141,13 +146,8 @@ _FREE_ROAM_FORCE_FLAGS = [
     (0x0C25, 5),   # #5 Tifa: "5 years ago"
     (0x0C25, 6),   # #6 Cloud: "Hey!" (climb tower)
     (0x0C25, 7),   # #7 Reached top of pole
-    # Yuffie forest encounter flag — Var[1][133] (0xBA4+0x85 = 0xC29), LSB only.
-    # Bit 0 ON = Yuffie can be encountered in forests (so she's recruitable in
-    # Free Roam, where the story flag that normally enables it is skipped).
-    (0x0C29, 0),   # bit 0 — "can Yuffie be found in forests"
-    # Var[3][189] bit 4 (the "& 16" field-script gate) — bank 3 base 0xCA4 + 0xBD
-    # = 0xD61. Forced ON so the gated branch (else goto label 1) is taken.
-    (0x0D61, 4),   # Var[3][189] & 16
+    # NOTE: Var[3][189] bit 4 (0xD61.4, the "& 16" field-script gate) is no longer
+    # forced here — removed at request.
     # NOTE: Ruby Weapon's spawn (0xF2B.4) is NOT forced here anymore. Ruby's model
     # geometry only renders at world_progress 4, which the overworld init reaches
     # only after Ultimate is dead — so forcing his spawn early just produced an
@@ -281,9 +281,10 @@ def _shops_from_apff7(
          item_token->desc, materia_token->desc)
     Item-space tokens are composite item ids (consumable/weapon/armor/accessory,
     all detected in the item inventory); materia tokens live in the materia
-    inventory. Display name format ``A <Item> @ <Owner>`` (the leading "A " marks
-    it as an Archipelago slot), trimmed to fit the shop grid. The description is
-    ``An Archipelago Item for <Owner>`` (shown in the shop info pane)."""
+    inventory. Display name format ``A <Item>`` (the leading "A " marks it as an
+    Archipelago slot), trimmed to fit the shop grid. The owner is no longer shown
+    in the name; it remains in the description ``An Archipelago Item for <Owner>``
+    (shown in the shop info pane)."""
     item_loc: Dict[int, int] = {}
     mat_loc: Dict[int, int] = {}
     item_names: Dict[int, str] = {}
@@ -297,8 +298,11 @@ def _shops_from_apff7(
             continue
         item  = (s.get("item") or "AP Item").strip()
         owner = (s.get("item_owner") or "").strip()
-        name  = (f"A {item} @ {owner}" if owner else f"A {item}")[:30]
+        cls   = (s.get("item_classification") or "").strip()
+        name  = f"A {item}"[:30]   # owner intentionally not shown in the name
         desc  = (f"An Archipelago Item for {owner}" if owner else "An Archipelago Item")
+        if cls:                    # Progression / Useful / Filler / Trap
+            desc += f" - {cls} Item"
         if s.get("token_type", "item") == "materia":
             mat_loc[int(token)] = int(loc)
             mat_names[int(token)] = name
@@ -971,6 +975,14 @@ KEY_ITEM_FLAGS: Dict[str, List[Tuple[int, int]]] = {
     "Disinfectant":               [(0x42, 1)],
     "Deodorant":                  [(0x42, 2)],
     "Digestive":                  [(0x42, 3)],
+    # The 4 Huge Materia grant their possession bit (key-items menu) ONLY on AP
+    # receipt — the in-game pickups now fire DEDICATED detection flags instead of
+    # these possession bits (Underwater/Fort Condor moved to bank13 0x90.0/0.1 in
+    # locations.json; Corel=0x80.6, Rocket=bank13 0x91.3 already separate). So
+    # setting 0x42.4-7 here no longer collides with any location's detection flag:
+    # the in-game pickup fires the check WITHOUT adding the materia to the menu, and
+    # AP receipt adds it to the menu WITHOUT pre-firing the check. (Needs a fresh
+    # seed so Gold Saucer relocates the pickup BITONs to the new detection flags.)
     "Huge Materia (Fort Condor)": [(0x42, 4)],
     "Huge Materia (Corel)":       [(0x42, 5)],
     "Huge Materia (Underwater)":  [(0x42, 6)],
@@ -1489,6 +1501,8 @@ _CHAR_DEFAULT_WEAPONS = {
 }
 # FF7CHAR field offsets used during record initialisation.
 _CHR_ID = 0x00; _CHR_LEVEL = 0x01; _CHR_NAME = 0x10
+_CHR_LIMITLEVEL = 0x0E; _CHR_LIMITBAR = 0x0F   # current limit level (1-4) / gauge
+_CHR_LIMITS = 0x22; _CHR_KILLS = 0x24          # learned-limit bitmask / kills+uses
 _CHR_WEAPON = 0x1C; _CHR_ARMOR = 0x1D; _CHR_ACCESSORY = 0x1E
 _CHR_STATUS = 0x1F; _CHR_ROW = 0x20
 _CHR_CURHP = 0x2C; _CHR_BASEHP = 0x2E; _CHR_CURMP = 0x30; _CHR_BASEMP = 0x32
@@ -1530,6 +1544,15 @@ def _init_character_record(pm: "pymem.Pymem", cid: int) -> None:
     rec[_CHR_ACCESSORY] = 0xFF      # no accessory (0xFF is a valid empty accessory)
     rec[_CHR_STATUS] = 0x00         # normal (clear sadness/fury)
     rec[_CHR_ROW] = 0x01            # front row
+    # Limit state: a cloned/uninitialised limit LEVEL can point at a limit the
+    # character hasn't learned, which softlocks battle when the gauge fills (the
+    # player's workaround is to set it to Level 1 in the menu). Seed a clean
+    # fresh-character state: Level 1 selected, empty gauge, only Level 1 Limit 1
+    # learned (bit 0), and zeroed kill / limit-use counters.
+    rec[_CHR_LIMITLEVEL] = 0x01
+    rec[_CHR_LIMITBAR]   = 0x00
+    rec[_CHR_LIMITS:_CHR_LIMITS + 2] = (0x0001).to_bytes(2, "little")
+    rec[_CHR_KILLS:_CHR_KILLS + 8]   = b"\x00" * 8   # kills + timesused1/2/3
     rec[_CHR_MATERIA:_CHR_MATERIA + 16 * 4] = b"\xFF" * (16 * 4)  # empty slots
     # With equipment/materia stripped, max == base; keep HP/MP consistent & alive.
     base_hp = int.from_bytes(rec[_CHR_BASEHP:_CHR_BASEHP + 2], "little") or 1
@@ -1556,6 +1579,20 @@ def _ensure_character_record(pm: "pymem.Pymem", cid: int) -> bool:
         if maxhp == 0 or level == 0 or id_byte != cid:
             _init_character_record(pm, cid)
             return True
+        # The record is otherwise valid — but heal a broken LIMIT state without
+        # wiping progress. Battle softlocks when the gauge fills if the selected
+        # limit level is out of range (1-4) OR that level's limit isn't learned
+        # (a character cloned from a limit-inconsistent record). Clamp to Level 1
+        # (always learnable) and ensure Level 1 Limit 1 (bit 0) is learned. The
+        # learned-limit bit for each level's first limit: L1=0, L2=3, L3=6, L4=9.
+        limit_level = pm.read_uchar(rec_base + _CHR_LIMITLEVEL)
+        limits = pm.read_ushort(rec_base + _CHR_LIMITS)
+        _lvl1_bit = {1: 0, 2: 3, 3: 6, 4: 9}.get(limit_level)
+        if _lvl1_bit is None or not (limits & (1 << _lvl1_bit)):
+            pm.write_uchar(rec_base + _CHR_LIMITLEVEL, 0x01)
+            if not (limits & 0x0001):
+                pm.write_ushort(rec_base + _CHR_LIMITS, limits | 0x0001)
+            logger.debug(f"Healed invalid limit state for cid {cid} -> Level 1")
     except Exception as exc:
         logger.debug(f"character record check failed for cid {cid}: {exc}")
     return False
@@ -1959,7 +1996,15 @@ async def game_watcher(ctx: FF7Context) -> None:
                     log_once(f"FF7 process attached: {name}")
                     ctx.game_connected = True
                     ctx.pm = pm
-                    
+
+                    # The EXP/Gil/AP reward patch lives in the exe's code, so a
+                    # fresh process (game relaunched / crashed without an AP
+                    # reconnect) starts UNPATCHED. Re-arm the one-shot so it
+                    # re-applies to this process — otherwise the multipliers
+                    # silently stop after any restart (the "inconsistent
+                    # multipliers" report).
+                    ctx._reward_mult_applied = False
+
                     # ── Enable materia menu from start ─────────────────────
                     _enable_materia_menu(pm)
 

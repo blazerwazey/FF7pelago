@@ -26,6 +26,7 @@ from .Options import (
     StartingEquipmentTier,
     FreeRoam,
     DisableGoldSaucer,
+    DisableFortCondorChecks,
     WeaponFightChecks,
     ExpMultiplier,
     GilMultiplier,
@@ -463,7 +464,10 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     300100,
     # Removed by request: all Underwater Reactor locations (semkin_6/7, subin_1a)
     200336, 200342, 200343,   # Leviathan Scales, Scimitar, Battle Trumpet
-    310012, 310013,           # Huge Materia (Underwater), Key to Ancients
+    310013,                   # Key to Ancients
+    # 310012 (Huge Materia Underwater) RE-INTRODUCED: the "Red Submarine" you drive
+    # into underwater. Its item_text was aligned to "Huge Materia (Underwater)" so
+    # GS's getKeyItemName matches it (was "Huge Materia: UnderWater" -> no AP entry).
     # Removed by request: all Corneo mansion locations (colne_*; Sewer already above)
     300029,                   # Corneo Hall, 2f - Phoenix Down (colne_3)
     300030,                   # Torture Room - Ether (colne_4)
@@ -493,6 +497,7 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     200371,                                          # Mideel, House 2 - Elixir
     300038, 300040, 300041,                          # Fort Condor Watch Room (all rewards)
     300175,                                          # North Corel - Ultima #2
+    300174,                                          # North Corel - Catastrophe
     310017,                                          # Corel - Huge Materia: Corel
     300208,                                          # Rocket Town - Yoshiyuki
     300250,                                          # Under Junon - Shiva
@@ -512,6 +517,19 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # All Shinra HQ shop locations (the Shinra Bldg./blin* field checks are already
     # excluded above; these are the 4 AP shop slots).
     320029, 320030, 320031, 320032,                  # Shinra HQ - AP Slots 1-4
+})
+
+# Fort Condor (non-shop) check locations, dropped only when the player sets the
+# disable_fort_condor_checks YAML option. Covers the Watch Room minigame rewards,
+# the Phoenix / Super Ball battle rewards, and the Fort Condor Huge Materia
+# pickup. The Fort Condor SHOP slots are NOT here, so the store stays in the
+# pool. (Some of these also live in _FREE_ROAM_DEAD_LOCATION_CODES already; the
+# overlap is harmless — both paths just skip the location.)
+_FORT_CONDOR_CHECK_CODES = frozenset({
+    300038, 300040, 300041,   # Fort Condor Watch Room - Megalixir / Peace Ring / Magic Comb
+    310011,                   # Fort Condor - Huge Materia: Fort Condor
+    310037,                   # Fort Condor - Phoenix
+    310038,                   # Fort Condor - Super Ball
 })
 
 # Weapon boss locations (detected by their savemap defeat flag) and the traversal
@@ -608,6 +626,7 @@ class FF7Web(WebWorld):
             [
                 FreeRoam,
                 DisableGoldSaucer,
+                DisableFortCondorChecks,
                 WeaponFightChecks,
             ],
         ),
@@ -900,12 +919,15 @@ class FF7World(World):
         # Optionally drop every Gold Saucer check (and its shop slots) from the
         # pool — all those locations resolve to the "Gold Saucer Area" region.
         disable_gold_saucer = bool(self.options.disable_gold_saucer)
+        ignore_fort_condor = bool(self.options.disable_fort_condor_checks)
 
         for location_data in ALL_LOCATION_TABLE.values():
             if location_data.name == self.victory_location_name:
                 continue
             if location_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
                 continue  # unobtainable at game moment 1603 — would soft-lock
+            if ignore_fort_condor and location_data.code in _FORT_CONDOR_CHECK_CODES:
+                continue  # YAML opt-out of the Fort Condor minigame checks (shop kept)
             if location_data.code not in PLACEABLE_LOCATION_CODES:
                 continue  # not a real field pickup -> Gold Saucer can't place/track it
             region_name = FREE_ROAM_REGION_MAP.get(location_data.map)
@@ -1069,8 +1091,9 @@ class FF7World(World):
             # NOTE: Gold Chocobo is deliberately NOT prioritized early — it's a
             # do-everything traversal item; keeping it off this list (plus the
             # early-region item_rule in Rules.py) stops it landing in sphere 1.
+            # Highwind, Submarine and Green Chocobo are likewise NOT force-
+            # prioritized early (they place naturally per logic).
             early_priority_items = [
-                "Green Chocobo", "Submarine", "Highwind",
                 "Gold Ticket", "Key to Sector 5",
             ]
         else:

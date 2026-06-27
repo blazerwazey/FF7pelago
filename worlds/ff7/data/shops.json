@@ -89,7 +89,7 @@
   },
   {
     "code": 320011,
-    "name": "Sector 8 Weapon - AP Slot 1",
+    "name": "Sector 5 Weapon - AP Slot 1",
     "shop_id": 3,
     "token_id": 116,
     "token_type": "item",
@@ -97,7 +97,7 @@
   },
   {
     "code": 320012,
-    "name": "Sector 8 Weapon - AP Slot 2",
+    "name": "Sector 5 Weapon - AP Slot 2",
     "shop_id": 3,
     "token_id": 117,
     "token_type": "item",
@@ -105,7 +105,7 @@
   },
   {
     "code": 320013,
-    "name": "Sector 8 Weapon - AP Slot 3",
+    "name": "Sector 5 Weapon - AP Slot 3",
     "shop_id": 3,
     "token_id": 118,
     "token_type": "item",
@@ -113,7 +113,7 @@
   },
   {
     "code": 320014,
-    "name": "Sector 8 Weapon - AP Slot 4",
+    "name": "Sector 5 Weapon - AP Slot 4",
     "shop_id": 3,
     "token_id": 119,
     "token_type": "item",
@@ -121,7 +121,7 @@
   },
   {
     "code": 320015,
-    "name": "Sector 8 Item - AP Slot 1",
+    "name": "Sector 5 Item - AP Slot 1",
     "shop_id": 4,
     "token_id": 120,
     "token_type": "item",
@@ -129,7 +129,7 @@
   },
   {
     "code": 320016,
-    "name": "Sector 8 Item - AP Slot 2",
+    "name": "Sector 5 Item - AP Slot 2",
     "shop_id": 4,
     "token_id": 121,
     "token_type": "item",
@@ -137,7 +137,7 @@
   },
   {
     "code": 320017,
-    "name": "Sector 8 Item - AP Slot 3",
+    "name": "Sector 5 Item - AP Slot 3",
     "shop_id": 4,
     "token_id": 122,
     "token_type": "item",
@@ -145,7 +145,7 @@
   },
   {
     "code": 320018,
-    "name": "Sector 8 Item - AP Slot 4",
+    "name": "Sector 5 Item - AP Slot 4",
     "shop_id": 4,
     "token_id": 123,
     "token_type": "item",
@@ -153,7 +153,7 @@
   },
   {
     "code": 320019,
-    "name": "Sector 8 Materia - AP Slot",
+    "name": "Sector 5 Materia - AP Slot",
     "shop_id": 5,
     "token_id": 22,
     "token_type": "materia",

@@ -49,6 +49,23 @@ def _load_field_pickup_flags() -> Dict[int, List[int]]:
 _FIELD_PICKUP_FLAGS: Dict[int, List[int]] = _load_field_pickup_flags()
 
 
+def _classification_label(item) -> str:
+    """Single-word Archipelago classification for a placed item, used in the
+    shop-slot description (Progression / Useful / Filler / Trap). Bit-checks the
+    ItemClassification flags so combinations (e.g. progression_skip_balancing,
+    progression|useful) still resolve to one clear label by priority."""
+    if item is None:
+        return ""
+    flags = int(item.classification)
+    if flags & 0b100:        # trap
+        return "Trap"
+    if flags & 0b001:        # progression (incl. progression_skip_balancing)
+        return "Progression"
+    if flags & 0b010:        # useful
+        return "Useful"
+    return "Filler"
+
+
 class FF7JSONExporter:
     """Creates the .apff7 seed file consumed by Gold Saucer."""
 
@@ -188,6 +205,7 @@ class FF7JSONExporter:
                 "item_ff7_id":   item_ff7_id,
                 "item_owner":    mw.get_player_name(item.player) if item else "",
                 "item_is_local": (item.player == self.world.player) if item else False,
+                "item_classification": _classification_label(item),
             })
         out.sort(key=lambda e: e["location_id"])
         return out

@@ -133,6 +133,20 @@ class DisableGoldSaucer(Toggle):
     default = False
 
 
+class DisableFortCondorChecks(Toggle):
+    """Remove the Fort Condor check locations from the pool (Free Roam only).
+
+    When enabled, the Fort Condor minigame/battle rewards are not checks: the
+    Watch Room rewards, Phoenix, Super Ball, and the Fort Condor Huge Materia
+    location are all dropped. Useful if you'd rather not play the Fort Condor
+    tower-defense minigame. The Fort Condor SHOP is unaffected — its slots stay
+    in the pool. (The Huge Materia item itself still appears elsewhere in the
+    pool, so the goal is unaffected.)
+    """
+    display_name = "Disable Fort Condor Checks"
+    default = False
+
+
 class WeaponFightChecks(DefaultOnToggle):
     """Include the optional Weapon superbosses as check locations (Free Roam).
 
@@ -184,6 +198,7 @@ class FF7Options(PerGameCommonOptions):
     gil_multiplier: GilMultiplier
     ap_multiplier: APMultiplier
     disable_gold_saucer: DisableGoldSaucer
+    disable_fort_condor_checks: DisableFortCondorChecks
     weapon_fight_checks: WeaponFightChecks
     start_with_chocobo_lure: StartWithChocoboLure
 

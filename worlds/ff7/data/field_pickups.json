@@ -130,7 +130,8 @@
     "Elixir": 1
   },
   "cosmin7": {
-    "Full Cure": 1
+    "Full Cure": 1,
+    "Elixir": 1
   },
   "crcin_1": {
     "Rewards From Ester": 1
@@ -696,7 +697,7 @@
     "Silver M-phone": 1
   },
   "sinin2_1": {
-    "KeyItem: Key To Basement": 1,
+    "KeyItem: Basement Key": 1,
     "Odin": 1,
     "Enemy Launcher": 1
   },
@@ -727,11 +728,11 @@
     "Vaccine": 1
   },
   "subin_1a": {
-    "KeyItem: Huge Materia: UnderWater": 1,
+    "KeyItem: Huge Materia (Underwater)": 1,
     "KeyItem: Key to Ancients": 1
   },
   "subin_1b": {
-    "KeyItem: Huge Materia: UnderWater": 1,
+    "KeyItem: Huge Materia (Underwater)": 1,
     "KeyItem: Key to Ancients": 1
   },
   "tower5": {
