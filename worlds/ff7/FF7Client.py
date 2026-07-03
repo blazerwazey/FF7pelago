@@ -22,12 +22,17 @@ import argparse
 import asyncio
 import json
 import random
+import struct
+from collections import deque
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
+
+if TYPE_CHECKING:
+    from worlds.ff7.TrapLink import TrapSpec
 
 from CommonClient import CommonContext, ClientCommandProcessor, logger, server_loop
 from NetUtils import ClientStatus
-from Utils import user_path
+from Utils import async_start, user_path
 
 try:
     from Utils import gui_enabled
@@ -82,6 +87,9 @@ GAME_MODULE_WORLD   = 3
 GAME_MODULE_ENDING  = 25        # post-final-battle ending sequence
 GAME_MODULE_GAMEOVER = 26
 GAME_MODULE_CREDITS = 28        # staff roll
+
+# in-battle actor memory (party status/hp) lives in worlds/ff7/TrapLink.py,
+# shared by the traps and deathlink.
 
 # Free Roam game-over recovery: number of consecutive in-game (Field/World) polls
 # required after a Game Over before we re-deliver all received items. Gives the
@@ -608,6 +616,27 @@ class FF7CommandProcessor(ClientCommandProcessor):
             logger.info("No received AP items to re-deliver yet.")
         return True
 
+    def _cmd_trap(self, name: str = "") -> bool:
+        """Manually fire a trap by name, e.g. `/trap frog` or `/trap poison`. The
+        trap goes through the normal queue, so a battle-only trap fires on your
+        next battle. Run `/trap` with no name to list the available traps."""
+        from worlds.ff7.TrapLink import TRAP_REGISTRY, resolve_trap
+
+        ctx = self.ctx
+        available = ", ".join(sorted(s.name for s in TRAP_REGISTRY.values()))
+        query = name.strip()
+        if not query:
+            logger.info(f"Usage: /trap <name>.  Available traps: {available}")
+            return True
+        spec = resolve_trap(query)
+        if spec is None:
+            logger.warning(f"Unknown trap '{query}'.  Available traps: {available}")
+            return True
+        ctx._trap_queue.append(spec)
+        when = "on your next battle" if spec.battle_only else "shortly"
+        logger.info(f"Queued {spec.name} - it will fire {when}.")
+        return True
+
     def _cmd_rewards(self) -> bool:
         """[Debug] Diagnose the EXP/Gil/AP battle multipliers: the values from
         slot_data, whether the exe patch sites match the expected build, and the
@@ -749,6 +778,19 @@ class FF7Context(CommonContext):
         # Item delivery state (persists across poll cycles)
         self._delivered_item_indices: Set[int] = set()
         self._pending_items: List[Tuple[int, object]] = []
+        # ── trap queue (see worlds/ff7/TrapLink.py) ──────────────────────────
+        # traps ride the item pipeline into _trap_queue and TrapLink.pump_trap_queue
+        # fires one per tick. _seen_trap_indices is never cleared, so a game-over
+        # re-deliver can't re-trigger a trap.
+        self._trap_queue: "deque[TrapSpec]" = deque()
+        self._priority_trap: Optional["TrapSpec"] = None   # inbound traplink (latest wins)
+        self._seen_trap_indices: Set[int] = set()
+        self._last_trap_activation: float = 0.0
+        self._bomb_field_reset: Optional[int] = None   # field obj ptr awaiting post-battle reset
+        # ── deathlink (see worlds/ff7/DeathLink.py) ──────────────────────────
+        self._pending_kill: Optional[str] = None       # inbound death, applied in battle
+        self._deathlink_kill_time: float = 0.0         # when we last applied an inbound kill
+        self._death_sent_this_over: bool = False       # one outbound send per game over
         # Free Roam game-over recovery: latched when the live module hits the
         # Game Over screen (26); once gameplay resumes for a few stable ticks we
         # re-deliver every received item, because the game over reloaded the
@@ -844,6 +886,20 @@ class FF7Context(CommonContext):
                     )
             else:
                 self._load_shops_from_json()
+            # deathlink / traplink: enable via connection tags. the flags come from
+            # slot_data["options"], and on_package is sync so the ConnectUpdate is
+            # scheduled as a task.
+            opts = sd.get("options", {})
+            if opts.get("death_link"):
+                self.tags.add("DeathLink")
+            if opts.get("trap_link"):
+                self.tags.add("TrapLink")
+            if "DeathLink" in self.tags or "TrapLink" in self.tags:
+                async_start(self.send_msgs([{"cmd": "ConnectUpdate", "tags": list(self.tags)}]),
+                            name="ff7-link-tags")
+        elif cmd == "Bounced":
+            from worlds.ff7.TrapLink import handle_bounced
+            handle_bounced(self, args)
         elif cmd == "ReceivedItems":
             # Queue items for delivery on the next game_watcher tick
             index = args.get("index", 0)
@@ -851,6 +907,11 @@ class FF7Context(CommonContext):
                 item_index = index + offset
                 if item_index not in self._delivered_item_indices:
                     self._pending_items.append((item_index, net_item))
+
+    def on_deathlink(self, data: dict) -> None:
+        """inbound deathlink: kill a random party member on the next battle tick."""
+        super().on_deathlink(data)          # updates last_death_link + logs
+        self._pending_kill = data.get("cause") or f"death from {data.get('source', 'another world')}"
 
     def _load_biton_map_from_json(self) -> None:
         """Load BITON coordinates from the stored Archipelago JSON path."""
@@ -1752,6 +1813,8 @@ def _requeue_all_received_items(ctx: "FF7Context") -> int:
 
 def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
     """Drain ctx._pending_items and write each one to FF7 memory."""
+    from worlds.ff7.TrapLink import TRAP_REGISTRY
+
     if not ctx._pending_items:
         return
 
@@ -1770,6 +1833,16 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
             continue
 
         ctx._received_item_names.add(item_name)  # for the Northern Crater gate
+
+        # traps route into the trap queue instead of the inventory. _seen_trap_indices
+        # fires each received trap once, even across a game-over re-deliver.
+        if item_name in TRAP_REGISTRY:
+            if item_index not in ctx._seen_trap_indices:
+                ctx._trap_queue.append(TRAP_REGISTRY[item_name])
+                ctx._seen_trap_indices.add(item_index)
+                logger.info(f"Trap received: {item_name} (queued).")
+            ctx._delivered_item_indices.add(item_index)
+            continue
 
         if item_name in CHOCOBO_ITEM_NAMES:
             if _deliver_chocobo(pm, item_name):
@@ -1961,6 +2034,9 @@ def _strip_token_materia(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
 
 async def game_watcher(ctx: FF7Context) -> None:
     """Poll FF7's in-memory Savemap; send LocationChecks when BITON flags flip."""
+    from worlds.ff7.DeathLink import apply_pending_kill, pump_outbound
+    from worlds.ff7.TrapLink import pump_trap_queue
+
     if not _PYMEM_AVAILABLE:
         logger.warning(
             "pymem is not installed — FF7 memory reading is disabled.\n"
@@ -2072,6 +2148,8 @@ async def game_watcher(ctx: FF7Context) -> None:
             _module = pm.read_uchar(GAME_MODULE_ADDR)
         except Exception:
             _module = None
+        # deathlink outbound: one death per game over, re-armed on resume.
+        pump_outbound(ctx, _module)
         if _module == GAME_MODULE_GAMEOVER:
             ctx._game_over_seen = True
             ctx._resume_debounce = 0
@@ -2091,6 +2169,10 @@ async def game_watcher(ctx: FF7Context) -> None:
         # ── Deliver queued items ──────────────────────────────────────────
         if ctx._pending_items:
             _deliver_items_to_game(pm, ctx)
+
+        # ── trap queue + inbound deathlink ────────────────────────────────
+        apply_pending_kill(pm, ctx)
+        pump_trap_queue(pm, ctx)
 
         # ── Read savemap and check flags ──────────────────────────────────
         try:

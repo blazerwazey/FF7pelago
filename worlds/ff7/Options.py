@@ -174,6 +174,181 @@ class StartWithChocoboLure(Toggle):
 # Options dataclass
 # ---------------------------------------------------------------------------
 
+class TrapFillPercent(Range):
+    """Percentage of filler item slots to replace with traps (0 = no traps)."""
+    display_name = "Trap Fill Percent"
+    range_start = 0
+    range_end = 100
+    default = 0
+
+
+class FrogTrapWeight(Range):
+    """Relative weight of the Frog Trap among enabled traps (0 disables it).
+
+    The Frog Trap gives a random living party member the Frog status during
+    battle."""
+    display_name = "Frog Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class ConfusionTrapWeight(Range):
+    """Relative weight of the Confusion Trap among enabled traps (0 disables it).
+
+    Confuses a random living party member during battle."""
+    display_name = "Confusion Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class FrozenTrapWeight(Range):
+    """Relative weight of the Frozen Trap among enabled traps (0 disables it).
+
+    Slow-numbs a random living party member during battle."""
+    display_name = "Frozen Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class SlownessTrapWeight(Range):
+    """Relative weight of the Slowness Trap among enabled traps (0 disables it).
+
+    Slows a random living party member during battle."""
+    display_name = "Slowness Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class SlowTrapWeight(Range):
+    """Relative weight of the Slow Trap among enabled traps (0 disables it).
+
+    Stops a random living party member during battle."""
+    display_name = "Slow Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class InstantDeathTrapWeight(Range):
+    """Relative weight of the Instant Death Trap among enabled traps (0 disables it).
+
+    Death-sentences a random living party member during battle."""
+    display_name = "Instant Death Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class DoubleDamageWeight(Range):
+    """Relative weight of the Double Damage trap among enabled traps (0 disables it).
+
+    Berserks a random living party member during battle."""
+    display_name = "Double Damage Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class PoisonTrapWeight(Range):
+    """Relative weight of the Poison Trap among enabled traps (0 disables it).
+
+    Poisons a random living party member during battle."""
+    display_name = "Poison Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class TinyTrapWeight(Range):
+    """Relative weight of the Tiny Trap among enabled traps (0 disables it).
+
+    Shrinks a random living party member during battle."""
+    display_name = "Tiny Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class InstantCrystalTrapWeight(Range):
+    """Relative weight of the Instant Crystal Trap among enabled traps (0 disables it).
+
+    Petrifies a random living party member during battle."""
+    display_name = "Instant Crystal Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class SleepTrapWeight(Range):
+    """Relative weight of the Sleep Trap among enabled traps (0 disables it).
+
+    Puts a random living party member to sleep during battle."""
+    display_name = "Sleep Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class ManaDrainTrapWeight(Range):
+    """Relative weight of the Mana Drain Trap among enabled traps (0 disables it).
+
+    Drains a random living party member's MP to zero during battle."""
+    display_name = "Mana Drain Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class MarketCrashTrapWeight(Range):
+    """Relative weight of the Market Crash Trap among enabled traps (0 disables it).
+
+    The market crashes: all of your gil is wiped out."""
+    display_name = "Market Crash Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class DepressionTrapWeight(Range):
+    """Relative weight of the Depression Trap among enabled traps (0 disables it).
+
+    Saddens a random living party member during battle."""
+    display_name = "Depression Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class CurseTrapWeight(Range):
+    """Relative weight of the Curse Trap among enabled traps (0 disables it).
+
+    Gives a random living party member Slow-numb or Death-sentence during battle."""
+    display_name = "Curse Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class BombTrapWeight(Range):
+    """Relative weight of the Bomb Trap among enabled traps (0 disables it).
+
+    Starts a battle against a Bomb (fires on the field or the world map)."""
+    display_name = "Bomb Trap Weight"
+    range_start = 0
+    range_end = 100
+    default = 100
+
+
+class TrapLink(Toggle):
+    """Share traps with other TrapLink players. When you receive a trap it is
+    broadcast to them, and traps they receive are applied to you too."""
+    display_name = "Trap Link"
+
+
 @dataclass
 class FF7Options(PerGameCommonOptions):
     """Container for all FF7pelago Archipelago settings."""
@@ -205,3 +380,21 @@ class FF7Options(PerGameCommonOptions):
     # Goal
     victory_condition: VictoryCondition
     death_link: DeathLink
+    trap_fill_percent: TrapFillPercent
+    frog_trap_weight: FrogTrapWeight
+    confusion_trap_weight: ConfusionTrapWeight
+    frozen_trap_weight: FrozenTrapWeight
+    slowness_trap_weight: SlownessTrapWeight
+    slow_trap_weight: SlowTrapWeight
+    instant_death_trap_weight: InstantDeathTrapWeight
+    double_damage_weight: DoubleDamageWeight
+    poison_trap_weight: PoisonTrapWeight
+    tiny_trap_weight: TinyTrapWeight
+    instant_crystal_trap_weight: InstantCrystalTrapWeight
+    sleep_trap_weight: SleepTrapWeight
+    mana_drain_trap_weight: ManaDrainTrapWeight
+    market_crash_trap_weight: MarketCrashTrapWeight
+    depression_trap_weight: DepressionTrapWeight
+    curse_trap_weight: CurseTrapWeight
+    bomb_trap_weight: BombTrapWeight
+    trap_link: TrapLink
