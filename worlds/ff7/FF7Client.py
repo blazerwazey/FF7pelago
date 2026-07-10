@@ -1506,7 +1506,7 @@ _CHOCO_TYPES = {
 CHOCOBO_ITEM_NAMES = frozenset(_CHOCO_TYPES)
 
 
-def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
+def _deliver_chocobo(pm: "pymem.Pymem", item_name: str, sender: str = "") -> bool:
     """Place a bred chocobo of the given colour into the next free Chocobo Farm
     stable slot.
 
@@ -1554,8 +1554,9 @@ def _deliver_chocobo(pm: "pymem.Pymem", item_name: str) -> bool:
         # Per-chocobo extras (parallel arrays, indexed by slot).
         pm.write_ushort(base + _CHOCO_STAMINA0 + free_slot * 2, 1000)
         pm.write_uchar (base + _CHOCO_RATING0 + free_slot, 1)        # Wonderful
-        for i in range(6):                                          # empty (default) name
-            pm.write_uchar(base + _CHOCO_NAME0 + free_slot * 6 + i, 0xFF)
+        # name it after the ap player who found it (empty sender = blank name)
+        for i, b in enumerate(_encode_ff7_name(sender, width=6)):
+            pm.write_uchar(base + _CHOCO_NAME0 + free_slot * 6 + i, b)
         # Stable bookkeeping: mark this slot occupied; own ≥ occupied stables.
         mask |= (1 << free_slot)
         pm.write_uchar(base + _CHOCO_MASK, mask)
@@ -2086,7 +2087,8 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
         ctx._received_item_names.add(item_name)  # for the Northern Crater gate
 
         if item_name in CHOCOBO_ITEM_NAMES:
-            if _deliver_chocobo(pm, item_name):
+            sender = ctx.player_names.get(getattr(net_item, "player", None), "")
+            if _deliver_chocobo(pm, item_name, sender):
                 ctx._delivered_item_indices.add(item_index)
             else:
                 still_pending.append((item_index, net_item))
