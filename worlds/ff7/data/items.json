@@ -2887,5 +2887,101 @@
     "classification": "progression",
     "category": "key_item",
     "count": 1
+  },
+  {
+    "name": "Frog Trap",
+    "code": 100900,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Confusion Trap",
+    "code": 100902,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Frozen Trap",
+    "code": 100903,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Slowness Trap",
+    "code": 100904,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Slow Trap",
+    "code": 100905,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Instant Death Trap",
+    "code": 100906,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Double Damage",
+    "code": 100907,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Poison Trap",
+    "code": 100908,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Tiny Trap",
+    "code": 100909,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Instant Crystal Trap",
+    "code": 100910,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Sleep Trap",
+    "code": 100911,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Mana Drain Trap",
+    "code": 100912,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Market Crash Trap",
+    "code": 100913,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Depression Trap",
+    "code": 100914,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Curse Trap",
+    "code": 100915,
+    "classification": "trap",
+    "category": "trap"
+  },
+  {
+    "name": "Bomb Trap",
+    "code": 100916,
+    "classification": "trap",
+    "category": "trap"
   }
 ]

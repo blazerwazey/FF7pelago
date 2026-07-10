@@ -34,6 +34,24 @@ from .Options import (
     APMultiplier,
     StartWithChocoboLure,
     VictoryCondition,
+    TrapFillPercent,
+    FrogTrapWeight,
+    ConfusionTrapWeight,
+    FrozenTrapWeight,
+    SlownessTrapWeight,
+    SlowTrapWeight,
+    InstantDeathTrapWeight,
+    DoubleDamageWeight,
+    PoisonTrapWeight,
+    TinyTrapWeight,
+    InstantCrystalTrapWeight,
+    SleepTrapWeight,
+    ManaDrainTrapWeight,
+    MarketCrashTrapWeight,
+    DepressionTrapWeight,
+    CurseTrapWeight,
+    BombTrapWeight,
+    TrapLink,
 )
 from .Rules import apply_rules
 from .json_export import FF7JSONExporter
@@ -712,6 +730,29 @@ class FF7Web(WebWorld):
                 DeathLink,
             ],
         ),
+        OptionGroup(
+            "Traps",
+            [
+                TrapFillPercent,
+                FrogTrapWeight,
+                ConfusionTrapWeight,
+                FrozenTrapWeight,
+                SlownessTrapWeight,
+                SlowTrapWeight,
+                InstantDeathTrapWeight,
+                DoubleDamageWeight,
+                PoisonTrapWeight,
+                TinyTrapWeight,
+                InstantCrystalTrapWeight,
+                SleepTrapWeight,
+                ManaDrainTrapWeight,
+                MarketCrashTrapWeight,
+                DepressionTrapWeight,
+                CurseTrapWeight,
+                BombTrapWeight,
+                TrapLink,
+            ],
+        ),
     ]
 
 
@@ -1155,6 +1196,8 @@ class FF7World(World):
         for name, data in ITEM_TABLE.items():
             if name == self.victory_item_name:
                 continue
+            if data.classification is ItemClassification.trap:
+                continue  # traps only enter the pool via _build_trap_pool
             if name in _FREE_ROAM_ONLY_ITEMS and not free_roam:
                 continue
             if name == "Key to Sector 5" and not free_roam:
@@ -1195,8 +1238,49 @@ class FF7World(World):
                 f"all required items. Add locations or reduce required items."
             )
 
-        for name in pool_names[:available_locations]:
+        placed = pool_names[:available_locations]
+
+        # swap a fraction of the placed filler slots for traps. positions come from
+        # the pre-swap filler entries so progression/useful items are never displaced.
+        trap_pool = self._build_trap_pool()
+        trap_pct = int(self.options.trap_fill_percent)
+        if trap_pool and trap_pct > 0:
+            filler_positions = [i for i, n in enumerate(placed) if _is_filler(n)]
+            n_traps = round(trap_pct / 100 * len(filler_positions))
+            self.random.shuffle(filler_positions)
+            for i in filler_positions[:n_traps]:
+                placed[i] = self.random.choice(trap_pool)
+
+        for name in placed:
             self.multiworld.itempool.append(self.create_item(name))
+
+    def _build_trap_pool(self) -> list[str]:
+        """weighted list of trap item names from the enabled trap options.
+        each trap appears weight times so random.choice picks it proportionally,
+        and weight 0 disables it. add new traps here."""
+        weights = {
+            "Frog Trap": int(self.options.frog_trap_weight),
+            "Confusion Trap": int(self.options.confusion_trap_weight),
+            "Frozen Trap": int(self.options.frozen_trap_weight),
+            "Slowness Trap": int(self.options.slowness_trap_weight),
+            "Slow Trap": int(self.options.slow_trap_weight),
+            "Instant Death Trap": int(self.options.instant_death_trap_weight),
+            "Double Damage": int(self.options.double_damage_weight),
+            "Poison Trap": int(self.options.poison_trap_weight),
+            "Tiny Trap": int(self.options.tiny_trap_weight),
+            "Instant Crystal Trap": int(self.options.instant_crystal_trap_weight),
+            "Sleep Trap": int(self.options.sleep_trap_weight),
+            "Mana Drain Trap": int(self.options.mana_drain_trap_weight),
+            "Market Crash Trap": int(self.options.market_crash_trap_weight),
+            "Depression Trap": int(self.options.depression_trap_weight),
+            "Curse Trap": int(self.options.curse_trap_weight),
+            "Bomb Trap": int(self.options.bomb_trap_weight),
+        }
+        pool: list[str] = []
+        for name, weight in weights.items():
+            if weight > 0:
+                pool.extend([name] * weight)
+        return pool
 
     def _effective_classification(self, name: str) -> ItemClassification:
         """Item classification, applying Free Roam downgrades (linear unchanged)."""

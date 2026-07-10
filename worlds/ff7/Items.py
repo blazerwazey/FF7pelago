@@ -26,6 +26,7 @@ CLASSIFICATION_MAP = {
     "progression": ItemClassification.progression,
     "useful": ItemClassification.useful,
     "filler": ItemClassification.filler,
+    "trap": ItemClassification.trap,
 }
 
 
@@ -60,6 +61,7 @@ item_name_groups: Dict[str, set[str]] = {
     "Vehicles": {name for name in ITEM_TABLE if any(keyword in name for keyword in ("Tiny Bronco", "Highwind", "Submarine", "Snowboard"))},
     "Key Cards": {name for name in ITEM_TABLE if name.startswith("Keycard")},
     "Coupons": {name for name in ITEM_TABLE if name.endswith("Coupon")},
+    "Traps": {name for name, data in ITEM_TABLE.items() if data.classification is ItemClassification.trap},
 }
 
 
