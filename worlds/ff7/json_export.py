@@ -16,8 +16,27 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from worlds.Files import APPlayerContainer
+
 from ._resources import try_load_json
 from .Locations import ALL_LOCATION_TABLE
+
+
+class FF7SeedContainer(APPlayerContainer):
+    """The .apff7 as an APPlayerContainer zip: archipelago.json manifest +
+    the Gold Saucer seed payload as the ff7_seed.json member. The container
+    format makes the WebHost room page offer the per-slot download
+    (is_ap_player_container checks zip + manifest game/player)."""
+    game = "Final Fantasy VII"
+    patch_file_ending = ".apff7"
+
+    def __init__(self, payload_json: str = "", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._payload_json = payload_json
+
+    def write_contents(self, opened_zipfile) -> None:
+        super().write_contents(opened_zipfile)
+        opened_zipfile.writestr("ff7_seed.json", self._payload_json)
 
 if TYPE_CHECKING:
     from .__init__ import FF7World
@@ -230,6 +249,7 @@ class FF7JSONExporter:
             "starting_equipment_tier":      int(opts.starting_equipment_tier),
             # World
             "free_roam":             bool(opts.free_roam),
+            "town_gating":           bool(opts.town_gating),
             # Goal
             "victory_condition":     int(opts.victory_condition),
             "death_link":            bool(opts.death_link),
@@ -293,5 +313,17 @@ class FF7JSONExporter:
         base = self.world.multiworld.get_out_file_name_base(self.world.player)
         filename = f"{base}.apff7"
         path = Path(output_directory, filename)
-        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        # APPlayerContainer zip instead of bare JSON: the WebHost room page only
+        # offers a per-slot download when the file passes is_ap_player_container
+        # (zip + archipelago.json manifest with matching game/player); bare JSON
+        # shows "No file to download for this game". Gold Saucer and FF7Client
+        # sniff the PK magic and accept both formats.
+        mw = self.world.multiworld
+        container = FF7SeedContainer(
+            json.dumps(payload, indent=2),
+            str(path),
+            player=self.world.player,
+            player_name=mw.get_player_name(self.world.player),
+        )
+        container.write()
         return str(path)

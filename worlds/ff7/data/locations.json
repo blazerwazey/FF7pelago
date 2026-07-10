@@ -13,7 +13,7 @@
     "bit": 0
   },
   {
-    "name": "No. 1 Reactor - Potion",
+    "name": "Train Graveyard - Echo Screen",
     "code": 200001,
     "map": "mds7st1",
     "maps": [
@@ -234,7 +234,7 @@
     "bit": 3
   },
   {
-    "name": "Chocobo farm - Choco/Mog",
+    "name": "Chocobo Farm - Choco/Mog",
     "code": 200018,
     "map": "farm",
     "maps": [
@@ -247,7 +247,7 @@
     "bit": 4
   },
   {
-    "name": "Sector 6 park - Sense",
+    "name": "Sector 6 Park - Sense",
     "code": 200019,
     "map": "mds6_22",
     "maps": [
@@ -260,7 +260,7 @@
     "bit": 5
   },
   {
-    "name": "Old man's house - KeyItem: Mythril",
+    "name": "Old Man's House - KeyItem: Mythril",
     "code": 200021,
     "map": "zz1",
     "maps": [
@@ -653,7 +653,7 @@
     "bit": 5
   },
   {
-    "name": "Kalm House: 2f - Show Guide Book",
+    "name": "Kalm House: 2f - Show Guidebook",
     "code": 200300,
     "map": "elmin4_2",
     "maps": [
@@ -848,7 +848,7 @@
     "bit": 6
   },
   {
-    "name": "Costa Del Sol Cellar - Motor Drive",
+    "name": "Costa del Sol Cellar - Motor Drive",
     "code": 200317,
     "map": "delmin12",
     "maps": [
@@ -861,7 +861,7 @@
     "bit": 0
   },
   {
-    "name": "Costa Del Sol Cellar - Fire Ring",
+    "name": "Costa del Sol Cellar - Fire Ring",
     "code": 200318,
     "map": "delmin12",
     "maps": [
@@ -874,7 +874,7 @@
     "bit": 1
   },
   {
-    "name": "Costa Del Sol Cellar - Power Source",
+    "name": "Costa del Sol Cellar - Power Source",
     "code": 200319,
     "map": "delmin12",
     "maps": [
@@ -1004,7 +1004,7 @@
     "bit": 2
   },
   {
-    "name": "Barracks - Mind Source",
+    "name": "Junon Barracks - Mind Source",
     "code": 200329,
     "map": "junmin2",
     "maps": [
@@ -1017,7 +1017,7 @@
     "bit": 0
   },
   {
-    "name": "Barracks - Power Source",
+    "name": "Junon Barracks - Power Source",
     "code": 200330,
     "map": "junmin3",
     "maps": [
@@ -1030,7 +1030,7 @@
     "bit": 1
   },
   {
-    "name": "Barracks - Guard Source",
+    "name": "Junon Barracks - Guard Source",
     "code": 200331,
     "map": "junmin3",
     "maps": [
@@ -1043,7 +1043,7 @@
     "bit": 2
   },
   {
-    "name": "Barracks - Luck Source",
+    "name": "Junon Barracks - Luck Source",
     "code": 200332,
     "map": "junmin2",
     "maps": [
@@ -1056,7 +1056,7 @@
     "bit": 3
   },
   {
-    "name": "Barracks - 1/35 soldier #1",
+    "name": "Junon Barracks - 1/35 soldier #1",
     "code": 200333,
     "map": "junmin2",
     "maps": [
@@ -1069,7 +1069,7 @@
     "bit": 4
   },
   {
-    "name": "Barracks - Speed Source",
+    "name": "Junon Barracks - Speed Source",
     "code": 200334,
     "map": "junmin4",
     "maps": [
@@ -1082,7 +1082,7 @@
     "bit": 5
   },
   {
-    "name": "Barracks - 1/35 soldier #2",
+    "name": "Junon Barracks - 1/35 soldier #2",
     "code": 200335,
     "map": "junmin5",
     "maps": [
@@ -1105,7 +1105,7 @@
     "category": "key_item",
     "bank": 13,
     "address": 141,
-    "bit": 0
+    "bit": 2
   },
   {
     "name": "Wutai, Da-chao Statue - Steal-As-Well",
@@ -1134,7 +1134,7 @@
     "bit": 3
   },
   {
-    "name": "Bone Village - W-Item",
+    "name": "Winding Tunnel - W-Item",
     "code": 200339,
     "map": "tunnel_4",
     "maps": [
@@ -1343,7 +1343,7 @@
     "bit": 2
   },
   {
-    "name": "Midgar, Sector 8 - Mystile",
+    "name": "Sector 8 - Mystile",
     "code": 200355,
     "map": "md8_32",
     "maps": [
@@ -1369,7 +1369,7 @@
     "bit": 4
   },
   {
-    "name": "Midgar, Sector 8 - Elixir",
+    "name": "Sector 8 - Elixir",
     "code": 200357,
     "map": "md8_32",
     "maps": [
@@ -1544,7 +1544,7 @@
     "bit": 2
   },
   {
-    "name": "Mideel,House 2 - Elixir",
+    "name": "Mideel, House 2 - Elixir",
     "code": 200371,
     "map": "itmin2",
     "maps": [
@@ -1778,7 +1778,7 @@
     "bit": 3
   },
   {
-    "name": "Corneo Hall,2f. - Phoenix Down",
+    "name": "Corneo Hall, 2f. - Phoenix Down",
     "code": 300029,
     "map": "colne_3",
     "maps": [
@@ -1921,7 +1921,7 @@
     "bit": 0
   },
   {
-    "name": "Chocobo farm - Chocobo Lure",
+    "name": "Chocobo Farm - Chocobo Lure",
     "code": 300062,
     "map": "farm",
     "maps": [
@@ -2038,6 +2038,19 @@
     "bit": 3
   },
   {
+    "name": "Cave of the Gi - Gravity",
+    "code": 300072,
+    "map": "gidun_3",
+    "maps": [
+      "gidun_3"
+    ],
+    "item_text": "Gravity",
+    "category": "materia",
+    "bank": 3,
+    "address": 173,
+    "bit": 7
+  },
+  {
     "name": "Cave of the Gi - Fairy Ring",
     "code": 300073,
     "map": "gidun_4",
@@ -2129,7 +2142,7 @@
     "bit": 0
   },
   {
-    "name": "Hidden Passage - Magic Shuriken",
+    "name": "Wutai Hidden Passage - Magic Shuriken",
     "code": 300081,
     "map": "hideway1",
     "maps": [
@@ -2142,7 +2155,7 @@
     "bit": 6
   },
   {
-    "name": "Hidden Passage - HP Absorb",
+    "name": "Wutai Hidden Passage - HP Absorb",
     "code": 300082,
     "map": "hideway3",
     "maps": [
@@ -2155,7 +2168,7 @@
     "bit": 5
   },
   {
-    "name": "Cave - All",
+    "name": "Great Glacier Cave - All",
     "code": 300084,
     "map": "hyou12",
     "maps": [
@@ -2194,7 +2207,7 @@
     "bit": 3
   },
   {
-    "name": "Junon Training Hall - Potion",
+    "name": "Junon Beginner's Hall - Potion",
     "code": 300100,
     "map": "junpb_2",
     "maps": [
@@ -2207,7 +2220,7 @@
     "bit": 3
   },
   {
-    "name": "Junon Training Hall - Enemy Skill",
+    "name": "Junon Beginner's Hall - Enemy Skill",
     "code": 300104,
     "map": "junpb_2",
     "maps": [
@@ -2477,7 +2490,7 @@
     "bit": 5
   },
   {
-    "name": "Forgotten City - Comet",
+    "name": "Forgotten Capital - Comet",
     "code": 300152,
     "map": "losin1",
     "maps": [
@@ -2503,7 +2516,7 @@
     "bit": 3
   },
   {
-    "name": "Forgotten City - Aurora Armlet",
+    "name": "Forgotten Capital - Aurora Armlet",
     "code": 300155,
     "map": "loslake1",
     "maps": [
@@ -2516,7 +2529,7 @@
     "bit": 6
   },
   {
-    "name": "Platform - Potion #1",
+    "name": "Sector 1 Station - Potion #1",
     "code": 300156,
     "map": "md1stin",
     "maps": [
@@ -2529,7 +2542,7 @@
     "bit": 0
   },
   {
-    "name": "Beginner's Hall - Ether",
+    "name": "Sector 7 Beginner's Hall - Ether",
     "code": 300160,
     "map": "mds7_w2",
     "maps": [
@@ -2542,7 +2555,7 @@
     "bit": 5
   },
   {
-    "name": "Beginner's Hall - All",
+    "name": "Sector 7 Beginner's Hall - All",
     "code": 300161,
     "map": "mds7_w2",
     "maps": [
@@ -2881,7 +2894,7 @@
     "bit": 5
   },
   {
-    "name": "Corel Valley Cave - Megalixir",
+    "name": "Corral Valley Cave - Megalixir",
     "code": 300214,
     "map": "sandun_1",
     "maps": [
@@ -2894,7 +2907,7 @@
     "bit": 5
   },
   {
-    "name": "Corel Valley Cave - Magic Plus",
+    "name": "Corral Valley Cave - Magic Plus",
     "code": 300215,
     "map": "sandun_1",
     "maps": [
@@ -2907,7 +2920,7 @@
     "bit": 7
   },
   {
-    "name": "Corel Valley Cave - Power Source",
+    "name": "Corral Valley Cave - Power Source",
     "code": 300216,
     "map": "sandun_2",
     "maps": [
@@ -2920,7 +2933,7 @@
     "bit": 0
   },
   {
-    "name": "Corel Valley - Water Ring",
+    "name": "Corral Valley - Water Ring",
     "code": 300217,
     "map": "sango1",
     "maps": [
@@ -2933,7 +2946,7 @@
     "bit": 1
   },
   {
-    "name": "Forgotten City - Viper Halberd",
+    "name": "Corral Valley - Viper Halberd",
     "code": 300218,
     "map": "sango3",
     "maps": [
@@ -3102,6 +3115,45 @@
     "bit": 0
   },
   {
+    "name": "Shinra Mansion, Basement - Recruit Vincent",
+    "code": 310097,
+    "map": "sininb1",
+    "maps": [
+      "sininb1"
+    ],
+    "item_text": "Vincent",
+    "category": "character",
+    "bank": 11,
+    "address": 80,
+    "bit": 2
+  },
+  {
+    "name": "Gold Saucer Area - First Chocobo Race",
+    "code": 310098,
+    "map": "crcin_1",
+    "maps": [
+      "crcin_1"
+    ],
+    "item_text": "First Chocobo Race",
+    "category": "standard",
+    "bank": 5,
+    "address": 138,
+    "bit": 2
+  },
+  {
+    "name": "Gold Saucer Area - Chocobo Racing Rank S",
+    "code": 310099,
+    "map": "crcin_1",
+    "maps": [
+      "crcin_1"
+    ],
+    "item_text": "Chocobo Racing Rank S",
+    "category": "standard",
+    "bank": 5,
+    "address": 138,
+    "bit": 4
+  },
+  {
     "name": "Sleeping Forest - Kujata",
     "code": 300234,
     "map": "slfrst_2",
@@ -3220,7 +3272,7 @@
     "bit": 3
   },
   {
-    "name": "Hidden Room - Swift Bolt",
+    "name": "Wutai, Da-chao Hidden Cave - Swift Bolt",
     "code": 300259,
     "map": "uttmpin4",
     "maps": [
@@ -3233,7 +3285,7 @@
     "bit": 2
   },
   {
-    "name": "Hidden Room - Elixir",
+    "name": "Wutai, Da-chao Hidden Cave - Elixir",
     "code": 300260,
     "map": "uttmpin4",
     "maps": [
@@ -3259,7 +3311,7 @@
     "bit": 4
   },
   {
-    "name": "Old Man in Cave - Bolt Ring",
+    "name": "Old Man's House - Bolt Ring",
     "code": 300269,
     "map": "zz1",
     "maps": [
@@ -3311,7 +3363,7 @@
     "bit": 6
   },
   {
-    "name": "Lurecia's Cave - Chaos",
+    "name": "Lucrecia's Cave - Chaos",
     "code": 300274,
     "map": "zz4",
     "maps": [
@@ -3350,7 +3402,7 @@
     "bit": 0
   },
   {
-    "name": "Shinra Bldg.67f. - Poison #2",
+    "name": "Shinra Bldg. 67f. - Poison #2",
     "code": 300284,
     "map": "blin67_1",
     "maps": [
@@ -3363,7 +3415,7 @@
     "bit": 4
   },
   {
-    "name": "Shinra Bldg.68f. - Potion",
+    "name": "Shinra Bldg. 68f. - Potion",
     "code": 300285,
     "map": "blin68_1",
     "maps": [
@@ -3428,7 +3480,7 @@
     "bit": 1
   },
   {
-    "name": "Corneo Hall,2f. - Hyper",
+    "name": "Corneo Hall, 2f. - Hyper",
     "code": 300297,
     "map": "colne_6",
     "maps": [
@@ -3623,7 +3675,7 @@
     "bit": 1
   },
   {
-    "name": "Hidden Passage - Hairpin",
+    "name": "Wutai Hidden Passage - Hairpin",
     "code": 300371,
     "map": "hideway2",
     "maps": [
@@ -3636,7 +3688,7 @@
     "bit": 7
   },
   {
-    "name": "Corel Valley Cave - Bolt Armlet",
+    "name": "Corral Valley Cave - Bolt Armlet",
     "code": 300386,
     "map": "sandun_1",
     "maps": [
@@ -3649,7 +3701,7 @@
     "bit": 3
   },
   {
-    "name": "Corel Valley Cave - HypnoCrown",
+    "name": "Corral Valley Cave - HypnoCrown",
     "code": 300387,
     "map": "sandun_1",
     "maps": [
@@ -3662,7 +3714,7 @@
     "bit": 4
   },
   {
-    "name": "Platform - Potion #2",
+    "name": "Sector 1 Station - Potion #2",
     "code": 300390,
     "map": "md1stin",
     "maps": [
@@ -3675,7 +3727,7 @@
     "bit": 1
   },
   {
-    "name": "blin61 - Keycard 62",
+    "name": "Shinra Bldg. 61f. - Keycard 62",
     "code": 300391,
     "map": "blin61",
     "maps": [
@@ -3688,7 +3740,7 @@
     "bit": 7
   },
   {
-    "name": "trnad_1 - Black Materia",
+    "name": "Whirlwind Maze - Black Materia",
     "code": 300398,
     "map": "trnad_1",
     "maps": [
@@ -3727,7 +3779,7 @@
     "bit": 3
   },
   {
-    "name": "Midgar Sector 5 - Phoenix Down",
+    "name": "Aerith's House 2f. - Phoenix Down",
     "code": 310000,
     "map": "ealin_1",
     "maps": [
@@ -3753,7 +3805,7 @@
     "bit": 1
   },
   {
-    "name": "blin65_1 - KeyItem: Midgar parts",
+    "name": "Shinra Bldg. 65f. - KeyItem: Midgar parts",
     "code": 310002,
     "map": "blin65_1",
     "maps": [
@@ -3766,7 +3818,7 @@
     "bit": 6
   },
   {
-    "name": "blin65_1 - KeyItem: Midgar parts #2",
+    "name": "Shinra Bldg. 65f. - KeyItem: Midgar parts #2",
     "code": 310003,
     "map": "blin65_1",
     "maps": [
@@ -3779,7 +3831,7 @@
     "bit": 7
   },
   {
-    "name": "blin65_1 - KeyItem: Midgar parts #3",
+    "name": "Shinra Bldg. 65f. - KeyItem: Midgar parts #3",
     "code": 310004,
     "map": "blin65_1",
     "maps": [
@@ -3792,7 +3844,7 @@
     "bit": 0
   },
   {
-    "name": "blin65_1 - KeyItem: Midgar parts #4",
+    "name": "Shinra Bldg. 65f. - KeyItem: Midgar parts #4",
     "code": 310005,
     "map": "blin65_1",
     "maps": [
@@ -3805,7 +3857,7 @@
     "bit": 1
   },
   {
-    "name": "blin65_1 - KeyItem: Midgar parts #5",
+    "name": "Shinra Bldg. 65f. - KeyItem: Midgar parts #5",
     "code": 310006,
     "map": "blin65_1",
     "maps": [
@@ -3818,7 +3870,7 @@
     "bit": 2
   },
   {
-    "name": "blin65_1 - KeyItem: Keycard 66",
+    "name": "Shinra Bldg. 65f. - KeyItem: Keycard 66",
     "code": 310007,
     "map": "blin65_1",
     "maps": [
@@ -3831,7 +3883,7 @@
     "bit": 3
   },
   {
-    "name": "blin61 - KeyItem: Keycard 62",
+    "name": "Shinra Bldg. 61f. - KeyItem: Keycard 62",
     "code": 310008,
     "map": "blin61",
     "maps": [
@@ -3844,7 +3896,7 @@
     "bit": 0
   },
   {
-    "name": "Wutai Weapons Store - HP Absorb",
+    "name": "Wutai Item Store - HP Absorb",
     "code": 310009,
     "map": "uta_im",
     "maps": [
@@ -3857,7 +3909,7 @@
     "bit": 1
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Member's Card",
+    "name": "Wall Market - KeyItem: Member's Card",
     "code": 310010,
     "map": "mrkt2",
     "maps": [
@@ -3897,7 +3949,7 @@
     "bit": 0
   },
   {
-    "name": "World Map - KeyItem: Key to Ancients",
+    "name": "Red Submarine - KeyItem: Key to Ancients",
     "code": 310013,
     "map": "subin_1a",
     "maps": [
@@ -3911,7 +3963,7 @@
     "bit": 0
   },
   {
-    "name": "Kalm - KeyItem: PHS",
+    "name": "Kalm Inn - KeyItem: PHS",
     "code": 310014,
     "map": "elminn_1",
     "maps": [
@@ -3950,7 +4002,7 @@
     "bit": 0
   },
   {
-    "name": "Corel - KeyItem: Huge Materia: Corel",
+    "name": "North Corel - KeyItem: Huge Materia: Corel",
     "code": 310017,
     "map": "ncorel3",
     "maps": [
@@ -3989,7 +4041,7 @@
     "bit": 6
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Cologne",
+    "name": "Wall Market - KeyItem: Cologne",
     "code": 310020,
     "map": "mktpb",
     "maps": [
@@ -4002,7 +4054,7 @@
     "bit": 0
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Flower Cologne",
+    "name": "Wall Market - KeyItem: Flower Cologne",
     "code": 310021,
     "map": "mktpb",
     "maps": [
@@ -4015,7 +4067,7 @@
     "bit": 1
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Sexy Cologne",
+    "name": "Wall Market - KeyItem: Sexy Cologne",
     "code": 310022,
     "map": "mktpb",
     "maps": [
@@ -4028,7 +4080,7 @@
     "bit": 2
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Pharmacy Coupon",
+    "name": "Wall Market Diner - KeyItem: Pharmacy Coupon",
     "code": 310023,
     "map": "mkt_s2",
     "maps": [
@@ -4041,7 +4093,7 @@
     "bit": 6
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Wig",
+    "name": "Wall Market Gym - KeyItem: Wig",
     "code": 310024,
     "map": "mkt_mens",
     "maps": [
@@ -4054,7 +4106,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Dyed Wig",
+    "name": "Wall Market Gym - KeyItem: Dyed Wig",
     "code": 310025,
     "map": "mkt_mens",
     "maps": [
@@ -4067,7 +4119,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Blonde Wig",
+    "name": "Wall Market Gym - KeyItem: Blonde Wig",
     "code": 310026,
     "map": "mkt_mens",
     "maps": [
@@ -4080,7 +4132,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Cotton Dress",
+    "name": "Wall Market Boutique - KeyItem: Cotton Dress",
     "code": 310027,
     "map": "mkt_s1",
     "maps": [
@@ -4093,7 +4145,7 @@
     "bit": 3
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Satin Dress",
+    "name": "Wall Market Boutique - KeyItem: Satin Dress",
     "code": 310028,
     "map": "mkt_s1",
     "maps": [
@@ -4106,7 +4158,7 @@
     "bit": 3
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Silk Dress",
+    "name": "Wall Market Boutique - KeyItem: Silk Dress",
     "code": 310029,
     "map": "mkt_s1",
     "maps": [
@@ -4119,7 +4171,7 @@
     "bit": 3
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Disinfectant",
+    "name": "Wall Market Pharmacy - KeyItem: Disinfectant",
     "code": 310030,
     "map": "mkt_s3",
     "maps": [
@@ -4132,7 +4184,7 @@
     "bit": 0
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Deodorant",
+    "name": "Wall Market Pharmacy - KeyItem: Deodorant",
     "code": 310031,
     "map": "mkt_s3",
     "maps": [
@@ -4145,7 +4197,7 @@
     "bit": 1
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Digestive",
+    "name": "Wall Market Pharmacy - KeyItem: Digestive",
     "code": 310032,
     "map": "mkt_s3",
     "maps": [
@@ -4158,7 +4210,7 @@
     "bit": 2
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Glass Tiara",
+    "name": "Wall Market Materia Store - KeyItem: Glass Tiara",
     "code": 310033,
     "map": "mkt_m",
     "maps": [
@@ -4171,7 +4223,7 @@
     "bit": 6
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Ruby Tiara",
+    "name": "Wall Market Materia Store - KeyItem: Ruby Tiara",
     "code": 310034,
     "map": "mkt_m",
     "maps": [
@@ -4184,7 +4236,7 @@
     "bit": 5
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Diamond Tiara",
+    "name": "Wall Market Materia Store - KeyItem: Diamond Tiara",
     "code": 310035,
     "map": "mkt_m",
     "maps": [
@@ -4197,7 +4249,7 @@
     "bit": 4
   },
   {
-    "name": "Midgar Sector 5 - Batteries",
+    "name": "Wall Market Weapon Store - Batteries",
     "code": 310036,
     "map": "mkt_w",
     "maps": [
@@ -4263,7 +4315,7 @@
     "bit": 0
   },
   {
-    "name": "Shinra Bldg.68f. - KeyItem: KeyCard 68",
+    "name": "Shinra Bldg. 68f. - KeyItem: KeyCard 68",
     "code": 310041,
     "map": "blin68_1",
     "maps": [
@@ -4329,7 +4381,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - Found hidden draw",
+    "name": "Sector 5 House 2f. - Found hidden draw",
     "code": 310046,
     "map": "min51_2",
     "maps": [
@@ -4342,7 +4394,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - Stole boys 5 gil",
+    "name": "Sector 5 House 2f. - Stole boys 5 gil",
     "code": 310047,
     "map": "min51_2",
     "maps": [
@@ -4355,7 +4407,7 @@
     "bit": 5
   },
   {
-    "name": "blin59 - KeyItem: Keycard 60",
+    "name": "Shinra Bldg. 59f. - KeyItem: Keycard 60",
     "code": 310048,
     "map": "blin59",
     "maps": [
@@ -4486,7 +4538,7 @@
     "bit": 3
   },
   {
-    "name": "Midgar Sector 5 - Turtle Paradise Flyer #1",
+    "name": "Sector 5 House 2f. - Turtle Paradise Flyer #1",
     "code": 310058,
     "map": "min51_2",
     "maps": [
@@ -4499,7 +4551,7 @@
     "bit": 0
   },
   {
-    "name": "blin1 - Turtle Paradise Flyer #2",
+    "name": "Shinra Bldg. 1f. - Turtle Paradise Flyer #2",
     "code": 310059,
     "map": "blin1",
     "maps": [
@@ -4525,7 +4577,7 @@
     "bit": 2
   },
   {
-    "name": "cosin1 - Turtle Paradise Flyer #4",
+    "name": "Cosmo Canyon - Turtle Paradise Flyer #4",
     "code": 310061,
     "map": "cosin1",
     "maps": [
@@ -4538,7 +4590,7 @@
     "bit": 3
   },
   {
-    "name": "cosin3 - Turtle Paradise Flyer #5",
+    "name": "Cosmo Canyon - Turtle Paradise Flyer #5",
     "code": 310062,
     "map": "cosin3",
     "maps": [
@@ -4551,7 +4603,7 @@
     "bit": 4
   },
   {
-    "name": "yufy2 - Turtle Paradise Flyer #6",
+    "name": "Yuffie's House - Turtle Paradise Flyer #6",
     "code": 310063,
     "map": "yufy2",
     "maps": [
@@ -4564,7 +4616,7 @@
     "bit": 5
   },
   {
-    "name": "uutai1 - Turtle Paradise Flyer #7",
+    "name": "Wutai - Turtle Paradise Flyer #7",
     "code": 310064,
     "map": "uutai1",
     "maps": [
@@ -4590,7 +4642,7 @@
     "bit": 7
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Bikini briefs",
+    "name": "Honey Bee Inn - KeyItem: Bikini briefs",
     "code": 310066,
     "map": "onna_52",
     "maps": [
@@ -4603,7 +4655,7 @@
     "bit": 0
   },
   {
-    "name": "Midgar Sector 5 - KeyItem: Lingerie",
+    "name": "Honey Bee Inn - KeyItem: Lingerie",
     "code": 310067,
     "map": "onna_52",
     "maps": [
@@ -4616,7 +4668,7 @@
     "bit": 0
   },
   {
-    "name": "Gold Saucer Area - 30Gp from Mog's House",
+    "name": "Gold Saucer Wonder Square - 30Gp from Mog's House",
     "code": 310068,
     "map": "games_2",
     "maps": [
@@ -4642,20 +4694,20 @@
     "bit": 5
   },
   {
-    "name": "Nibelheim Tifa's House - Final Heaven",
+    "name": "Tifa's House - Final Heaven",
     "code": 310070,
     "map": "niv_ti2",
     "maps": [
       "niv_ti2"
     ],
-    "item_text": "Final Heaven (+other stuff?)",
+    "item_text": "Final Heaven",
     "category": "standard",
-    "bank": 11,
-    "address": 1,
-    "bit": 0
+    "bank": 13,
+    "address": 148,
+    "bit": 5
   },
   {
-    "name": "Nibelheim - Played piano during flashback",
+    "name": "Tifa's House - Played piano during flashback",
     "code": 310071,
     "map": "niv_ti2",
     "maps": [
@@ -4668,7 +4720,7 @@
     "bit": 1
   },
   {
-    "name": "Nibelheim - Elemental",
+    "name": "Tifa's House - Elemental",
     "code": 310072,
     "map": "niv_ti2",
     "maps": [
@@ -4681,7 +4733,7 @@
     "bit": 2
   },
   {
-    "name": "Gaea's Cliff - Elixir",
+    "name": "Inside of Gaea's Cliff - Elixir #2",
     "code": 310073,
     "map": "gaiin_5",
     "maps": [
@@ -4720,7 +4772,7 @@
     "bit": 2
   },
   {
-    "name": "Shinra Bldg.68f. - Potion #2",
+    "name": "Shinra Bldg. 68f. - Potion #2",
     "code": 310076,
     "map": "blin68_1",
     "maps": [
@@ -4733,7 +4785,7 @@
     "bit": 0
   },
   {
-    "name": "Shinra Bldg.68f. - Potion #3",
+    "name": "Shinra Bldg. 68f. - Potion #3",
     "code": 310077,
     "map": "blin68_1",
     "maps": [
@@ -4746,7 +4798,7 @@
     "bit": 1
   },
   {
-    "name": "Shinra Bldg.68f. - Potion #4",
+    "name": "Shinra Bldg. 68f. - Potion #4",
     "code": 310078,
     "map": "blin68_1",
     "maps": [
@@ -4759,7 +4811,7 @@
     "bit": 2
   },
   {
-    "name": "Shinra Bldg.68f. - Enemy Skill",
+    "name": "Shinra Bldg. 68f. - Enemy Skill",
     "code": 310079,
     "map": "blin68_1",
     "maps": [
@@ -4930,7 +4982,7 @@
     "bit": 3
   },
   {
-    "name": "Kalm - Show Earth Harp 3",
+    "name": "Kalm House: 2f - Show Earth Harp 3",
     "code": 310092,
     "map": "elmin4_2",
     "maps": [

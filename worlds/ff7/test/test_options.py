@@ -86,3 +86,34 @@ class TestStartWithChocoboLureOff(FF7TestBase):
     def test_chocobo_lure_not_precollected(self) -> None:
         precollected = self.multiworld.precollected_items[self.player]
         self.assertFalse(any(it.name == "Chocobo Lure" for it in precollected))
+
+
+_TOWN_KEYS = (
+    "Fort Condor Key", "Junon Key", "North Corel Key", "Cosmo Canyon Key",
+    "Nibelheim Key", "Rocket Town Key", "Wutai Key", "Icicle Inn Key",
+    "Mideel Key", "Gongaga Key", "Bone Village Key",
+)
+
+
+class TestTownGatingOn(FF7TestBase):
+    """Free Roam + town gating: the town keys are progression items that gate
+    their world-map entrances. The inherited reachability + fill tests confirm
+    the seed still completes with the keys in the pool."""
+
+    options = {"free_roam": True, "town_gating": True}
+
+    def test_town_keys_in_pool(self) -> None:
+        names = [it.name for it in self.multiworld.itempool]
+        for key in _TOWN_KEYS:
+            with self.subTest(key):
+                self.assertIn(key, names)
+
+
+class TestTownGatingOff(FF7TestBase):
+    options = {"free_roam": True, "town_gating": False}
+
+    def test_town_keys_absent(self) -> None:
+        names = {it.name for it in self.multiworld.itempool}
+        for key in _TOWN_KEYS:
+            with self.subTest(key):
+                self.assertNotIn(key, names)

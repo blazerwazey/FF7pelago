@@ -83,6 +83,14 @@ _GOLD_CHOCOBO_EARLY_REGIONS = frozenset({
     "Midgar Sector 5",
 })
 
+# Foot-only regions (reachable without any vehicle): Kalm, Mythril Mines,
+# Chocobo Farm, Fort Condor. Submarine requires mountain crossing to reach its
+# in-game location (Junon), so we prevent it from being placed in foot-only
+# regions to ensure AP sends a mountain-crossing vehicle first.
+_FOOT_ONLY_REGIONS = frozenset({
+    "Kalm", "Mythril Mines", "Chocobo Farm", "Fort Condor",
+})
+
 
 def _apply_free_roam_rules(world: "FF7World") -> None:
     """Free Roam: region connections enforce most access. Additionally keep the
@@ -90,7 +98,11 @@ def _apply_free_roam_rules(world: "FF7World") -> None:
     slots) so it can't be obtained before real ocean/Highwind traversal. Safe:
     Gold Chocobo is never a sole requirement (every gate that accepts it also
     accepts Green/Blue/Black/Submarine/Highwind, and the goal needs Highwind), so
-    restricting where it can be placed cannot soft-lock a seed."""
+    restricting where it can be placed cannot soft-lock a seed.
+
+    Also prevent Submarine from being placed in foot-only regions to ensure
+    AP sends a mountain-crossing vehicle first (Submarine's in-game location
+    at Junon requires mountain crossing to reach)."""
     player = world.player
     for location in world.multiworld.get_locations(player):
         region = location.parent_region
@@ -98,4 +110,9 @@ def _apply_free_roam_rules(world: "FF7World") -> None:
             prev = location.item_rule
             location.item_rule = (
                 lambda item, _prev=prev: _prev(item) and item.name != "Gold Chocobo"
+            )
+        if region is not None and region.name in _FOOT_ONLY_REGIONS:
+            prev = location.item_rule
+            location.item_rule = (
+                lambda item, _prev=prev: _prev(item) and item.name != "Submarine"
             )

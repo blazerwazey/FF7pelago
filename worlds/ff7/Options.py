@@ -126,8 +126,8 @@ class DisableGoldSaucer(Toggle):
     Square / Arena, Chocobo Square, Ghost Hotel, Speed Square, Event Square,
     Gondola, the Keystone and Gold Ticket key items, etc.) are checks, and the
     Gold Saucer shop slots are dropped. Useful if you'd rather not be required
-    to play the minigames. The Gold Ticket item still controls access to the
-    area for any logic that needs it.
+    to play the minigames. (The Gold Ticket item is not part of the Free Roam
+    pool; the area is gated on transport alone.)
     """
     display_name = "Disable Gold Saucer Checks"
     default = False
@@ -153,9 +153,35 @@ class WeaponFightChecks(DefaultOnToggle):
     When on (default), defeating Ultimate, Ruby, and Emerald Weapon each award
     an Archipelago check. When off, the Weapons are not checks — they can still
     be fought, but no item is placed on them. Reaching each still requires the
-    relevant traversal (Ruby/Ultimate: open ocean; Emerald: Submarine).
+    relevant traversal (Ultimate: Highwind; Ruby: Highwind + Ultimate defeated;
+    Emerald: Submarine).
     """
     display_name = "Weapon Fight Checks"
+
+
+class ChocoboRaceChecks(Toggle):
+    """Include the Gold Saucer chocobo-racing results as check locations (Free Roam).
+
+    When on, running your first chocobo race and reaching racing Rank S each award
+    an Archipelago check. Off by default because it requires the (optional) chocobo-
+    racing minigame — enable it only if you want racing in logic. Requires Gold
+    Saucer access; unaffected seeds simply omit these locations.
+    """
+    display_name = "Chocobo Race Checks"
+    default = False
+
+
+class TownGating(Toggle):
+    """Lock towns on the world map behind Archipelago key items (Free Roam only).
+
+    When enabled, certain towns cannot be entered from the world map until you
+    receive that town's key item (e.g. "Fort Condor Key", "Junon Key"). Walking
+    onto a locked town simply bounces you off until the key arrives. Kalm (the
+    starting town) is never locked. Adds the town keys to the item pool as
+    progression items, so reaching those towns' checks requires finding the key.
+    """
+    display_name = "Town Gating"
+    default = False
 
 
 class StartWithChocoboLure(Toggle):
@@ -200,6 +226,8 @@ class FF7Options(PerGameCommonOptions):
     disable_gold_saucer: DisableGoldSaucer
     disable_fort_condor_checks: DisableFortCondorChecks
     weapon_fight_checks: WeaponFightChecks
+    chocobo_race_checks: ChocoboRaceChecks
+    town_gating: TownGating
     start_with_chocobo_lure: StartWithChocoboLure
 
     # Goal

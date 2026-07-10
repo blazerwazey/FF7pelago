@@ -2803,5 +2803,89 @@
     "classification": "progression",
     "category": "character",
     "count": 1
+  },
+  {
+    "name": "Vincent",
+    "code": 300617,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
+    "name": "Fort Condor Key",
+    "code": 300606,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Junon Key",
+    "code": 300607,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "North Corel Key",
+    "code": 300608,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Cosmo Canyon Key",
+    "code": 300609,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Nibelheim Key",
+    "code": 300610,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Rocket Town Key",
+    "code": 300611,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Wutai Key",
+    "code": 300612,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Icicle Inn Key",
+    "code": 300613,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Mideel Key",
+    "code": 300614,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Gongaga Key",
+    "code": 300615,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Bone Village Key",
+    "code": 300616,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
   }
 ]
