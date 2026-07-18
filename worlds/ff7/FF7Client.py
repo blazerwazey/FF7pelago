@@ -855,9 +855,17 @@ class FF7Context(CommonContext):
         # module byte across polls; _delivery_held_logged de-spams the hold log.
         self._last_module: Optional[int] = None
         self._delivery_held_logged: bool = False
-        # Latched once per battle after the ally limit menus are checked/rebuilt;
-        # reset whenever the module leaves battle.
-        self._battle_limit_fixed: bool = False
+        # Self-healing party-data rebuild. A client-inserted member's limit
+        # TECHNIQUE list is only built by the engine's party-refresh fns, and the
+        # call made at delivery no-ops for the FIRST member (party goes 1->2 while
+        # the field is still loading). We re-run the rebuild once per stable party
+        # composition: _party_sig is the last-seen 3-slot party byte-triple,
+        # _party_sig_stable counts consecutive identical polls, and
+        # _party_rebuilt_sig is the composition we last rebuilt (so each new one
+        # rebuilds exactly once, a few polls after it settles).
+        self._party_sig: bytes = b""
+        self._party_sig_stable: int = 0
+        self._party_rebuilt_sig: bytes = b""
         # Boss checks that have been sent (location_id)
         self._boss_checks_sent: Set[int] = set()
         # Weapon-boss kill latched from a battle formation, applied to
@@ -1119,21 +1127,27 @@ KEY_ITEM_FLAGS: Dict[str, List[Tuple[int, int]]] = {
     "Huge Materia (Underwater)":  [(0x42, 6)],
     "Huge Materia (Rocket)":      [(0x42, 7)],
     # Town gating (town_gating option): each town key sets a FREE savemap bit that the
-    # world-map ENTER_FIELD gate checks (Gold Saucer inserts PUSH_SAVEMAP_BIT). rel
-    # 0x184/0x185 (= 0xD28/0xD29 in bank 3, by crater_lock 0xD27; outside the
-    # key-items menu region -> no phantom menu entry). MUST match GS patchTownGates:
-    # bitIndex = relByte*8 + bit (0x184.0 -> 0xC20 Fort Condor ... 0x185.2 -> 0xC2A).
-    "Fort Condor Key":            [(0x184, 0)],
-    "Junon Key":                  [(0x184, 1)],
-    "North Corel Key":            [(0x184, 2)],
-    "Cosmo Canyon Key":           [(0x184, 3)],
-    "Nibelheim Key":              [(0x184, 4)],
-    "Rocket Town Key":            [(0x184, 5)],
-    "Wutai Key":                  [(0x184, 6)],
-    "Icicle Inn Key":             [(0x184, 7)],
-    "Mideel Key":                 [(0x185, 0)],
-    "Gongaga Key":                [(0x185, 1)],
-    "Bone Village Key":           [(0x185, 2)],
+    # world-map ENTER_FIELD gate checks (Gold Saucer inserts PUSH_SAVEMAP_BIT).
+    # RELOCATED 2026-07-18: the old rel bytes 0x184/0x185 (= savemap 0xD28/0xD29)
+    # are the field-script story vars Var[3][132]/[133] — LIVE vanilla state! The
+    # Forgotten City (lost1 etc.) reads 0xD28 bits 4/5 for its Aerith-death-night
+    # variant (Nibelheim + Rocket Town keys turned the city blue/death-prepped),
+    # and yougan2 CLEARS 0xD29.0 (would delete the Mideel key). New home: rel
+    # 0x403/0x404 (= savemap 0xFA7/0xFA8, pure script-flag bank) — verified free
+    # by scanning ALL 702 field scripts + every wm*.ev for savemap references.
+    # MUST match GS patchTownGates towns[]: bitIndex = relByte*8 + bit.
+    "Fort Condor Key":            [(0x403, 0)],
+    "Junon Key":                  [(0x403, 1)],
+    "North Corel Key":            [(0x403, 2)],
+    "Cosmo Canyon Key":           [(0x403, 3)],
+    "Nibelheim Key":              [(0x403, 4)],
+    "Rocket Town Key":            [(0x403, 5)],
+    "Wutai Key":                  [(0x403, 6)],
+    "Icicle Inn Key":             [(0x403, 7)],
+    "Mideel Key":                 [(0x404, 0)],
+    "Gongaga Key":                [(0x404, 1)],
+    "Bone Village Key":           [(0x404, 2)],
+    "Costa del Sol Key":          [(0x404, 3)],
     # 0x43
     "Key to Ancients":            [(0x43, 0)],
     "Letter to a Daughter":       [(0x43, 1)],
@@ -1635,7 +1649,8 @@ def _deliver_chocobo(pm: "pymem.Pymem", item_name: str, sender: str = "") -> boo
 # ── Party member delivery (Free Roam: unlock optional characters) ─────────────
 # Savemap char roster order: Cloud,Barret,Tifa,Aerith,RedXIII,Yuffie,CaitSith,
 # Vincent,Cid -> ids 0..8. PHS availability is a per-id bitmask.
-_CHARACTER_IDS = {"Barret": 1, "Tifa": 2, "Aerith": 3, "Red XIII": 4, "Cait Sith": 6, "Cid": 8, "Vincent": 7}
+_CHARACTER_IDS = {"Barret": 1, "Tifa": 2, "Aerith": 3, "Red XIII": 4, "Yuffie": 5,
+                  "Cait Sith": 6, "Vincent": 7, "Cid": 8}
 _PARTY_OFFSET       = 0x04F8   # qint8 party[3] — active party member ids
 # PHS bitmasks (per character id). 0x10A4 is the LOCK mask (ff7-ultima
 # party_locking_mask): a SET bit forces the member in place / blocks swapping.
@@ -1771,52 +1786,82 @@ def _ensure_character_record(pm: "pymem.Pymem", cid: int) -> bool:
 
 # Game functions that rebuild the engine's party-member data after the party
 # composition changes (same 2013 exe map as everything else; addresses from
-# ff7-ultima's setPartyMemberSlot, which performs the identical slot write we
-# do and then calls exactly these two). The engine resolves each member's
-# LIMIT TECHNIQUE LIST here — a raw party-slot byte write without this rebuild
-# leaves the limit list empty (gauge fills, no techniques) until any menu
-# limit-set triggers the same rebuild. 0x6cd13a() is the global party refresh;
-# 0x6c545b(slot) rebuilds one member's data.
+# ff7-ultima's setPartyMemberSlot, which performs the identical slot write we do
+# and then calls exactly these FOUR, in order). The member's LIMIT TECHNIQUE
+# LIST is resolved by the LAST TWO — verified live 2026-07-15: with only the
+# first two the limit gauge fills but pressing Limit shows no techniques (the
+# player's workaround was an in-game menu limit-set, which runs the same full
+# rebuild). A raw party-slot byte write without all four leaves the list empty.
+#   0x6cd13a()      global party refresh
+#   0x6c545b(slot)  rebuild one member's core data
+#   0x5cb2cc(slot)  rebuild the member's materia-derived commands
+#   0x5cb127()      finalise
+#   0x6cbd1e()      rebuild every slot's battle LIMIT BLOCK   (the real fix)
+# The last one is NOT in ff7-ultima's sequence and is the one that matters for
+# limits: it is the thunk game-init itself calls (-> 0x703517), which loops the
+# 3 party slots and builds PO[slot]+0xAC (availability) / +0xB4 (3x28-byte limit
+# attack records copied from the kernel table at 0x91F6D4, populated at game
+# init) from the char's savemap limit level. Game init only runs it for the
+# launch party (Cloud in Free Roam), so client-inserted members stay limit-less
+# in battle until it is re-run — verified live 2026-07-15 on a fresh launch
+# (no menu opened): one call rebuilt Red XIII's block and Sled Fang worked.
+_PARTY_SET_FNS = ((0x6CD13A, False), (0x6C545B, True), (0x5CB2CC, True),
+                  (0x5CB127, False), (0x6CBD1E, False))
+# Back-compat aliases (still referenced elsewhere).
 _PARTY_REFRESH_FN = 0x6CD13A
 _PARTY_BUILD_MEMBER_FN = 0x6C545B
 
-# Battle-side limit-menu rebuild. A party member inserted by the client (raw
-# party-slot write) enters every battle with an unbuilt limit command: the
-# gauge fills but pressing Limit shows nothing (no pink box). The engine's own
-# ally-limit rebuild fn 0x434df3(slot) fixes it (found via ff7-ultima; verified
-# in-game across multiple battles). The broken state is detectable per battle:
-# party_objects[slot]+0x48 (a limit-parameter pair populated by the game's own
-# party-add path) reads 0. battle_char_array[slot]+0x00 holds the member's
-# savemap char-record pointer; +0x08 is the battle limit gauge, saved/restored
-# around the call in case the rebuild force-fills it.
-_BATTLE_LIMIT_REBUILD_FN = 0x434DF3
-_BATTLE_CHAR_ARRAY = 0x9A8DB8      # stride 0x34
-_BATTLE_CHAR_ARRAY_STRIDE = 0x34
-_PARTY_OBJECTS = 0xDBA498          # stride 0x440
-_PARTY_OBJECTS_STRIDE = 0x440
-_CHAR_RECORDS_BASE = SAVEMAP_BASE + _CHARS_OFFSET
+
+def _set_party_member(pm: "pymem.Pymem", slot: int) -> None:
+    """Run the game's full party-member-set sequence for an already-written slot
+    (ff7-ultima setPartyMemberSlot). Idempotent — safe to re-run on a built
+    member. The last two calls build the limit technique list."""
+    for addr, takes_slot in _PARTY_SET_FNS:
+        _call_game_fn(pm, addr, slot if takes_slot else None)
+
+# (The old battle-side limit-menu "fix" that called 0x434df3 per slot is gone:
+# its +0x48 broken-marker read a zero-run and matched every slot, and 0x434df3
+# turned out to be the limit-bar RESET routine, not a builder. The real repair
+# is the 0x6cbd1e limit-block rebuild in _PARTY_SET_FNS above, which runs at
+# delivery and via _heal_party_limit_lists in field/world.)
 
 
-def _fix_battle_limit_menus(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
-    """Once per battle (module 2 stable), rebuild the limit command of any ally
-    whose battle object carries the broken marker (see constants above)."""
-    for slot in range(3):
-        try:
-            rec = pm.read_uint(_BATTLE_CHAR_ARRAY + slot * _BATTLE_CHAR_ARRAY_STRIDE)
-            # slot must point at a savemap char record (empty slots don't)
-            if not (_CHAR_RECORDS_BASE <= rec < _CHAR_RECORDS_BASE + 9 * _CHAR_RECORD_SIZE):
-                continue
-            pair = pm.read_uint(_PARTY_OBJECTS + slot * _PARTY_OBJECTS_STRIDE + 0x48)
-            if pair != 0:
-                continue    # limit command already built by the game
-            bar_addr = _BATTLE_CHAR_ARRAY + slot * _BATTLE_CHAR_ARRAY_STRIDE + 0x08
-            bar = pm.read_ushort(bar_addr)
-            _call_game_fn(pm, _BATTLE_LIMIT_REBUILD_FN, slot)
-            pm.write_ushort(bar_addr, bar)   # undo any force-fill from the rebuild
-            cid = pm.read_uchar(rec)
-            logger.debug(f"Rebuilt battle limit menu for slot {slot} (char id {cid})")
-        except Exception as exc:
-            logger.debug(f"battle limit rebuild failed for slot {slot}: {exc}")
+# Consecutive stable polls a party composition must hold before we rebuild it —
+# lets the field/world engine finish (re)loading party state so the rebuild fns
+# act on settled data (the delivery-time call races this and loses for the 1st
+# member). ~0.6s at POLL_INTERVAL=0.2.
+_PARTY_REBUILD_STABLE_TICKS = 3
+
+
+def _heal_party_limit_lists(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Re-run the full party-member-set sequence once per stable party
+    composition (see FF7Context._party_sig). This cures the FIRST client-
+    delivered member, whose limit technique list stays empty if the delivery-time
+    rebuild lands while the field is still loading. _set_party_member is
+    idempotent, so re-running it on already-built members is harmless. Only runs
+    while the party is stable in a gameplay module, so it never races battle/menu
+    working copies. Slot 0 (the leader / Cloud) is never client-inserted, so it's
+    left alone."""
+    base = SAVEMAP_BASE + _PARTY_OFFSET
+    try:
+        sig = pm.read_bytes(base, 3)
+    except Exception:
+        return
+    if sig != ctx._party_sig:
+        ctx._party_sig = sig
+        ctx._party_sig_stable = 0
+        return
+    ctx._party_sig_stable += 1
+    if sig == ctx._party_rebuilt_sig or ctx._party_sig_stable < _PARTY_REBUILD_STABLE_TICKS:
+        return
+    try:
+        for slot in range(1, 3):
+            if sig[slot] not in (0xFF, 0xFE):
+                _set_party_member(pm, slot)
+        ctx._party_rebuilt_sig = sig
+        logger.debug(f"Rebuilt party limit data for composition {sig.hex()}")
+    except Exception as exc:
+        logger.debug(f"party limit rebuild failed: {exc}")
 
 
 def _call_game_fn(pm: "pymem.Pymem", address: int, param: Optional[int] = None) -> None:
@@ -1861,13 +1906,13 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str) -> bool:
             for i in range(3):
                 if slots[i] in (0xFF, 0xFE):
                     pm.write_uchar(base + i, cid)
-                    # Rebuild the engine's party-member data (limit technique
-                    # list etc.) exactly like the game's own party-change code
-                    # does — without this the new member's limit gauge fills
-                    # but the technique list is empty until a menu limit-set.
+                    # Rebuild the engine's party-member data (incl. the limit
+                    # technique list) exactly like the game's own party-change
+                    # code does. The self-healing pass in the poll loop re-runs
+                    # this once the field/world module is stable, in case this
+                    # delivery-time call lands while the field is still loading.
                     try:
-                        _call_game_fn(pm, _PARTY_REFRESH_FN)
-                        _call_game_fn(pm, _PARTY_BUILD_MEMBER_FN, i)
+                        _set_party_member(pm, i)
                         logger.debug(f"Rebuilt party data for slot {i} ({char_name})")
                     except Exception as exc:
                         logger.debug(f"party rebuild call failed (non-fatal): {exc}")
@@ -1918,6 +1963,40 @@ def _reward_patch_gil(v: int) -> bytes:
 
 def _reward_patch_ap(v: int) -> bytes:
     return bytes((0x6B, 0xD2, v, 0x01, 0x15, 0xC4, 0xE2, 0x99, 0x00, 0x90, 0x90, 0x90))
+
+
+# Rooms whose one-time story sequence latches "done" flags that leave the room
+# permanently inert on revisit (actors idle, chests dead, exits refusing to
+# transition). Clearing the latches from an ADJACENT field makes the room replay
+# fresh on every entry — never clear inside the room itself, or a running scene
+# could glitch. Keyed by field name -> ((savemap_offset, clear_mask), ...).
+_FIELD_FLAG_RESETS: Dict[str, Tuple[Tuple[int, int], ...]] = {
+    # Underwater Reactor dock (semkin_5: Reno scene + Carry Armor + chests +
+    # exit line). The sequence sets 0x1029 bits 1+2 and 0x102A bit 6 (found by
+    # working-vs-after savemap diff, verified live 2026-07-11); any of them
+    # parks every actor in the room. Chest opened-flags are separate, so a
+    # replay can't duplicate loot.
+    "semkin_4": ((0x1029, 0x06), (0x102A, 0x40)),
+    "semkin_6": ((0x1029, 0x06), (0x102A, 0x40)),
+}
+
+
+def _apply_field_flag_resets(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Clear latched sequence-done flags while in a field adjacent to a locked
+    room (see _FIELD_FLAG_RESETS). Idempotent — only writes when a bit is set."""
+    if not ctx.free_roam:
+        return
+    resets = _FIELD_FLAG_RESETS.get(_read_field_name(pm))
+    if not resets:
+        return
+    for off, mask in resets:
+        try:
+            v = pm.read_uchar(SAVEMAP_BASE + off)
+            if v & mask:
+                pm.write_uchar(SAVEMAP_BASE + off, v & ~mask)
+                logger.debug(f"Field flag reset: cleared savemap 0x{off:X} mask 0x{mask:02x}")
+        except Exception as exc:
+            logger.debug(f"field flag reset failed: {exc}")
 
 
 def _read_field_name(pm: "pymem.Pymem") -> str:
@@ -2471,6 +2550,9 @@ async def game_watcher(ctx: FF7Context) -> None:
         # Chocobo Square) so the player can actually talk to them. ──
         _apply_field_model_overrides(pm, ctx)
 
+        # ── Un-latch one-time story rooms so they replay on revisit ────────
+        _apply_field_flag_resets(pm, ctx)
+
         # ── Free Roam game-over redundancy ─────────────────────────────────
         # A game over reloads the md1stin baseline, wiping every client-
         # delivered AP item (key items, vehicles, party, chocobos, inventory).
@@ -2509,16 +2591,15 @@ async def game_watcher(ctx: FF7Context) -> None:
         # anything delivered mid-module can be silently lost. Two stable ticks
         # also skip the module-load instant, when the engine is still
         # (re)initialising savemap-backed state.
-        # ── Rebuild broken ally limit menus at battle start ───────────────
-        # A client-inserted party member enters battle with an unbuilt limit
-        # command (gauge fills, no technique box). Two consecutive battle polls
-        # let battle-init finish, then rebuild any slot with the broken marker.
-        if _module == GAME_MODULE_BATTLE:
-            if ctx._last_module == GAME_MODULE_BATTLE and not ctx._battle_limit_fixed:
-                _fix_battle_limit_menus(pm, ctx)
-                ctx._battle_limit_fixed = True
+        # ── Self-heal party limit-technique lists ─────────────────────────
+        # Only while stable in a gameplay module (never in battle/menu, whose
+        # working copies we'd race). Rebuilds each new party composition once,
+        # curing the first-delivered member's empty limit list.
+        if _module in (GAME_MODULE_FIELD, GAME_MODULE_WORLD):
+            _heal_party_limit_lists(pm, ctx)
         else:
-            ctx._battle_limit_fixed = False
+            ctx._party_sig = b""
+            ctx._party_sig_stable = 0
 
         if ctx._pending_items:
             _in_gameplay = (_module in (GAME_MODULE_FIELD, GAME_MODULE_WORLD)

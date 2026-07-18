@@ -2812,6 +2812,13 @@
     "count": 1
   },
   {
+    "name": "Yuffie",
+    "code": 300619,
+    "classification": "progression",
+    "category": "character",
+    "count": 1
+  },
+  {
     "name": "Fort Condor Key",
     "code": 300606,
     "classification": "progression",
@@ -2884,6 +2891,13 @@
   {
     "name": "Bone Village Key",
     "code": 300616,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 1
+  },
+  {
+    "name": "Costa del Sol Key",
+    "code": 300618,
     "classification": "progression",
     "category": "key_item",
     "count": 1

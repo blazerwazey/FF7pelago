@@ -1869,7 +1869,7 @@
     "bit": 4
   },
   {
-    "name": "Shildra Inn - Elixir",
+    "name": "Cosmo Canyon Inn - Elixir",
     "code": 300043,
     "map": "cosmin6",
     "maps": [
@@ -3126,6 +3126,19 @@
     "bank": 11,
     "address": 80,
     "bit": 2
+  },
+  {
+    "name": "Wutai, Yuffie's House - Recruit Yuffie",
+    "code": 310100,
+    "map": "yufy1",
+    "maps": [
+      "yufy1"
+    ],
+    "item_text": "Yuffie",
+    "category": "character",
+    "bank": 3,
+    "address": 189,
+    "bit": 4
   },
   {
     "name": "Gold Saucer Area - First Chocobo Race",

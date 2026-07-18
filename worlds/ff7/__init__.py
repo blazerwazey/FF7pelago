@@ -415,9 +415,11 @@ _FREE_ROAM_ONLY_ITEMS = frozenset({
     "Highwind", "Submarine",
     "Green Chocobo", "Blue Chocobo", "Black Chocobo", "Gold Chocobo",
     # Party members — in linear mode they join via story, so they are only AP
-    # items in Free Roam. Vincent is the optional Shinra-Mansion recruit (not a
-    # goal requirement); his join is neutered by Gold Saucer so AP grants him.
+    # items in Free Roam. Vincent and Yuffie are the optional recruits (not
+    # goal requirements); their joins are neutered by Gold Saucer so AP grants
+    # them.
     "Barret", "Tifa", "Aerith", "Red XIII", "Cait Sith", "Cid", "Vincent",
+    "Yuffie",
 })
 
 # Optional party members (progression in Free Roam) and how many the goal
@@ -612,8 +614,14 @@ _FREE_ROAM_LOCATION_ITEM_GATES = {
     # Leviathan Scales key item in-game (the client also sets the field's
     # "has Leviathan Scales" flag on receipt). Leviathan Scales is progression.
     200337: "Leviathan Scales",   # Da-chao Statue - Steal-As-Well
-    200338: "Leviathan Scales",   # Da-chao Statue - Dragoon Lance
+    # 200338 (Dragoon Lance) removed 2026-07-15: confirmed reachable in-game
+    # without Leviathan Scales, and datiao_8's field script gates the treasures
+    # on their own pickup/event flags (V[f0][0x8d]), not the Leviathan key item.
+    # (Steal-As-Well 200337 + Oritsuru 200346 likely share this — pending confirm.)
     200346: "Leviathan Scales",   # Da-chao Statue - Oritsuru
+    # Godo's Pagoda (tower5) — the pagoda challenge requires Yuffie in the
+    # party in-game, and Yuffie is an AP item in Free Roam.
+    200344: "Yuffie",             # Godo's Pagoda - Leviathan
 }
 
 # Town gating (town_gating option, Free Roam): each gated town region -> its key
@@ -635,6 +643,7 @@ _TOWN_GATE_KEYS = {
     "Mideel":       "Mideel Key",
     "Gongaga":      "Gongaga Key",
     "Bone Village": "Bone Village Key",
+    "Costa del Sol": "Costa del Sol Key",
     # The Sleeping Forest (and everything past it) is Bone Village's back yard:
     # its only world entrances are the Corral Valley strip, which Gold Saucer
     # seals on the same key, so the whole northern chain flows through Bone
@@ -970,15 +979,27 @@ class FF7World(World):
         )
 
         # --- Materia Caves (chocobo-specific terrain requirements) ---
-        # Mime Cave (zz5): Green/Black/Gold Chocobo (mountain crossing)
-        world_map.connect(sub_regions["Mime Cave"]).access_rule = _mountain
+        # Mime Cave (zz5, Wutai continent): Black or Gold Chocobo reach it on
+        # their own; a Green Chocobo climbs the mountains but needs the Highwind
+        # to be ferried to the continent first. Highwind alone can't land there.
+        world_map.connect(sub_regions["Mime Cave"]).access_rule = (
+            lambda state: (state.has("Black Chocobo", player)
+                           or state.has("Gold Chocobo", player)
+                           or (state.has("Green Chocobo", player)
+                               and state.has("Highwind", player)))
+        )
         # HP <-> MP Cave (zz6): Black/Gold Chocobo (mountain + ocean)
         world_map.connect(sub_regions["HP <-> MP Cave"]).access_rule = (
             lambda state: (state.has("Black Chocobo", player)
                            or state.has("Gold Chocobo", player))
         )
-        # Quadra Magic Cave (zz7): Blue/Black/Gold Chocobo (ocean crossing)
-        world_map.connect(sub_regions["Quadra Magic Cave"]).access_rule = _ocean
+        # Quadra Magic Cave (zz7): Blue/Black/Gold Chocobo only — Highwind can't
+        # land here, so this must NOT use _ocean (which includes Highwind).
+        world_map.connect(sub_regions["Quadra Magic Cave"]).access_rule = (
+            lambda state: (state.has("Blue Chocobo", player)
+                           or state.has("Black Chocobo", player)
+                           or state.has("Gold Chocobo", player))
+        )
         # Knights of the Round Cave (zz8): Gold Chocobo only (all terrain)
         world_map.connect(sub_regions["Knights of the Round Cave"]).access_rule = (
             lambda state: state.has("Gold Chocobo", player)
