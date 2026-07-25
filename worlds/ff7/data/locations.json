@@ -1297,7 +1297,7 @@
     "maps": [
       "rcktin4"
     ],
-    "item_text": "KeyItem: Huge Materia: Rocket",
+    "item_text": "KeyItem: Huge Materia (Rocket)",
     "category": "key_item",
     "bank": 13,
     "address": 145,
@@ -3571,7 +3571,7 @@
     "bit": 0
   },
   {
-    "name": "Gold Saucer Wonder Square - Speed Source",
+    "name": "Gold Saucer Wonder Square - G-Bike 10000 Points",
     "code": 300362,
     "map": "games_2",
     "maps": [
@@ -3584,7 +3584,7 @@
     "bit": 3
   },
   {
-    "name": "Gold Saucer Wonder Square - Safety Bit",
+    "name": "Gold Saucer Wonder Square - Course A, 89 Points",
     "code": 300363,
     "map": "games_2",
     "maps": [
@@ -3597,7 +3597,7 @@
     "bit": 0
   },
   {
-    "name": "Gold Saucer Wonder Square - Crystal Bangle",
+    "name": "Gold Saucer Wonder Square - Course C, 89 Points",
     "code": 300364,
     "map": "games_2",
     "maps": [
@@ -3610,7 +3610,7 @@
     "bit": 2
   },
   {
-    "name": "Gold Saucer Wonder Square - Ink",
+    "name": "Gold Saucer Wonder Square - Submarine Game, 1st Win",
     "code": 300365,
     "map": "games_2",
     "maps": [
@@ -3623,7 +3623,7 @@
     "bit": 5
   },
   {
-    "name": "Gold Saucer Wonder Square - T/S Bomb",
+    "name": "Gold Saucer Wonder Square - Submarine Game, 2nd Win",
     "code": 300366,
     "map": "games_2",
     "maps": [
@@ -3636,7 +3636,7 @@
     "bit": 6
   },
   {
-    "name": "Gold Saucer Wonder Square - Dragon Fang",
+    "name": "Gold Saucer Wonder Square - Submarine Game, 3rd Win",
     "code": 300367,
     "map": "games_2",
     "maps": [
@@ -3649,7 +3649,7 @@
     "bit": 7
   },
   {
-    "name": "Gold Saucer Wonder Square - Dragon Scales",
+    "name": "Gold Saucer Wonder Square - Submarine Game, 4th Win",
     "code": 300368,
     "map": "games_2",
     "maps": [
@@ -3662,7 +3662,7 @@
     "bit": 0
   },
   {
-    "name": "Gold Saucer Wonder Square - Cauldron",
+    "name": "Gold Saucer Wonder Square - Submarine Game, 5th Win",
     "code": 300369,
     "map": "games_2",
     "maps": [
@@ -3675,7 +3675,7 @@
     "bit": 1
   },
   {
-    "name": "Gold Saucer Wonder Square - All",
+    "name": "Gold Saucer Wonder Square - Course B, 89 Points",
     "code": 300370,
     "map": "games_2",
     "maps": [
@@ -3941,7 +3941,7 @@
     "maps": [
       "convil_1"
     ],
-    "item_text": "KeyItem: Huge Materia: Fort Condor",
+    "item_text": "KeyItem: Huge Materia (Fort Condor)",
     "category": "standard",
     "bank": 13,
     "address": 148,
@@ -4021,7 +4021,7 @@
     "maps": [
       "ncorel3"
     ],
-    "item_text": "KeyItem: Huge Materia: Corel",
+    "item_text": "KeyItem: Huge Materia (Corel)",
     "category": "standard",
     "bank": 1,
     "address": 128,

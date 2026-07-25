@@ -217,11 +217,68 @@ WORLD_BATTLE_FLAG3    = 0xE3A884
 WORLD_BATTLE_FLAG4    = 0xE045E4
 
 
+# Fields where a FORCED field battle corrupts the map. The bomb trap does not use
+# the field script's own BATTLE opcode — it hijacks the field object's module
+# request, so the engine switches to battle with the field script stopped at an
+# arbitrary instruction, and on return the field is re-entered. That is harmless
+# wherever field entry rebuilds everything the script had set up, which is nearly
+# everywhere. It is NOT harmless in the endgame descent: those maps hold their
+# platform/progress state in script-local and TEMP-bank state that entry does not
+# reconstruct, so the floating platforms vanish and the main script then waits
+# forever on a condition that can no longer become true (playtester report: bomb
+# trap during the final platform descent before Jenova SYNTHESIS -> platforms all
+# disappear, game hangs ~1 min after the battle).
+#
+# The whole Northern Crater / final-dungeon chain is blocked rather than just the
+# one reported map: it is all one-way, heavily scripted, and includes the party
+# split and the Bizarro/Safer transitions, where the same hijack would be at least
+# as destructive. The Whirlwind Maze (trnad_*) is included for the same reason —
+# scripted descent with the same class of state. Random encounters still happen
+# normally in all of these; only the client-forced battle is suppressed.
+_NO_FORCED_BATTLE_FIELDS = frozenset({
+    # Northern Crater descent + final dungeon. The party split AND the floating
+    # platform descent are both in the `las*` chain. (NOTE: `nivl_*` is MT. NIBEL,
+    # not the crater — do not add nivl here.)
+    "crater_1", "crater_2", "crater_3", "crater_4", "lastcin",
+    "las0_1", "las0_2", "las0_3", "las0_4", "las0_5", "las0_6", "las0_7", "las0_8",
+    "las1_1", "las1_2", "las1_3", "las1_4",
+    "las2_1", "las2_2", "las2_3", "las2_4",
+    "las3_1", "las3_2", "las3_3",
+    "las4_0", "las4_1", "las4_2", "las4_3", "las4_4", "las4_42",
+    "last4_2", "last4_3", "last4_4", "lastmap", "lastflor",
+    # Whirlwind Maze
+    "trnad_1", "trnad_2", "trnad_3", "trnad_4", "trnad_51", "trnad_52", "trnad_53",
+})
+
+
+def _forced_battle_unsafe(pm: "pymem.Pymem") -> str:
+    """Name of the current field if forcing a battle there would break it, else ''."""
+    try:
+        from worlds.ff7.FF7Client import _read_field_name   # lazy: avoids a cycle
+        name = _read_field_name(pm)
+    except Exception:
+        return ""
+    return name if name in _NO_FORCED_BATTLE_FIELDS else ""
+
+
 def _apply_bomb_trap(pm: "pymem.Pymem", ctx: "FF7Context") -> bool:
     """start a battle against a bomb. fires from the field or the world map,
-    stays queued in any other module (battles, menus, etc)."""
+    stays queued in any other module (battles, menus, etc), and is suppressed in
+    fields a forced battle would corrupt (see _NO_FORCED_BATTLE_FIELDS)."""
     module = pm.read_uchar(GAME_MODULE_ADDR)
     if module == GAME_MODULE_FIELD:
+        unsafe = _forced_battle_unsafe(pm)
+        if unsafe:
+            if getattr(ctx, "_bomb_blocked_field", None) != unsafe:
+                ctx._bomb_blocked_field = unsafe
+                # Debug only: these maps are the one-way endgame run, so the player
+                # is not going to backtrack to set the trap off and telling them it
+                # is pending is just noise. (See client-logging-quiet: operational
+                # messages go to the log file, not the player's console.)
+                logger.debug("Bomb Trap held: a forced battle would break this "
+                             f"map ({unsafe}). It will fire once you're elsewhere.")
+            return False
+        ctx._bomb_blocked_field = None
         ptr = pm.read_uint(FIELD_OBJ_PTR)
         if ptr < 0x400000:
             return False
@@ -444,27 +501,32 @@ def pump_trap_queue(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
     if now - ctx._last_trap_activation < TRAP_ACTIVATION_COOLDOWN:
         return
 
-    spec: Optional[TrapSpec] = None
-    from_trap_link = False
-    if ctx._priority_trap is not None and _can_activate_trap(pm, ctx._priority_trap):
-        spec, from_trap_link = ctx._priority_trap, True
-    elif ctx._trap_queue and _can_activate_trap(pm, ctx._trap_queue[0]):
-        spec = ctx._trap_queue[0]
-    if spec is None:
+    def _try(candidate: "TrapSpec") -> bool:
+        if not _can_activate_trap(pm, candidate):
+            return False
+        try:
+            return bool(candidate.apply(pm, ctx))
+        except Exception as exc:
+            logger.debug(f"Trap {candidate.name} failed: {exc}")
+            return False
+
+    if ctx._priority_trap is not None and _try(ctx._priority_trap):
+        spec = ctx._priority_trap
+        ctx._priority_trap = None
+        ctx._last_trap_activation = now
+        logger.debug(f"Trap fired (traplink): {spec.name}")
         return
 
-    try:
-        fired = bool(spec.apply(pm, ctx))
-    except Exception as exc:
-        logger.debug(f"Trap {spec.name} failed: {exc}")
-        fired = False
-    if not fired:
-        return  # no valid target this instant - leave queued, retry next tick
-
-    ctx._last_trap_activation = now
-    if from_trap_link:
-        ctx._priority_trap = None
-    else:
-        ctx._trap_queue.popleft()
-        if "TrapLink" in ctx.tags:
-            async_start(send_trap_link(ctx, spec.traplink_send), name="ff7-traplink-send")
+    # Walk the queue instead of only ever retrying the head: a trap that can't
+    # fire right now (battle_only while in the field, or the bomb trap held back
+    # in a scripted map) must not starve everything queued behind it — otherwise
+    # one undeliverable trap silently disables traps for the rest of the run.
+    for i in range(len(ctx._trap_queue)):
+        if _try(ctx._trap_queue[i]):
+            spec = ctx._trap_queue[i]
+            del ctx._trap_queue[i]
+            ctx._last_trap_activation = now
+            if "TrapLink" in ctx.tags:
+                async_start(send_trap_link(ctx, spec.traplink_send),
+                            name="ff7-traplink-send")
+            return

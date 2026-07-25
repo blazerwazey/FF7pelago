@@ -474,11 +474,12 @@ _FREE_ROAM_EXCLUDE_ITEMS = frozenset({"Gold Ticket"})
 #           that grants the summon doesn't fire at 1603.
 #   310071  Nibelheim - Played piano during flashback (niv_ti2) — only set
 #           inside the Kalm flashback (~moment 70); never fires at 1603.
+#           (Listed once, with the Nibelheim House group further down.)
 # (frcyo "Chocobo Ranch" locations are dropped via FREE_ROAM_REGION_MAP, and
 #  the whole Temple of the Ancients is dropped the same way — it has collapsed
 #  by moment 1603.)
 _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
-    300061, 300062, 310038, 310014, 200018, 310071,
+    300061, 300062, 310038, 310014, 200018,
     # Wall Market dress-quest chain:
     310010, 310020, 310021, 310022, 310023, 310024, 310025, 310026,
     310027, 310028, 310029, 310030, 310031, 310032, 310033, 310034, 310035,
@@ -508,6 +509,11 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # Removed by request (2026-07-07): Keystone check (clsin2_2, Gold Saucer).
     # The Keystone ITEM stays in the filler pool; only the location is dead.
     310015,                   # Gold Saucer Area - KeyItem: Keystone
+    # Removed by request (2026-07-19): Ghost Hotel chest (ghotin_2).
+    300068,                   # Ghost Hotel - Elixir
+    # Removed by request (2026-07-19): Chocobo Square waiting room — Esther blocks
+    # the jockey-room entrance in Free Roam, making it unobtainable.
+    300346,                   # Waiting Room - Ramuh (crcin_2)
     # 310012 (Huge Materia Underwater) RE-INTRODUCED: the "Red Submarine" you drive
     # into underwater. Its item_text was aligned to "Huge Materia (Underwater)" so
     # GS's getKeyItemName matches it (was "Huge Materia: UnderWater" -> no AP entry).
@@ -635,6 +641,9 @@ _TOWN_GATE_KEYS = {
     "Junon Upper":  "Junon Key",
     "Corel":        "North Corel Key",
     "Mt. Corel":    "North Corel Key",   # the mountain path is Corel's back door
+    # The Gold Saucer has no world-map entrance of its own — the only way in is
+    # North Corel's ropeway station, so it inherits Corel's key.
+    "Gold Saucer Area": "North Corel Key",
     "Cosmo Canyon": "Cosmo Canyon Key",
     "Nibelheim":    "Nibelheim Key",
     "Rocket Town":  "Rocket Town Key",
@@ -1009,8 +1018,15 @@ class FF7World(World):
         _town_entrances["Corel"] = world_map.connect(sub_regions["Corel"])
         _town_entrances["Corel"].access_rule = _sub
         # Gold Ticket removed from the Free Roam pool (2026-07-09) — the tram
-        # is open in-game, so the area is gated on transport alone.
-        world_map.connect(sub_regions["Gold Saucer Area"]).access_rule = _sub
+        # is open in-game, so the area is gated on transport alone... plus the
+        # North Corel Key under town gating: the park has NO world-map entrance
+        # of its own (no field.tbl entry), it is only ever entered through North
+        # Corel's ropeway station (ropest, a "Corel" field), so Gold Saucer sits
+        # behind the North Corel town seal in-game. Registering the entrance here
+        # lets the town-gating loop below AND the key in, keeping logic in step
+        # with what the player can actually reach.
+        _town_entrances["Gold Saucer Area"] = world_map.connect(sub_regions["Gold Saucer Area"])
+        _town_entrances["Gold Saucer Area"].access_rule = _sub
 
         # --- Open-ocean continents (Blue/Black/Gold Chocobo or Highwind) ---
         for _name in ("Costa del Sol", "Mt. Corel", "Gongaga", "Cosmo Canyon",
@@ -1055,9 +1071,14 @@ class FF7World(World):
             lambda state: (state.has("Black Chocobo", player)
                     or state.has("Gold Chocobo", player) or state.has("Highwind", player))
         )
-        # Shinra Mansion basement: ocean + Basement Key.
+        # Shinra Mansion basement: ocean + Basement Key. The mansion sits INSIDE
+        # Nibelheim (no world-map entrance of its own), so under town gating it
+        # also needs the Nibelheim Key — otherwise Destruct / Recruit Vincent show
+        # in-logic with only the Basement Key.
+        _tg_mansion = bool(self.options.town_gating)
         world_map.connect(sub_regions["Shinra Mansion Basement"]).access_rule = (
-            lambda state: _ocean(state) and state.has("Basement Key", player)
+            lambda state: (_ocean(state) and state.has("Basement Key", player)
+                           and (not _tg_mansion or state.has("Nibelheim Key", player)))
         )
         # Northern forests past Sleeping Forest need the Lunar Harp — and, with
         # town gating, the Bone Village Key: their only world entrances (the

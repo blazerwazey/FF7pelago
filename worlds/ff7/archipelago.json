@@ -1,7 +1,7 @@
 {
     "game": "Final Fantasy VII",
     "authors": ["FF7 Archipelago"],
-    "world_version": "0.1.0",
+    "world_version": "0.0.5",
     "minimum_ap_version": "0.6.7",
     "description": "Minimal Final Fantasy VII integration for Archipelago",
     "requires": [],
