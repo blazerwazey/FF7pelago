@@ -85,6 +85,9 @@ class FreeRoam(Toggle):
 
     Requires a compatible Gold Saucer .apff7 seed file with free_roam enabled
     to patch the starting save slot.
+
+    **(DO NOT SET TO FALSE)** — Free Roam is the only supported mode. Turning it
+    off produces a seed the randomizer and client are not built to run.
     """
     display_name = "Free Roam"
     default = True
@@ -164,8 +167,11 @@ class ChocoboRaceChecks(Toggle):
 
     When on, running your first chocobo race and reaching racing Rank S each award
     an Archipelago check. Off by default because it requires the (optional) chocobo-
-    racing minigame — enable it only if you want racing in logic. Requires Gold
-    Saucer access; unaffected seeds simply omit these locations.
+    racing minigame — enable it only if you want racing in logic.
+
+    **Requires disable_gold_saucer to be set to false.** Chocobo Square is inside
+    the Gold Saucer, so disabling Gold Saucer checks removes these two locations as
+    well, even with this option turned on.
     """
     display_name = "Chocobo Race Checks"
     default = False
@@ -399,15 +405,18 @@ class FF7Options(PerGameCommonOptions):
     gil_multiplier: GilMultiplier
     ap_multiplier: APMultiplier
     disable_gold_saucer: DisableGoldSaucer
+    # Kept directly under disable_gold_saucer: the race checks live in the Gold
+    # Saucer, so that option silently removes them and the two must be read together.
+    chocobo_race_checks: ChocoboRaceChecks
     disable_fort_condor_checks: DisableFortCondorChecks
     weapon_fight_checks: WeaponFightChecks
-    chocobo_race_checks: ChocoboRaceChecks
     town_gating: TownGating
     start_with_chocobo_lure: StartWithChocoboLure
 
     # Goal
     victory_condition: VictoryCondition
-    death_link: DeathLink
+
+    # Traps
     trap_fill_percent: TrapFillPercent
     frog_trap_weight: FrogTrapWeight
     confusion_trap_weight: ConfusionTrapWeight
@@ -426,3 +435,4 @@ class FF7Options(PerGameCommonOptions):
     curse_trap_weight: CurseTrapWeight
     bomb_trap_weight: BombTrapWeight
     trap_link: TrapLink
+    death_link: DeathLink

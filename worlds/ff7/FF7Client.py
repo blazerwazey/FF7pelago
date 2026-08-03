@@ -24,6 +24,7 @@ import hashlib
 import json
 import random
 import struct
+import time
 from collections import deque
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
@@ -55,6 +56,12 @@ except ImportError:
 SAVEMAP_BASE       = 0xDBFD38
 BANK_OFFSET        = 0x0BA4   # Bank 1 base (game-state flags)
 POLL_INTERVAL      = 0.2
+# How long after Connected an index==0 ReceivedItems packet is still assumed to be
+# Archipelago replaying the item history rather than a genuine first receipt. The
+# replay is part of the handshake and arrives near-instantly; 10s is generous.
+# Worst case if a player somehow checks a location inside the window: that one item
+# is treated as history, i.e. exactly the old behaviour.
+_HISTORY_SYNC_WINDOW_S = 10.0
 # Live savemap length (ff7-ultima reads 0x10F4). Every field-pickup BITON flag
 # lives inside this region (max offset ~0x1057), so the detection scan reads ONE
 # snapshot per poll and indexes it instead of doing a ReadProcessMemory syscall
@@ -88,6 +95,18 @@ GAME_MODULE_WORLD   = 3
 GAME_MODULE_ENDING  = 25        # post-final-battle ending sequence
 GAME_MODULE_GAMEOVER = 26
 GAME_MODULE_CREDITS = 28        # staff roll
+# Module ids seen DURING a battle->gameplay transition, measured in a vanilla
+# trace: World(3) -> 23 -> Battle(2) -> 17 -> World(3). 23 is pre-battle, 17 is
+# post-battle/load. Anything OUTSIDE this set means we are not on a normal
+# battle-exit path, and a pending weapon kill must be discarded.
+_BATTLE_EXIT_MODULES = frozenset({
+    GAME_MODULE_BATTLE, GAME_MODULE_FIELD, GAME_MODULE_WORLD, 17, 23,
+})
+# How long a latched weapon kill stays valid after the battle ends. A real
+# battle->world return measured ~3.8s; a game over plus save reload is far longer
+# (game-over music, Continue menu, slot select, load), so this window separates
+# them. 60 polls x POLL_INTERVAL 0.2s = 12s.
+_WEAPON_KILL_WINDOW_TICKS = 60
 
 # Field-model object array (2013 Steam build; ff7-lib addresses.rs, maciej-trebacz).
 # Each on-field model is a 0x88-byte struct at FIELD_MODELS_OBJS + index*0x88, where
@@ -116,17 +135,31 @@ BATTLE_FORMATION_ADDR = 0x9AAD3C
 # FF7 enemy-formation table):
 #   982/983 Ruby[Desert]        = bit3 0x08
 #   984/985/986 Emerald[Water]  = bit4 0x10
-# Ultimate's 287 is handled SEPARATELY — see _ULTIMATE_FINAL_FORMATION below.
-# Diamond Weapon is NOT here — he is fully hidden in Free Roam (his world-map model
-# never renders, so his ambient spawn is neutralized) and has no AP check.
+# ULTIMATE IS NOT HERE, and needs nothing from the client (2026-07-27).
+# The vanilla chain works once Gold Saucer stops corrupting it: the BATTLE ENGINE
+# sets weapons_killed.bit[0] itself mid-fight (measured in both vanilla AND Free
+# Roam), then `highwind_init` runs the crater crash on the world-map return and
+# `ultima_weapon_27` sets submarine_flags.bit[4] when it completes. The AP check
+# reads bit[0] like any other flag.
 #
-# Ruby and Emerald need the client write: their flags come from post-battle world
-# scripting the Free Roam endgame skips, so a won fight would otherwise leave them
-# un-flagged and they would respawn.
+# The 2026-07-27 "kill him at battle 281 and retire him" workaround is REVERTED:
+# it existed only because the crash appeared unfixable, and its `_ULTIMATE_RETIRE`
+# write (submarine_flags.bit[4]) would now SUPPRESS the very cinematic that was
+# just repaired. Root cause was ours — `patchDiamondBoardingScene` part (e) wrote
+# RETURN over ultima_weapon_27's first instruction. See [[freeroam-weapon-bosses]].
+#
+# Ruby and Emerald DO still need the client write: their flags come from
+# post-battle world scripting the Free Roam endgame skips, so a won fight would
+# otherwise leave them un-flagged and they would respawn.
 _WEAPON_BATTLE_FORMATIONS = {
     982: 0x08, 983: 0x08,
     984: 0x10, 985: 0x10, 986: 0x10,
 }
+# Ultimate's final battle. CURRENTLY UNUSED — kept as documentation and for the
+# `/weapons` dump. The client's kill registration was removed 2026-07-27 so the
+# vanilla script can be observed unassisted; if the game turns out never to set
+# weapons_killed.bit[0] itself, restore the latch in `_resolve_weapon_battles`.
+_ULTIMATE_FINAL_FORMATION = 287
 # ── Ultimate Weapon ──────────────────────────────────────────────────────────
 # Deliberately NOT in the table above. Setting weapons_killed.bit0 the moment 287
 # is won tells the world script he is already dead, so `ultima_weapon_update`
@@ -139,12 +172,10 @@ _WEAPON_BATTLE_FORMATIONS = {
 # the chase hit counter to 5, which is the precondition `ultima_weapon_update`
 # tests before calling `ultima_weapon_25` (the death sequence). The game then sets
 # bit0 itself, exactly as it would in a vanilla chase.
-_ULTIMATE_FINAL_FORMATION = 287
 # Polls to wait for that death sequence before falling back to setting bit0
 # ourselves. POLL_INTERVAL is 0.2s, so ~24s — generous for the fade/fly/animation.
 # The fallback exists so a failure here can never regress to the infinite-fight
 # run-breaker: worst case we land back on the old behaviour, never worse.
-_ULTIMATE_DEATH_GRACE_TICKS = 120
 WEAPONS_KILLED_OFFSET  = 0x0C1F  # byte: bit0 = killed, bit2 = HP < 20,000
 SUBMARINE_FLAGS_OFFSET = 0x0F2A  # byte: bit3 = Ultimate Weapon chase started/engaged
 # Ultimate Weapon's CHASE HIT COUNTER (decompiled from wm0.ev, 2026-07-23).
@@ -157,7 +188,36 @@ SUBMARINE_FLAGS_OFFSET = 0x0F2A  # byte: bit3 = Ultimate Weapon chase started/en
 # 11->283, 12->284, 14->285, else 286. 0xF33 is Ultimate-only — nothing else in
 # wm0.ev reads or writes it, so priming it cannot disturb anything else.)
 ULTIMATE_HITS_OFFSET = 0x0F33   # byte: chase hits landed, 0-5; 5 = he dies
-ULTIMATE_HITS_TO_ARM = 4        # prime to 4 so the NEXT won fight makes it 5
+# ULTIMATE WEAPON'S REMAINING HP — savemap 0x0BFF, **3 bytes** (bank 1 field 91).
+# THIS WAS THE ROOT CAUSE of the whole Ultimate saga. A fresh Free Roam save leaves
+# it ZERO, so the engine's "Ultimate HP < 20,000" test is true from the very first
+# frame and it sets weapons_killed.bit[2] the moment the player engages him. Per the
+# decompiled `ultima_weapon_update`, bit2 both (a) re-triggers battle 287 on every
+# approach and (b) blocks the death branch — hence the endless 287 loop, the forced
+# second fight, and the death sequence never playing. Every earlier workaround was
+# treating that symptom.
+#
+# Seeding his real HP lets the vanilla chase run: he flies between stops, each
+# battle whittles the pool, and when it genuinely drops below 20,000 the game sets
+# bit2 itself, sends him to the crater, and the final 287 is lethal.
+ULTIMATE_HP_OFFSET = 0x0BFF     # 3 bytes LE, "Ultimate Weapon's remaining HP"
+# World-script "Special[]" registers — the runtime values wm0.ev reads with
+# PUSH_SPECIAL (opcode 0x11b). NOT savemap, so nothing we write can reach them.
+# Base derived from ff7-lib addresses.rs: world_mode = 0xE045E4 and
+# world_map_type = 0xE045E8 are adjacent u32s, and Landscaper decompiles the
+# corresponding reads as Special[4] and Special[5] — so the array starts at
+# 0xE045E8 - 5*4. That also puts Special[6]/Special[7] where the decompiles say
+# last_field_id and map_options live, which is the cross-check.
+#
+# Special[5] ("unknown_5") is the last unexplained gate on Ultimate's crater-crash
+# cinematic: both wm0 0x3818 (which PLACES him at the crater) and highwind_init
+# (which calls ultima_weapon_27) require it to be 1, and Free Roam appears to never
+# reach that value.
+WORLD_SPECIAL_BASE = 0xE045D4   # Special[0]; u32 stride
+# UNUSED since the client stopped seeding his HP (2026-07-27). Kept for reference:
+# note that live readings during a chase reach ~12,000,000, far above this, so this
+# was only ever a seed for the "reads exactly 0" case and is NOT a maximum.
+ULTIMATE_HP_FULL   = 100000     # his nominal full HP (0x0186A0); field is u24
 # Current disc (ff7tk FF7SLOT.disc; live 0xDBFD38+0x0EA4 = 0xDC0BDC = ff7-ultima
 # disc_id). Free Roam is endgame, so force disc 3. Not field-settable (fields use
 # the DSKCG opcode, engine-handled), so the client writes it directly each poll.
@@ -203,8 +263,10 @@ _FREE_ROAM_FORCE_FLAGS = [
     # NOTE: Ruby Weapon's spawn (0xF2B.4) is NOT forced here anymore. Ruby's model
     # geometry only renders at world_progress 4, which the overworld init reaches
     # only after Ultimate is dead — so forcing his spawn early just produced an
-    # invisible, collidable boss. His spawn + the wp-4 flags are now set together
-    # in _resolve_ultimate_weapon once Ultimate is defeated (he then appears, drawn).
+    # invisible, collidable boss. Those flags USED to be set together once Ultimate
+    # was defeated, but all client Ultimate writes were removed 2026-07-27 — so
+    # nothing sets them now and Ruby may not render at all. See the note above
+    # _resolve_weapon_battles.
 ]
 # Item-conditional field gates: set savemap <offset>.<bit> ONLY once <item> has
 # been received (the field gate softlocks otherwise, but opening it without the
@@ -294,6 +356,55 @@ def _save_settings(data: dict) -> None:
         _SETTINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
     except Exception as exc:
         logger.debug(f"FF7 settings save failed: {exc}")
+
+
+# Which trap item indices have ACTUALLY fired, persisted per (seed, slot).
+#
+# Traps must fire exactly once each, and that has to survive a client restart —
+# Archipelago replays the whole item history on every reconnect, so without a
+# record of what already fired the client can only GUESS from the packet shape.
+# Guessing produced two bugs: every trap re-firing on reconnect (the reason the
+# index==0 heuristic was added), and then a brand-new player's FIRST trap never
+# firing at all, because a first receipt and a history replay are identical on the
+# wire. Persisting the answer removes the guess.
+#
+# It also closes the gap the heuristic explicitly gave up on: a trap granted while
+# the client was fully closed now fires on the next connect instead of being
+# written off as history.
+_FIRED_TRAPS_FILE = Path(user_path("ff7_fired_traps.json"))
+
+
+def _fired_traps_key(ctx: "FF7Context") -> str:
+    """Per-multiworld, per-slot identity. Two slots in one seed, or the same slot
+    across two seeds, must not share a fired-trap record."""
+    return f"{_ap_seed(ctx)}|{getattr(ctx, 'auth', '') or ''}"
+
+
+def _load_fired_traps(ctx: "FF7Context") -> Set[int]:
+    try:
+        if _FIRED_TRAPS_FILE.exists():
+            data = json.loads(_FIRED_TRAPS_FILE.read_text(encoding="utf-8"))
+            return {int(i) for i in data.get(_fired_traps_key(ctx), [])}
+    except Exception as exc:
+        logger.debug(f"fired-trap load failed: {exc}")
+    return set()
+
+
+def _save_fired_traps(ctx: "FF7Context") -> None:
+    """Rewrite this slot's entry, preserving every other slot's."""
+    try:
+        data = {}
+        if _FIRED_TRAPS_FILE.exists():
+            try:
+                data = json.loads(_FIRED_TRAPS_FILE.read_text(encoding="utf-8"))
+            except Exception:
+                data = {}                      # corrupt file: start it over
+        if not isinstance(data, dict):
+            data = {}
+        data[_fired_traps_key(ctx)] = sorted(ctx._seen_trap_indices)
+        _FIRED_TRAPS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except Exception as exc:
+        logger.debug(f"fired-trap save failed: {exc}")
 
 
 # ── Command processor ─────────────────────────────────────────────────────────
@@ -688,21 +799,83 @@ class FF7CommandProcessor(ClientCommandProcessor):
                 f"{'Y' if ruby_spawn & 0x10 else 'N'}; game_module={module}; "
                 f"pending_kill=0x{self.ctx._weapon_kill_pending:02x}"
             )
-            # Ultimate's CHASE state — the machinery that actually decides whether
-            # he can die. 0xF33 must reach 5 for ultima_weapon_update to run his
-            # death sequence; 0xF38 is the chase stage that picks the formation.
+            # Ultimate's CHASE state. His REMAINING HP is the value that governs
+            # everything: at 0 the engine reads "HP < 20,000" as true, sets
+            # weapons_killed.bit[2] on first contact and locks him into the crater
+            # standoff (endless 287, death branch unreachable). 0xF33 counts chase
+            # hits; 0xF38 is the stage that picks the formation.
+            hp = int.from_bytes(pm.read_bytes(SAVEMAP_BASE + ULTIMATE_HP_OFFSET, 3),
+                                "little")
             hits = pm.read_uchar(SAVEMAP_BASE + ULTIMATE_HITS_OFFSET)
             stage = pm.read_uchar(SAVEMAP_BASE + 0x0F38)
             _stage_form = {9: 282, 10: 294, 11: 283, 12: 284, 14: 285}
             logger.info(
-                f"[weapons] CHASE: hits 0xF33={hits}/5 "
-                f"{'(DEATH ARMED)' if hits >= 5 else '(primed)' if hits >= ULTIMATE_HITS_TO_ARM else ''}"
+                f"[weapons] Ultimate HP 0xBFF={hp}"
+                f"{'  ** 0 = uninitialised, chase will not work **' if hp == 0 else ''}"
+                f"{'  (below 20,000 -> final-battle state)' if 0 < hp < 20000 else ''}"
+            )
+            logger.info(
+                f"[weapons] CHASE: hits 0xF33={hits}/5"
                 f"  stage 0xF38={stage}"
                 f" -> formation {_stage_form.get(stage, 286)};"
                 f" 0xF2B=0x{ruby_spawn:02x} (.1 death-started="
                 f"{'Y' if ruby_spawn & 0x02 else 'N'} .2 death-seq-done="
                 f"{'Y' if ruby_spawn & 0x04 else 'N'})"
             )
+            # World Special[] registers — Special[5] is the crash cinematic's last
+            # gate. Labelled where the decompiles name them; the rest are shown raw
+            # so the array alignment can be sanity-checked (6 should look like a
+            # field id, 7 like map options).
+            _sp_names = {4: "world_mode", 5: "world_map_type / unknown_5",
+                         6: "last_field_id", 7: "map_options"}
+            try:
+                _sp = [pm.read_uint(WORLD_SPECIAL_BASE + i * 4) for i in range(9)]
+                logger.info("[weapons] Special[]: " + "  ".join(
+                    f"[{i}]={v}" for i, v in enumerate(_sp)))
+                logger.info(f"[weapons] Special[5] = {_sp[5]} "
+                            f"({_sp_names[5]}) — crater crash needs 1"
+                            f"{'  ** MATCHES **' if _sp[5] == 1 else ''}")
+                logger.info(f"[weapons]   cross-check: [6]={_sp[6]} ({_sp_names[6]}), "
+                            f"[4]={_sp[4]} ({_sp_names[4]})")
+            except Exception as exc:
+                logger.info(f"[weapons] Special[] read failed: {exc}")
+            # IS ULTIMATE'S MODEL ACTUALLY LOADED?
+            # This is the diagnostic the whole crash investigation was missing.
+            # wm0's overworld model-loader has two arms, chosen by `Special[5] == 0`
+            # at 0x058E. Free Roam always runs arm 1, which loads model 11 only under
+            # `!weapons_killed.bit[0]` — so a DEAD Ultimate has no entity, and
+            # highwind_init's `call_function(ultima_weapon, 27)` lands on nothing:
+            # the Highwind hides and the music cuts (that part is highwind_init's own
+            # code) and then nothing happens. The arm that loads him while dead is
+            # arm 2's crash-scene block at 0x14AA, which Free Roam never reaches.
+            # Gold Saucer's `patchUltimateModelLoad` re-keys the arm-1 gate to
+            # `!submarine_flags.bit[4]` so he stays loaded until the crash is DONE.
+            #
+            # Read-only — no writes, so a trace taken with this is never contaminated.
+            try:
+                _ptr = pm.read_uint(_WORLD_ENTITY_PTR)
+                _found, _seen, _models = None, set(), []
+                for _ in range(48):
+                    if _ptr == 0 or _ptr < 0x400000 or _ptr in _seen:
+                        break
+                    _seen.add(_ptr)
+                    _m = pm.read_uchar(_ptr + _WE_MODEL)
+                    _models.append(_m)
+                    if _m == _ULTIMATE_MODEL_ID and _found is None:
+                        _found = (_ptr,
+                                  pm.read_int(_ptr + _WE_POS + 0),
+                                  pm.read_int(_ptr + _WE_POS + 4),
+                                  pm.read_int(_ptr + _WE_POS + 8))
+                    _ptr = pm.read_uint(_ptr + _WE_NEXT)
+                if _found:
+                    logger.info(f"[weapons] Ultimate MODEL LOADED at 0x{_found[0]:08X} "
+                                f"pos(X,Z,Y)={_found[1]},{_found[2]},{_found[3]}")
+                else:
+                    logger.info(f"[weapons] Ultimate MODEL NOT LOADED "
+                                f"** the crash call has no entity to run on **"
+                                f"  (loaded models: {sorted(set(_models))})")
+            except Exception as exc:
+                logger.info(f"[weapons] entity scan failed: {exc}")
             if module == GAME_MODULE_BATTLE:
                 formation = pm.read_ushort(BATTLE_FORMATION_ADDR)
                 logger.info(
@@ -1223,6 +1396,10 @@ class FF7Context(CommonContext):
         self._checked_this_session: Set[int] = set()
         # Names of every AP item received this connection (for the crater gate).
         self._received_item_names: Set[str] = set()
+        # Fields in _FIELD_FLAG_RESET_ONCE whose entry reset has already been
+        # applied this game. Cleared on a fresh Free Roam start so a new game
+        # gets its one reset back.
+        self._flag_reset_once_done: Set[str] = set()
         # Live pymem handle (set by game_watcher) so debug commands can read memory.
         self.pm = None
         # Model ids of delivered vehicles still needing relocation off the (0,0)
@@ -1292,10 +1469,19 @@ class FF7Context(CommonContext):
         # Weapon-boss kill latched from a battle formation, applied to
         # weapons_killed once the player exits the battle to gameplay.
         self._weapon_kill_pending: int = 0
+        # Polls remaining for _weapon_kill_pending to stay valid. Without this the
+        # mask survived a LOST fight and fired later, handing the player a free
+        # Ruby/Emerald check "when you load back into the game" (report 2026-07-27).
+        self._weapon_kill_ticks: int = 0
+        # Latched while in Ultimate's final battle (287); drained on the way
+        # out to register the kill the game does not register itself.
+        # DORMANT since 2026-07-27 — nothing sets or reads this while the client's
+        # Ultimate kill registration is removed. Kept so restoring it is a one-liner.
+        self._ultimate_final_pending: bool = False
         # Ultimate: latched while in battle 287, drained on the way out to
         # arm his death; then a grace countdown for the game to perform it.
-        self._ultimate_final_pending: bool = False
-        self._ultimate_death_grace: int = 0
+        # True while Ultimate's kill has been written on entering battle
+        # 287 but the player has not yet come out of it alive.
         # Baseline established once per game connection: locations whose detection
         # bit is already set at connect (Free Roam starts at game moment 1603,
         # which leaves savemap progress noise). Suppressed so we never
@@ -1347,6 +1533,11 @@ class FF7Context(CommonContext):
     def on_package(self, cmd: str, args: dict) -> None:
         super().on_package(cmd, args)
         if cmd == "Connected":
+            # When the handshake happened. Archipelago replays the whole item
+            # history immediately after Connected, so an index==0 packet arriving
+            # inside this window is that replay; one arriving later is a genuine
+            # first receipt. See _HISTORY_SYNC_WINDOW_S.
+            self._connected_at = time.monotonic()
             self._checked_this_session.update(self.checked_locations)
             # Read victory condition from slot data (0 = defeat_sephiroth, 1 = escape_midgar)
             self.victory_condition = args.get("slot_data", {}).get("victory_condition", 0)
@@ -1388,6 +1579,14 @@ class FF7Context(CommonContext):
             if "DeathLink" in self.tags or "TrapLink" in self.tags:
                 async_start(self.send_msgs([{"cmd": "ConnectUpdate", "tags": list(self.tags)}]),
                             name="ff7-link-tags")
+            # Restore which traps have already fired for THIS seed+slot. Done here
+            # (not at __init__) because the key needs seed_name and auth, which only
+            # exist once Connected has been handled.
+            _fired = _load_fired_traps(self)
+            if _fired:
+                self._seen_trap_indices |= _fired
+                logger.debug(f"Restored {len(_fired)} already-fired trap(s) for "
+                             f"this slot — they will not re-fire.")
         elif cmd == "Bounced":
             from worlds.ff7.TrapLink import handle_bounced
             handle_bounced(self, args)
@@ -1408,7 +1607,26 @@ class FF7Context(CommonContext):
             # client was fully closed won't fire on reconnect — acceptable versus
             # re-triggering every trap on every restart.)
             code_map = _get_code_to_item_name()
-            _is_full_resync = (index == 0 and args.get("items"))
+            # index==0 means EITHER "Archipelago is replaying the full history"
+            # (every reconnect/resync) OR "this is your very first item ever" —
+            # the wire format is identical, because there is nothing before
+            # index 0 in either case. Treating both as a replay meant a new
+            # player's FIRST item was pre-marked as already-seen: a first TRAP
+            # never fired (reported 2026-08-01, Frog Trap), and a first stackable
+            # took the reconcile path instead of the grant path.
+            #
+            # Timing separates them: the replay is part of the connection
+            # handshake and lands within a second or so of Connected, while a real
+            # receipt needs the player to go and check a location. Anything
+            # outside the window is a fresh receipt.
+            #
+            # Deliberately NOT keyed on `self._delivered_item_indices` being
+            # non-empty: a RESTARTED client has delivered nothing yet, so that
+            # test would classify the reconnect replay as fresh and re-fire every
+            # trap plus duplicate every stackable — worse than the bug it fixes.
+            _since_connect = time.monotonic() - getattr(self, "_connected_at", 0.0)
+            _is_full_resync = (index == 0 and args.get("items")
+                               and _since_connect <= _HISTORY_SYNC_WINDOW_S)
             if _is_full_resync:
                 self._resync_reconcile = True
             from worlds.ff7.TrapLink import TRAP_REGISTRY
@@ -1421,8 +1639,11 @@ class FF7Context(CommonContext):
                              else item_code if isinstance(item_code, str) else None)
                 if item_name:
                     self._received_item_names.add(item_name)
-                    if _is_full_resync and item_name in TRAP_REGISTRY:
-                        self._seen_trap_indices.add(item_index)
+            # Traps are NO LONGER pre-marked from the packet shape — whether one has
+            # already fired is read from the persisted per-slot record instead
+            # (_load_fired_traps, on Connected). `_is_full_resync` now only governs
+            # stackable/materia RECONCILIATION, which genuinely does depend on
+            # whether this is a replay.
 
     def on_deathlink(self, data: dict) -> None:
         """inbound deathlink: kill a random party member on the next battle tick."""
@@ -1733,6 +1954,11 @@ _WORLD_ENTITY_PTR = 0xE39AD8   # world_event_data** (current entity)
 _WE_NEXT  = 0x00               # world_event_data.next_ptr
 _WE_POS   = 0x0C               # world_event_data.position (X@+0, Z@+4, Y@+8)
 _WE_MODEL = 0x50               # world_event_data.model_id (byte)
+
+# Ultimate Weapon's world-map model. Read-only, for the `/weapons` presence check:
+# his entity must exist for highwind_init's `call_function(ultima_weapon, 27)` —
+# the crater crash — to run at all.
+_ULTIMATE_MODEL_ID = 11
 
 # Vehicle world-map model ids (from /wdump). Only listed vehicles get relocated,
 # so the submarine and roaming Weapons are never touched. (Tiny Bronco, model 5,
@@ -2063,8 +2289,28 @@ def _place_stranded_vehicles(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
 # of the screen, unable to move (menu still opens, because the script's MENU2 0
 # runs). Playtester report 2026-07-22: entered on foot with a gold chocobo, had the
 # Glacier Map but not the Snowboard.
+#
+# BIT 1 MUST NEVER BE SET. Decompiled hyou1 S0-Main (Makou Reactor, user 2026-07-31):
+#     15  if Var[1][185] & 1  -> fade in           (bit 0 = wake-up already seen)
+#     23  if Var[1][185] & 2  -> Var[1][185] &= 253
+#     25       execute cloud script 3              (= Place field Model at
+#                                                    Var[2][188/190/192/194])
+# and lines 30-35 show what bit 1 is FOR: pressing SQUARE stores Cloud's position
+# into Var[2][188](X)/190(Y)/192(Z)/194(triangle) and jumps to hyoumap (#669, the
+# glacier map screen). **Bit 1 means "I am coming back from the map screen —
+# restore my saved position."**
+#
+# On 2026-07-27 this constant was widened to 0x03 because hyou1 tests both bits.
+# That was exactly backwards: setting bit 1 makes the field RESTORE Cloud to those
+# saved coordinates, which are 0/0/0 triangle 0 for any player who never opened the
+# map — i.e. off the walkmesh, unable to move. Captured live from a stuck player:
+# 0x0C60..0x0C66 all read 0. Line 24 self-clears bit 1, so re-setting it every
+# world-map poll stranded them on EVERY entry. Reverted the same session.
+#
+# Bit 0 is the only bit this client may touch, and it does the one thing we want:
+# skip the snowboard-landing cutscene when walking in on foot.
 _GLACIER_WAKEUP_ADDR = 0x0C5D
-_GLACIER_WAKEUP_BIT  = 0x01
+_GLACIER_WAKEUP_BIT  = 0x01      # bit 0 ONLY — see above, bit 1 strands the player
 
 
 def _seed_glacier_wakeup(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
@@ -2083,7 +2329,10 @@ def _seed_glacier_wakeup(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
             return
         addr = SAVEMAP_BASE + _GLACIER_WAKEUP_ADDR
         v = pm.read_uchar(addr)
-        if not (v & _GLACIER_WAKEUP_BIT):
+        # `!= mask` rather than `not (v & mask)` — equivalent for a single bit,
+        # and it stays correct if the mask is ever revisited. Bit 1 is deliberately
+        # NOT in the mask; see the comment on _GLACIER_WAKEUP_BIT.
+        if (v & _GLACIER_WAKEUP_BIT) != _GLACIER_WAKEUP_BIT:
             pm.write_uchar(addr, v | _GLACIER_WAKEUP_BIT)
             logger.debug("Great Glacier: marked the snowboard wake-up as seen "
                          "(entering on foot from the world map)")
@@ -2127,112 +2376,57 @@ def _suppress_diamond_scene(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
         logger.debug(f"diamond scene suppress failed: {exc}")
 
 
-def _resolve_ultimate_weapon(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
-    """Two jobs, split by whether Ultimate is dead yet.
+def _seed_ultimate_hp(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Initialise Ultimate Weapon's remaining-HP field so his chase can start.
 
-    BEFORE the kill: prime his chase hit counter (0xF33) once the player has
-    engaged him, so the game's own death sequence can fire — see the block below.
+    A fresh Free Roam save leaves savemap 0x0BFF at ZERO. The engine reads that as
+    "HP < 20,000", sets weapons_killed.bit[2] the moment the player engages, and
+    `ultima_weapon_update` then routes every approach straight to battle 287 —
+    the multi-stage chase never runs at all.
 
-    AFTER the kill: advance to the post-Ultimate world state so Ruby Weapon
-    actually RENDERS.
+    Written ONLY while the field reads EXACTLY 0 and he is not yet dead.
 
-    Ruby is gated by the overworld's world_progress: it only reaches 4 ("after
-    Ultimate killed") when weapons_killed.bit0 AND 0xF2B.0 AND submarine_flags.bit4
-    are all set, and the boss model GEOMETRY for Ruby only loads at world_progress 4
-    (at 3 he's an invisible-but-collidable entity). A real Ultimate kill sets bit0
-    but the Free Roam endgame may leave 0xF2A.4 / 0xF2B.0 clear (leaving wp at 3 and
-    Ruby invisible), so once Ultimate is down we also assert 0xF2A.4, 0xF2B.0, and
-    0xF2B.4 (Ruby's spawn bit) — the full post-Ultimate state. No-op until killed."""
+    DO NOT ADD AN UPPER BOUND. On 2026-07-27 this guard was widened to
+    `== 0 or > ULTIMATE_HP_FULL`, because live readings of 9,527,041 and
+    12,390,656 "obviously" could not be HP. They were real: every vanilla chase
+    save reads this field in the millions (13,513,217 at Junon, 1,507,841 at
+    Mideel, 6,809,344 at Nibelheim...). The upper bound made the client clamp the
+    engine's own writes on every 0.2 s poll, and the player watched Ultimate's HP
+    freeze at exactly 100,000 mid-chase. ULTIMATE_HP_FULL is a SEED for the zero
+    case, NOT a maximum.
+
+    (The field's exact semantics are still unresolved — no offset in the save slot
+    decreases monotonically across the vanilla chase saves, so the "u24 remaining
+    HP" label may be imprecise. What IS established empirically is that seeding
+    100,000 into a zeroed field makes the chase run.)"""
     try:
-        wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
-        wk = pm.read_uchar(wk_addr)
-        sf = pm.read_uchar(SAVEMAP_BASE + SUBMARINE_FLAGS_OFFSET)
-        if not (wk & 0x01):                       # not yet defeated
-            # PRIME THE CHASE so the game can kill him with its OWN death sequence.
-            # Free Roam skips the disc-2 setup that would walk him through the chase,
-            # so 0xF33 never approaches 5 and `ultima_weapon_update` never takes the
-            # death branch — he just re-fights forever. Once the player has actually
-            # engaged him (submarine_flags.bit3, set by the game on first contact),
-            # prime the counter to 4 so the NEXT won fight's hit reaction ticks it to
-            # 5 and the game flies him off and runs `ultima_weapon_25` itself.
-            #
-            # Deliberately 4, not 5: the player still fights him, and we never invoke
-            # the death path directly — we only supply the precondition the skipped
-            # chase would have. Only ever raises the counter (never lowers it), so a
-            # naturally-progressed chase is left alone.
-            try:
-                if sf & 0x08:
-                    hits_addr = SAVEMAP_BASE + ULTIMATE_HITS_OFFSET
-                    hits = pm.read_uchar(hits_addr)
-                    if hits < ULTIMATE_HITS_TO_ARM:
-                        pm.write_uchar(hits_addr, ULTIMATE_HITS_TO_ARM)
-                        logger.debug(f"Ultimate chase primed: 0xF33 {hits} -> "
-                                     f"{ULTIMATE_HITS_TO_ARM}")
-            except Exception as exc:
-                logger.debug(f"ultimate chase prime failed: {exc}")
-            # Death armed (0xF33 = 5 after a won 287) — give the game time to run
-            # `ultima_weapon_25` and set bit0 itself. Only if it never does do we
-            # declare the kill, so the run can't stall on an infinite re-fight.
-            if ctx._ultimate_death_grace > 0:
-                ctx._ultimate_death_grace -= 1
-                try:
-                    # Has the game run the death? `ultima_weapon_25` sets
-                    # submarine_flags bit5+bit6 and 0xF2B.2; `ultima_weapon_27`
-                    # (the crater crash) sets submarine_flags.bit[4]. Any of those
-                    # means the sequence played, so it is safe to register the kill.
-                    f2b = pm.read_uchar(SAVEMAP_BASE + 0x0F2B)
-                    ran = bool(sf & 0x10) or bool(sf & 0x40) or bool(f2b & 0x04)
-                    if ran:
-                        pm.write_uchar(wk_addr, pm.read_uchar(wk_addr) | 0x01)
-                        ctx._ultimate_death_grace = 0
-                        logger.info("Ultimate Weapon: death sequence played — "
-                                    "registering the kill.")
-                    elif ctx._ultimate_death_grace == 0:
-                        pm.write_uchar(wk_addr, pm.read_uchar(wk_addr) | 0x01)
-                        logger.info("Ultimate Weapon: the death sequence didn't "
-                                    "fire in time — registering the kill directly.")
-                except Exception as exc:
-                    logger.debug(f"ultimate death watch failed: {exc}")
+        wk = pm.read_uchar(SAVEMAP_BASE + WEAPONS_KILLED_OFFSET)
+        if wk & 0x01:                                  # already defeated
             return
-        ctx._ultimate_death_grace = 0             # game got there first
-        # Ultimate down: assert the post-Ultimate state so world_progress hits 4 and
-        # Ruby's model is drawn (he's invisible at wp3). Re-checked each poll so it
-        # self-heals across overworld reloads.
-        #
-        # submarine_flags.bit[4] is deliberately NOT written here. From the
-        # decompiled `highwind_init`, the crater crash runs on world-map load only
-        # when:
-        #     unknown_5 == 1 AND weapons_killed.bit[0] AND !submarine_flags.bit[4]
-        #     AND 0xF2B.bit[0]   ->  call ultima_weapon_27
-        # bit4 is that sequence's OWN completion flag (the last line of fn 27), so
-        # setting it up front told the game the crash had already happened and it
-        # was skipped forever — the death sequence never playing (playtester
-        # 2026-07-23). Ruby's world_progress-4 gate does need bit4, but fn 27 sets
-        # it itself once the crash plays, so leaving it alone satisfies both.
-        f2b_addr = SAVEMAP_BASE + 0x0F2B
-        f2b = pm.read_uchar(f2b_addr)
-        if (f2b & 0x11) != 0x11:                  # 0xF2B.0 (wp4 cond) + 0xF2B.4 (Ruby spawn)
-            pm.write_uchar(f2b_addr, f2b | 0x11)
-            logger.debug("Post-Ultimate world state set — Ruby Weapon should now render.")
-        # NOTE: Diamond Weapon is fully hidden in Free Roam (his world-map model
-        # never renders even at wp4), so his ambient spawn is neutralized in
-        # wm0.ev and nothing here touches his 0xEF6.3 flag.
+        hp_addr = SAVEMAP_BASE + ULTIMATE_HP_OFFSET
+        if int.from_bytes(pm.read_bytes(hp_addr, 3), "little") == 0:
+            pm.write_bytes(hp_addr, ULTIMATE_HP_FULL.to_bytes(3, "little"), 3)
+            logger.debug(f"Ultimate Weapon HP seeded: 0 -> {ULTIMATE_HP_FULL} "
+                         f"(0x0BFF, 3 bytes) — chase can now start.")
     except Exception as exc:
-        logger.debug(f"resolve ultimate weapon failed: {exc}")
+        logger.debug(f"ultimate HP seed failed: {exc}")
 
 
 def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
-    """Register Ultimate/Ruby/Emerald Weapon kills in Free Roam by watching battles.
+    """Register Ruby/Emerald Weapon kills in Free Roam by watching battles.
 
-    Their defeat flags (weapons_killed bit0=Ultimate, bit3=Ruby, bit4=Emerald) are
-    set by post-battle world-script logic that the Free Roam endgame state skips, so
-    a WON fight leaves the flag clear: the AP check never fires and the weapon
-    keeps respawning. We watch the live game module + battle formation id; while
-    the player is in a weapon battle we latch the kill, and once they return to
+    Their defeat flags (weapons_killed bit3=Ruby, bit4=Emerald) are set by
+    post-battle world-script logic that the Free Roam endgame state skips, so a WON
+    fight leaves the flag clear: the AP check never fires and the weapon keeps
+    respawning. We watch the live game module + battle formation id; while the
+    player is in a weapon battle we latch the kill, and once they return to
     gameplay (World/Field, i.e. they won — not a Game Over) we set the bit. Acts
     ONLY on the exact weapon formation ids, so a wrong/garbage formation read can
-    never false-trigger a kill. (_resolve_ultimate_weapon then reacts to bit0 to
-    push the post-Ultimate world state so Ruby renders.)"""
+    never false-trigger a kill.
+
+    ULTIMATE (2026-07-27): he dies at **battle 281**, the Junon-crater encounter,
+    and is then RETIRED via  — the crater-crash cinematic is
+    deliberately suppressed rather than fixed. See the table comment for why."""
     try:
         module = pm.read_uchar(GAME_MODULE_ADDR)
         if module == GAME_MODULE_BATTLE:
@@ -2240,83 +2434,31 @@ def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
             mask = _WEAPON_BATTLE_FORMATIONS.get(formation)
             if mask:
                 ctx._weapon_kill_pending |= mask
-            elif formation == _ULTIMATE_FINAL_FORMATION:
-                # Release his death sequence NOW, mid-battle — NOT on the way out.
-                # `ultima_weapon_update` re-triggers 287 whenever
-                # weapons_killed.bit[2] is set and the player is within 120 units,
-                # and on returning from battle the player is standing right on him.
-                # The game's update runs before our next 0.2s poll, so clearing the
-                # flag afterwards always lost the race and he re-collided into a
-                # second fight (playtester 2026-07-23). Writing it here means the
-                # world map resumes with the flag already clear and 0xF33 == 5, so
-                # the death branch is live the instant control returns.
-                if not ctx._ultimate_final_pending:
-                    ctx._ultimate_final_pending = True
-                    try:
-                        wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
-                        hits_addr = SAVEMAP_BASE + ULTIMATE_HITS_OFFSET
-                        if pm.read_uchar(hits_addr) < 5:
-                            pm.write_uchar(hits_addr, 5)
-                        wk = pm.read_uchar(wk_addr)
-                        if wk & 0x04:
-                            pm.write_uchar(wk_addr, wk & ~0x04)
-                        ctx._ultimate_death_grace = _ULTIMATE_DEATH_GRACE_TICKS
-                        logger.info("Ultimate Weapon: in battle 287 — released his "
-                                    "death sequence (cleared the re-fight flag, "
-                                    "0xF33 = 5) before control returns.")
-                    except Exception as exc:
-                        logger.debug(f"ultimate in-battle release failed: {exc}")
+                ctx._weapon_kill_ticks = _WEAPON_KILL_WINDOW_TICKS
             return
         if module == GAME_MODULE_GAMEOVER:
             ctx._weapon_kill_pending = 0          # player lost — not a kill
-            ctx._ultimate_final_pending = False
+            ctx._weapon_kill_ticks = 0
             return
-        # ULTIMATE FIRST — and deliberately ABOVE the _weapon_kill_pending early
-        # return below. He contributes NOTHING to that mask (287 is not in
-        # _WEAPON_BATTLE_FORMATIONS), so the mask is 0 after his fight; putting this
-        # after the early return made it unreachable and he never got armed, so the
-        # fight looped (playtester 2026-07-23: trace showed 0xF33 stuck at 4/5).
-        #
-        # Won 287: arm the GAME's own death sequence rather than declaring the kill.
-        # 0xF33 == 5 is what `ultima_weapon_update` tests before calling
-        # `ultima_weapon_25`, so this makes him fly off and die under script control
-        # — which also REMOVES him, instead of leaving him on top of the player.
-        # `_resolve_ultimate_weapon` runs the grace countdown / fallback.
-        if ctx._ultimate_final_pending and module in (GAME_MODULE_WORLD, GAME_MODULE_FIELD):
-            ctx._ultimate_final_pending = False
-            try:
-                wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
-                hits_addr = SAVEMAP_BASE + ULTIMATE_HITS_OFFSET
-                wk = pm.read_uchar(wk_addr)
-                # (a) CLEAR bit2. This is the one that matters — from the
-                #     decompiled `ultima_weapon_update`:
-                #         if weapons_killed.bit[2] and distance <= 120:
-                #             trigger_battle(287)          <- endless re-fight
-                #         if !weapons_killed.bit[2]: ... if 0xF33 == 5: call fn 25
-                #     i.e. while bit2 is SET every approach re-triggers 287 AND the
-                #     death branch is unreachable. Free Roam sets bit2 at first
-                #     engagement (his HP is treated as already low), which is the
-                #     whole cause of the loop.
-                # (b) 0xF33 = 5 so the now-reachable branch flies him off and calls
-                #     `ultima_weapon_25` — he LEAVES instead of sitting on the
-                #     player, which is what produced the forced second fight.
-                # (c) bit0 for the AP check + the post-Ultimate world state.
-                # Backstop only — the real release happens mid-battle above, to
-                # beat the collision re-trigger. Re-assert in case the battle-exit
-                # path restored the flag. bit0 stays unset: setting it makes
-                # `_resolve_ultimate_weapon` assert submarine_flags.bit[4], which is
-                # the LAST line of `ultima_weapon_27` (the crater crash) — marking
-                # the crash done up front stops the sequence ever playing.
-                if pm.read_uchar(hits_addr) < 5:
-                    pm.write_uchar(hits_addr, 5)
-                if wk & 0x04:
-                    pm.write_uchar(wk_addr, wk & ~0x04)
-                if ctx._ultimate_death_grace <= 0:
-                    ctx._ultimate_death_grace = _ULTIMATE_DEATH_GRACE_TICKS
-                logger.debug("Ultimate: re-asserted the death release on battle exit.")
-            except Exception as exc:
-                logger.debug(f"ultimate kill registration failed: {exc}")
-
+        # A LOSS MUST NEVER REGISTER AS A KILL. Clearing on GAME_MODULE_GAMEOVER
+        # alone was not enough: if that module was missed, or the loss took some
+        # other path, the mask simply sat there until the player reloaded and the
+        # first Field/World poll cashed it in as a win. So also discard it when the
+        # module leaves the known battle-exit path, and expire it on a timer.
+        if ctx._weapon_kill_pending:
+            if module not in _BATTLE_EXIT_MODULES:
+                logger.debug(f"weapon kill 0x{ctx._weapon_kill_pending:02x} discarded "
+                             f"— module {module} is off the battle-exit path")
+                ctx._weapon_kill_pending = 0
+                ctx._weapon_kill_ticks = 0
+                return
+            ctx._weapon_kill_ticks -= 1
+            if ctx._weapon_kill_ticks <= 0:
+                logger.debug(f"weapon kill 0x{ctx._weapon_kill_pending:02x} expired "
+                             f"— no return to gameplay within "
+                             f"{_WEAPON_KILL_WINDOW_TICKS * POLL_INTERVAL:.0f}s")
+                ctx._weapon_kill_pending = 0
+                return
         if not ctx._weapon_kill_pending:
             return
         if module in (GAME_MODULE_WORLD, GAME_MODULE_FIELD):
@@ -2335,6 +2477,7 @@ def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
                     f"weapons_killed 0x{wk:02x} -> 0x{new:02x}."
                 )
             ctx._weapon_kill_pending = 0
+            ctx._weapon_kill_ticks = 0
     except Exception as exc:
         logger.debug(f"resolve weapon battles failed: {exc}")
 
@@ -2421,6 +2564,60 @@ _CHOCO_RACE_STATS = {
     "Black Chocobo": (3200,  5200,  4100,  6000, 5600,  68,  95,  95),
     "Gold Chocobo":  (3500,  6000,  4500,  6800, 6000,  70, 100, 100),
 }
+
+
+# Chocobo racing rank checks, driven by the per-chocobo WIN COUNTER rather than
+# the racing-class byte.
+#
+# A chocobo's class advances every 3 wins, so 3 = Class B, 6 = Class A, 9 = Class S
+# — and 9 is independently corroborated by the savemap doc's flag for
+# "win 9 races to enter Rank S" (0x10 at 0xE2E). Wins live at record +0x0D and are
+# MONOTONIC, which the class byte at 0x0DBB is not: that one holds only the
+# currently SELECTED class, and Class A (value 2) leaves bit 0 clear, so a
+# bit-based read of it can miss Rank B entirely. Counting wins avoids that.
+#
+# Per CHOCOBO, not per save — the doc's "win 19 races with the same chocobo" wording
+# confirms the counter is per animal — so take the best chocobo in the stable
+# rather than summing across them.
+_CHOCO_WINS_OFFSET = 0x0D          # FF7CHOCOBO.raceswon, within the 16-byte record
+_CHOCO_RANK_CHECKS = {             # location code -> wins needed
+    310101: 3,                     # Chocobo Racing Rank B
+    310102: 6,                     # Chocobo Racing Rank A
+    310099: 9,                     # Chocobo Racing Rank S (also has a native flag)
+}
+
+
+def _best_chocobo_wins(pm: "pymem.Pymem") -> int:
+    """Highest race-win count of any chocobo in the stable, or 0."""
+    best = 0
+    try:
+        base = SAVEMAP_BASE + _CHOCO_SLOT0
+        for n in range(_CHOCO_MAX_SLOTS):
+            wins = pm.read_uchar(base + n * 16 + _CHOCO_WINS_OFFSET)
+            if 0 < wins < 200:                 # ignore junk in an unused slot
+                best = max(best, wins)
+    except Exception as exc:
+        logger.debug(f"chocobo win read failed: {exc}")
+    return best
+
+
+def _chocobo_rank_checks(pm: "pymem.Pymem", ctx: "FF7Context") -> List[int]:
+    """Location codes newly earned by chocobo race wins."""
+    if not ctx.free_roam:
+        return []
+    wanted = [c for c, need in _CHOCO_RANK_CHECKS.items()
+              if c in ctx.server_locations and c not in ctx.checked_locations
+              and c not in ctx._checked_this_session]
+    if not wanted:
+        return []
+    wins = _best_chocobo_wins(pm)
+    if wins <= 0:
+        return []
+    fired = [c for c in wanted if wins >= _CHOCO_RANK_CHECKS[c]]
+    for code in fired:
+        ctx._checked_this_session.add(code)
+        logger.debug(f"Chocobo racing: {wins} win(s) -> location {code}")
+    return fired
 
 
 def _deliver_chocobo(pm: "pymem.Pymem", item_name: str, sender: str = "") -> bool:
@@ -3182,6 +3379,22 @@ _FIELD_FLAG_RESETS_ON_ENTRY: Dict[str, Tuple[Tuple[int, int], ...]] = {
     "las0_8": ((0x1039, 0x02),),
     "las2_1": ((0x1039, 0x01),),
 }
+# Fields whose reset must happen AT MOST ONCE PER GAME rather than on every entry.
+#
+# las0_8's own script BITONs 0x1039 bit 1 at the END of the split sequence
+# (@0x0BE0) — that latch is what tells the field the scene is finished. Re-clearing
+# it on every entry put the field permanently back into split-setup state, so the
+# cliff never became climbable again once the player left the screen and returned
+# (reported 2026-08-01; confirmed live — standing in las0_8 after a completed split,
+# 0x1039 read 0x00). Resetting once still covers the reason the reset exists at all
+# (Free Roam can arrive with the byte already dirty) while letting the script latch
+# it permanently afterwards.
+#
+# las2_1 is deliberately NOT in here yet (user's call 2026-08-01): it clears
+# las0_8's PARTWAY marker (bit 0) and is currently what makes the cast show there,
+# and that field is progressing fine. It has the same shape, so if the same symptom
+# ever appears on the second split, add it here first.
+_FIELD_FLAG_RESET_ONCE: "frozenset[str]" = frozenset({"las0_8"})
 
 
 def _apply_field_flag_resets(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
@@ -3195,6 +3408,10 @@ def _apply_field_flag_resets(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
     # field's own script can still set the bit later in its sequence.
     if getattr(ctx, "_flag_reset_field", None) != field:
         ctx._flag_reset_field = field
+        if field in _FIELD_FLAG_RESET_ONCE and field in ctx._flag_reset_once_done:
+            return                      # one reset per game — see _FIELD_FLAG_RESET_ONCE
+        if field in _FIELD_FLAG_RESET_ONCE:
+            ctx._flag_reset_once_done.add(field)
         for off, mask in _FIELD_FLAG_RESETS_ON_ENTRY.get(field, ()):
             try:
                 v = pm.read_uchar(SAVEMAP_BASE + off)
@@ -3259,12 +3476,27 @@ _FORCE_INTERACTABLE_MODELS: Dict[str, Tuple[int, ...]] = {
 # sequence, we stop and they disappear as intended.
 _CRATER_SPLIT_CAST: Dict[str, Tuple[int, int]] = {
     "las0_8": (0x1039, 0x02),
-    "las2_1": (0x1039, 0x01),
+    # las2_1 REMOVED 2026-08-01 (user's call). Forcing the cast visible there also
+    # forces them SOLID (+0x5f=0) and interactable, and because the entry flag reset
+    # keeps 0x1039.0 clear the forcing never stops — so seven collidable bodies stand
+    # in the room for as long as the player is in it. Players reported being unable to
+    # leave the Northern Cave from the party split. las0_8 is the split that actually
+    # needed this (its own bit is 0x02 and its script latches it at the END, so the
+    # forcing self-terminates there).
 }
 # CHAR-opcode model index -> character id, for those two fields. NOT identity:
 # model 3 is Red XIII (char 4) onward, because Aerith (char 3) has no model
 # anywhere in the las* chain. Model 0 is Cloud, the player — never touched.
 _CRATER_CAST_MODEL_CHAR: Dict[int, int] = {1: 1, 2: 2, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8}
+# Characters to force HIDDEN + non-solid in a given crater field, by character id.
+# Keyed on the CHARACTER, not the raw model index, so it resolves through
+# _CRATER_CAST_MODEL_CHAR above — the mapping already proven in las0_8 — instead of
+# hard-coding an index that would silently hide the wrong person if it were wrong.
+# _force_crater_cast_visible skips anyone listed here, or the two would fight over
+# the same bytes on every poll.
+_FIELD_HIDE_CHARS: Dict[str, Tuple[int, ...]] = {
+    "las2_1": (_CHARACTER_IDS["Cid"],),
+}
 
 
 # Bizarro Sephiroth (lastmap) multi-party formation. HEN S3/S4/S5 each form one
@@ -3384,22 +3616,138 @@ def _force_crater_cast_visible(pm: "pymem.Pymem", ctx: FF7Context) -> None:
     except Exception as exc:
         logger.debug(f"crater cast read failed: {exc}")
         return
+    hidden = set(_FIELD_HIDE_CHARS.get(_read_field_name(pm), ()))
     for idx, cid in _CRATER_CAST_MODEL_CHAR.items():
         if cid in party or not (avail & (1 << cid)):
             continue
+        if cid in hidden:
+            continue            # deliberately hidden in this field — see _FIELD_HIDE_CHARS
         base = FIELD_MODELS_OBJS + idx * _FIELD_MODEL_STRUCT_SIZE
         try:
-            # Mirror exactly what the script's VISIBLE branch does:
-            # TLKON 0 / SOLID 0 / VISI 1.
-            changed = False
-            if pm.read_uchar(base + 0x5f) != 0:
-                pm.write_uchar(base + 0x5f, 0); changed = True
-            if pm.read_uchar(base + 0x61) != 0:
-                pm.write_uchar(base + 0x61, 0); changed = True
+            # VISIBILITY ONLY (+0x62). Collision (+0x5f) and interaction (+0x61)
+            # are deliberately NOT written any more.
+            #
+            # This used to mirror the script's full VISIBLE branch (TLKON 0 /
+            # SOLID 0 / VISI 1), which also made all seven standing models SOLID.
+            # Players could then not climb out of las0_8 — collidable bodies parked
+            # across the exit path (reported 2026-08-01, after the same forcing was
+            # narrowed off las2_1 for the same reason). las2_1 shows the cast fine
+            # with no forcing at all, so solidity was never what put them on screen;
+            # only the visible byte matters, and it cannot block movement.
             if pm.read_uchar(base + 0x62) != 1:
-                pm.write_uchar(base + 0x62, 1); changed = True
-            if changed:
+                pm.write_uchar(base + 0x62, 1)
                 logger.debug(f"Crater split: forced model {idx} (char {cid}) visible")
+        except Exception:
+            pass
+
+
+# Characters whose kernel record is a PLACEHOLDER until the AP item arrives:
+# Cait Sith's slot ships id 9 (Young Cloud), Vincent's ships id 10 (Sephiroth).
+# Everyone else has a real record, so a native grant of THEM is only a logic
+# problem, not a cosmetic one — these two are the pair that show a wrong name.
+_PLACEHOLDER_CHARS: Tuple[int, ...] = (_CHARACTER_IDS["Cait Sith"],
+                                       _CHARACTER_IDS["Vincent"])
+
+
+def _suppress_undelivered_chars(pm: "pymem.Pymem", ctx: FF7Context) -> None:
+    """Keep natively-granted characters out of the party until AP delivers them.
+
+    Vanilla makes the whole roster available in several places we do not patch —
+    the Northern Cave chain (`las0_1`, `las4_0`, `lastmap`, `crater_2`) and the
+    `blackbg*` set all run the same "everyone is available" opcode that
+    `sininb1`/`yufy1` do. Free Roam walks into those long before the AP character
+    item exists, and because only the client builds these two records, the player
+    ends up with a party member literally named **Sephiroth** (Vincent's slot still
+    holds kernel id 10) or Young Cloud (Cait Sith, id 9). Reported 2026-08-01.
+
+    Rather than neuter every grant site — the endgame genuinely needs the full
+    roster for the Bizarro Sephiroth three-party split — this reverses the symptom
+    wherever it comes from: while the record is still a placeholder, that character
+    is not PHS-visible, not locked, and not in the active party. It self-clears the
+    instant the AP item lands and `_init_character_record` writes a real record.
+
+    The party LEADER (slot 0) is deliberately left alone — evicting them would
+    leave the field with no player model. That is logged instead, loudly, because
+    it needs manual attention and should be impossible via a normal grant."""
+    if not ctx.free_roam:
+        return
+    try:
+        vis_addr = SAVEMAP_BASE + _PHS_VISIBLE_OFFSET
+        lock_addr = SAVEMAP_BASE + _PHS_LOCK_OFFSET
+        base = SAVEMAP_BASE + _PARTY_OFFSET
+        received = getattr(ctx, "_received_item_names", set())
+        name_of = {cid: nm for nm, cid in _CHARACTER_IDS.items()}
+        for cid in _PLACEHOLDER_CHARS:
+            # NEVER touch a character AP has actually sent. `_deliver_character`
+            # calls `_ensure_character_record`, which DEBOUNCES: a record that reads
+            # invalid is left alone for _CHAR_REBUILD_STABLE_TICKS polls, because a
+            # single bad tick is usually a mid-cutscene write and a rebuild wipes
+            # equipped materia. So right after delivery the record is still the
+            # kernel placeholder for a few polls — and without this check the
+            # suppression below saw `id != cid`, called it a native grant, and undid
+            # the delivery. Players had to send Vincent / Cait Sith TWICE (reported
+            # 2026-08-01). The item having been received is proof it is not native.
+            if name_of.get(cid) in received:
+                continue
+            rec = SAVEMAP_BASE + _CHARS_OFFSET + cid * _CHAR_RECORD_SIZE
+            if pm.read_uchar(rec + _CHR_ID) == cid:
+                continue                    # real record — AP has delivered them
+            bit = 1 << cid
+            vis = pm.read_ushort(vis_addr)
+            if vis & bit:
+                pm.write_ushort(vis_addr, vis & ~bit)
+                logger.debug(f"Undelivered char {cid}: cleared PHS visibility "
+                             f"(record still holds placeholder id "
+                             f"{pm.read_uchar(rec + _CHR_ID)})")
+            lock = pm.read_ushort(lock_addr)
+            if lock & bit:
+                pm.write_ushort(lock_addr, lock & ~bit)
+            for i in range(3):
+                if pm.read_uchar(base + i) != cid:
+                    continue
+                if i == 0:
+                    logger.info(f"Character {cid} was granted by the game before "
+                                f"Archipelago delivered them and is the party "
+                                f"LEADER — swap leader in the PHS, then they will "
+                                f"be removed automatically.")
+                    continue
+                pm.write_uchar(base + i, 0xFF)      # 0xFF = empty slot
+                logger.debug(f"Undelivered char {cid}: removed from party slot {i}")
+    except Exception as exc:
+        logger.debug(f"undelivered-char suppression failed: {exc}")
+
+
+def _apply_field_hide_chars(pm: "pymem.Pymem", ctx: FF7Context) -> None:
+    """Force listed characters INVISIBLE and non-solid in their field.
+
+    The inverse of _force_crater_cast_visible: collision OFF (+0x5f=1), interaction
+    OFF (+0x61=1), visible OFF (+0x62=0). Interaction is disabled along with the
+    model deliberately — an invisible-but-talkable body is worse than a visible one.
+
+    Runs AFTER the visibility pass so it wins outright even if some other path
+    turns the model back on.  Idempotent: only writes a byte that is wrong."""
+    if not ctx.free_roam:
+        return
+    fname = _read_field_name(pm)
+    chars = _FIELD_HIDE_CHARS.get(fname)
+    if not chars:
+        return
+    model_of = {cid: idx for idx, cid in _CRATER_CAST_MODEL_CHAR.items()}
+    for cid in chars:
+        idx = model_of.get(cid)
+        if idx is None:
+            continue                     # no model for that character in this chain
+        base = FIELD_MODELS_OBJS + idx * _FIELD_MODEL_STRUCT_SIZE
+        try:
+            changed = False
+            if pm.read_uchar(base + 0x5f) != 1:
+                pm.write_uchar(base + 0x5f, 1); changed = True   # collision OFF
+            if pm.read_uchar(base + 0x61) != 1:
+                pm.write_uchar(base + 0x61, 1); changed = True   # interaction OFF
+            if pm.read_uchar(base + 0x62) != 0:
+                pm.write_uchar(base + 0x62, 0); changed = True   # invisible
+            if changed:
+                logger.debug(f"Hid field model {idx} (char {cid}) in {fname}")
         except Exception:
             pass
 
@@ -3498,7 +3846,10 @@ def _requeue_all_received_items(ctx: "FF7Context") -> int:
     received = list(getattr(ctx, "items_received", None) or [])
     ctx._delivered_item_indices.clear()
     ctx._pending_items = list(enumerate(received))
-    ctx._resync_reconcile = True
+    # Only arm reconcile mode when there is actually something to reconcile —
+    # arming it for an empty list is what got it stuck on (see the early return in
+    # _deliver_items_to_game).
+    ctx._resync_reconcile = bool(received)
     return len(received)
 
 
@@ -3538,6 +3889,8 @@ def _pump_reseed_resync(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
         return
     # Left md1stin: the baseline is in place, so re-apply everything.
     ctx._reseed_pending = False
+    # New savemap -> the once-per-game entry flag resets are owed again.
+    ctx._flag_reset_once_done.clear()
     n = _requeue_all_received_items(ctx)
     if n:
         logger.info(f"New game detected — re-applying {n} received AP item(s).")
@@ -3604,6 +3957,13 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
     from worlds.ff7.TrapLink import TRAP_REGISTRY
 
     if not ctx._pending_items:
+        # Nothing queued means the re-delivery has drained, so reconcile mode is
+        # over BY DEFINITION. Returning without clearing it left the flag stuck on
+        # forever whenever a re-queue produced an empty list — which is what the
+        # md1stin re-seed does for a player who has not received anything yet. The
+        # next real item then took the reconcile path and was silently dropped
+        # (reported 2026-08-01: Alexander logged as delivered, absent in-game).
+        ctx._resync_reconcile = False
         return
 
     still_pending: List[Tuple[int, object]] = []
@@ -3654,6 +4014,9 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
             if item_index not in ctx._seen_trap_indices:
                 ctx._trap_queue.append(TRAP_REGISTRY[item_name])
                 ctx._seen_trap_indices.add(item_index)
+                # Persist immediately: a crash between queueing and firing should
+                # cost the trap, not re-fire it on every future connect.
+                _save_fired_traps(ctx)
                 logger.info(f"Trap received: {item_name} (queued).")
             ctx._delivered_item_indices.add(item_index)
             continue
@@ -3709,6 +4072,12 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
 
         category, ff7_id = result
         try:
+            # Count what we ACTUALLY write. The success line used to be
+            # unconditional, so a reconcile pass that wrote nothing still reported
+            # "Delivered item: X" — the log actively misled the investigation into
+            # the dropped-Alexander bug. A no-op is legitimate during a resync
+            # (the player already has the item) but must never read as a delivery.
+            wrote = 0
             if category == "materia":
                 if ctx._resync_reconcile:
                     # add only the missing count (reading current fresh means the
@@ -3716,18 +4085,27 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
                     deficit = materia_targets.get(ff7_id, 0) - _count_materia_qty(pm, ff7_id)
                     for _ in range(max(0, deficit)):
                         _write_materia(pm, ff7_id)
+                        wrote += 1
                 else:
                     _write_materia(pm, ff7_id)
+                    wrote = 1
             else:
                 # items / weapons / armors / accessories all go in the item list
                 if ctx._resync_reconcile:
                     deficit = item_targets.get(ff7_id, 0) - _count_item_qty(pm, ff7_id)
                     if deficit > 0:
                         _write_item(pm, ff7_id, deficit)
+                        wrote = deficit
                 else:
                     _write_item(pm, ff7_id)
+                    wrote = 1
             ctx._delivered_item_indices.add(item_index)
-            logger.debug(f"Delivered item: {item_name} (ff7_id={ff7_id})")
+            if wrote:
+                logger.debug(f"Delivered item: {item_name} (ff7_id={ff7_id})"
+                             + (f" x{wrote}" if wrote > 1 else ""))
+            else:
+                logger.debug(f"Nothing written for '{item_name}' (ff7_id={ff7_id}) — "
+                             f"reconcile found the AP-granted count already met")
         except Exception as exc:
             logger.debug(f"Item delivery failed for '{item_name}': {exc}")
             still_pending.append((item_index, net_item))
@@ -3978,7 +4356,11 @@ async def game_watcher(ctx: FF7Context) -> None:
         # ── Force story-field NPCs interactable in Free Roam (e.g. Ester in the
         # Chocobo Square) so the player can actually talk to them. ──
         _apply_field_model_overrides(pm, ctx)
+        # Undo any native character grant the game made ahead of AP delivery.
+        _suppress_undelivered_chars(pm, ctx)
         _force_crater_cast_visible(pm, ctx)
+        # AFTER the visibility pass — hiding must win if both would touch a model.
+        _apply_field_hide_chars(pm, ctx)
         _dedupe_bizarro_aerith(pm, ctx)
 
         # ── Un-latch one-time story rooms so they replay on revisit ────────
@@ -4149,9 +4531,11 @@ async def game_watcher(ctx: FF7Context) -> None:
             # ── Free Roam: disarm the engine-driven Diamond Highwind scene ─────
             _suppress_diamond_scene(pm, ctx)
 
-            # ── Free Roam: finish Ultimate Weapon once the player has engaged him ─
             if ctx.free_roam:
-                _resolve_ultimate_weapon(pm, ctx)
+                # Initialise Ultimate's HP field so his chase can start
+                # (a fresh Free Roam save leaves it at 0). Nothing else
+                # about him is client-driven any more.
+                _seed_ultimate_hp(pm, ctx)
                 # Register Ruby/Emerald kills from a won battle (their flags are
                 # otherwise never set in Free Roam → no check + endless respawn).
                 _resolve_weapon_battles(ctx, pm)
@@ -4244,6 +4628,13 @@ async def game_watcher(ctx: FF7Context) -> None:
                         pass
 
             # ── Shop purchases: detect token buys, fire checks ────────────────
+            # Chocobo racing ranks: earned by win count, not a latched flag.
+            race_checks = _chocobo_rank_checks(pm, ctx)
+            if race_checks and ctx.server and ctx.slot:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": race_checks}])
+                for code in race_checks:
+                    logger.debug(f"Checked location: {ctx.location_names.lookup_in_game(code)}")
+
             shop_checks = _process_shop_purchases(pm, ctx)
             if shop_checks:
                 # A bought materia token can slip past the DLL's grant suppression

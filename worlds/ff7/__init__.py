@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar
 
+import logging
 import settings
 
 from BaseClasses import Item, ItemClassification, MultiWorld, Region, Tutorial
@@ -26,6 +27,7 @@ from .Options import (
     StartingEquipmentTier,
     FreeRoam,
     DisableGoldSaucer,
+    ChocoboRaceChecks,
     DisableFortCondorChecks,
     WeaponFightChecks,
     TownGating,
@@ -153,16 +155,16 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "ropest":     "Corel",
     # Mt. Corel (the mountain trek) needs Highwind/Gold like Gongaga — the
     # Submarine reaches North Corel + Gold Saucer but not here. Split off.
-    "mtcrl_0":    "Mt. Corel",
-    "mtcrl_1":    "Mt. Corel",
-    "mtcrl_2":    "Mt. Corel",
-    "mtcrl_3":    "Mt. Corel",
-    "mtcrl_4":    "Mt. Corel",
-    "mtcrl_5":    "Mt. Corel",
-    "mtcrl_6":    "Mt. Corel",
-    "mtcrl_7":    "Mt. Corel",
-    "mtcrl_8":    "Mt. Corel",
-    "mtcrl_9":    "Mt. Corel",
+    "mtcrl_0":    "Mt. Corel (Costa)",
+    "mtcrl_1":    "Mt. Corel (Costa)",
+    "mtcrl_2":    "Mt. Corel (Costa)",
+    "mtcrl_3":    "Mt. Corel (Costa)",
+    "mtcrl_4":    "Mt. Corel (Costa)",
+    "mtcrl_5":    "Mt. Corel (Costa)",
+    "mtcrl_6":    "Mt. Corel (Costa)",
+    "mtcrl_7":    "Mt. Corel (North)",
+    "mtcrl_8":    "Mt. Corel (North)",
+    "mtcrl_9":    "Mt. Corel (North)",
     "jail1":      "Corel",
     "jail2":      "Corel",
     "jail3":      "Corel",
@@ -454,7 +456,9 @@ _FREE_ROAM_FILLER_ITEMS = frozenset({
 # is no longer excluded.)
 # Gold Ticket: the Gold Saucer tram is open in Free Roam and nothing else
 # consumes the item, so it is dead weight in the pool (removed 2026-07-09).
-_FREE_ROAM_EXCLUDE_ITEMS = frozenset({"Gold Ticket"})
+# "Fort Condor Key" gates nothing now that Fort Condor is ungated; without this it
+# would still be pooled as progression whenever town_gating is ON.
+_FREE_ROAM_EXCLUDE_ITEMS = frozenset({"Gold Ticket", "Fort Condor Key"})
 
 # Locations that cannot be obtained in Free Roam (game moment 1603), so they
 # must not receive items or they soft-lock the seed:
@@ -568,6 +572,9 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # All Shinra HQ shop locations (the Shinra Bldg./blin* field checks are already
     # excluded above; these are the 4 AP shop slots).
     320029, 320030, 320031, 320032,                  # Shinra HQ - AP Slots 1-4
+    # Removed by request (2026-07-27, v0.0.5): Speed Square (jetin1) Umbrella prize.
+    # The Flayer prize on the same screen (300090, same byte 0x0BD7 at bit 3) STAYS.
+    300089,                                          # Gold Saucer Rollercoaster - Umbrella
 })
 
 # Fort Condor (non-shop) check locations, dropped only when the player sets the
@@ -590,8 +597,17 @@ _FORT_CONDOR_CHECK_CODES = frozenset({
 # (bit3 "Beat Mog House" is a Wonder Square check, not racing; bit5 "19 races" is
 #  left out of the pool as an excessive grind.)
 _CHOCOBO_RACE_CHECK_CODES = frozenset({
+    # Progression byte, savemap 0xE2E (bank 5 / addr 138):
     310098,                   # Gold Saucer Area - First Chocobo Race    (bit 2)
     310099,                   # Gold Saucer Area - Chocobo Racing Rank S (bit 4)
+    # Rank B and A have NO dedicated flag in 0xE2E — it only records the first
+    # race, Rank S (9 wins) and the 19-win Sprint Shoes. They are read instead
+    # from the CURRENT RACING CLASS byte, savemap 0xDBB (bank 5 / addr 23),
+    # documented as "00: Class C | 01: Class B | 02: Class A | 03: Class S".
+    # As a bitfield that lands conveniently: B = bit 0, A = bit 1, and S (3) sets
+    # both — so reaching S also satisfies the two ranks it was reached through.
+    310101,                   # Gold Saucer Area - Chocobo Racing Rank B (bit 0)
+    310102,                   # Gold Saucer Area - Chocobo Racing Rank A (bit 1)
 })
 
 # Weapon boss locations (detected by their savemap defeat flag) and the traversal
@@ -636,11 +652,18 @@ _FREE_ROAM_LOCATION_ITEM_GATES = {
 # in _create_free_roam_regions). Kalm is never gated (the start town). The keys are
 # added to the pool only when the option is on (see create_items).
 _TOWN_GATE_KEYS = {
-    "Fort Condor":  "Fort Condor Key",
+    # Fort Condor is NOT gated (2026-07-31). It sits on the eastern continent,
+    # walkable from Kalm with no transport, so it is one of the very few sphere-0
+    # regions — gating it removed 7 starting locations at the same moment town
+    # gating ADDED 13 progression keys, which is what made seeds unfillable
+    # ("No more spots to place 1 items", multiple testers). Its key item is kept
+    # out of the pool entirely (see _TOWN_KEY_ITEMS + _FREE_ROAM_EXCLUDE_ITEMS),
+    # and Gold Saucer's patchTownGates towns[] no longer seals condor1 to match.
     "Junon Lower":  "Junon Key",
     "Junon Upper":  "Junon Key",
     "Corel":        "North Corel Key",
-    "Mt. Corel":    "North Corel Key",   # the mountain path is Corel's back door
+    "Mt. Corel (Costa)": "North Corel Key",
+    "Mt. Corel (North)": "North Corel Key",   # the mountain path is Corel's back door
     # The Gold Saucer has no world-map entrance of its own — the only way in is
     # North Corel's ropeway station, so it inherits Corel's key.
     "Gold Saucer Area": "North Corel Key",
@@ -661,7 +684,11 @@ _TOWN_GATE_KEYS = {
     # _create_free_roam_regions.)
     "Sleeping Forest": "Bone Village Key",
 }
-_TOWN_KEY_ITEMS = set(_TOWN_GATE_KEYS.values())
+# Fort Condor Key is listed explicitly: it is no longer in _TOWN_GATE_KEYS, so
+# without this the "town keys only when town_gating is enabled" filter would stop
+# matching it and it would enter the pool ALWAYS, as progression gating nothing.
+# (_FREE_ROAM_EXCLUDE_ITEMS covers the remaining case, Free Roam WITH gating on.)
+_TOWN_KEY_ITEMS = set(_TOWN_GATE_KEYS.values()) | {"Fort Condor Key"}
 
 
 def _ff7_client_start(*args: str) -> None:
@@ -727,6 +754,11 @@ class FF7Web(WebWorld):
             [
                 FreeRoam,
                 DisableGoldSaucer,
+                # Directly under DisableGoldSaucer: that option removes these
+                # checks (Chocobo Square is inside the Gold Saucer), so the two
+                # need to be read together. Was missing from the groups entirely,
+                # so it never appeared in the WebHost Options Creator.
+                ChocoboRaceChecks,
                 DisableFortCondorChecks,
                 WeaponFightChecks,
                 TownGating,
@@ -745,7 +777,6 @@ class FF7Web(WebWorld):
             "Goal",
             [
                 VictoryCondition,
-                DeathLink,
             ],
         ),
         OptionGroup(
@@ -769,6 +800,7 @@ class FF7Web(WebWorld):
                 CurseTrapWeight,
                 BombTrapWeight,
                 TrapLink,
+                DeathLink,
             ],
         ),
     ]
@@ -891,7 +923,8 @@ class FF7World(World):
             "Junon Upper",
             "Costa del Sol",
             "Corel",
-            "Mt. Corel",
+            "Mt. Corel (Costa)",
+            "Mt. Corel (North)",
             "Gold Saucer Area",
             "Gongaga",
             "Cosmo Canyon",
@@ -1029,13 +1062,34 @@ class FF7World(World):
         _town_entrances["Gold Saucer Area"].access_rule = _sub
 
         # --- Open-ocean continents (Blue/Black/Gold Chocobo or Highwind) ---
-        for _name in ("Costa del Sol", "Mt. Corel", "Gongaga", "Cosmo Canyon",
-                      "Nibelheim", "Rocket Town",
-                      "Wutai", "Bone Village", "Sleeping Forest", "Icicle Inn",
+        for _name in ("Costa del Sol", "Gongaga", "Cosmo Canyon", "Nibelheim",
+                      "Rocket Town", "Wutai", "Bone Village", "Sleeping Forest",
                       "Mideel"):
             _e = world_map.connect(sub_regions[_name])
             _e.access_rule = _ocean
             _town_entrances[_name] = _e
+
+        _town_entrances["Mt. Corel (Costa)"] = world_map.connect(sub_regions["Mt. Corel (Costa)"])
+        _town_entrances["Mt. Corel (Costa)"].access_rule = _ocean
+        _town_entrances["Mt. Corel (North)"] = world_map.connect(sub_regions["Mt. Corel (North)"])
+        _town_entrances["Mt. Corel (North)"].access_rule = _sub
+
+        def _can_reach_icicle(state):
+            return (
+                state.has("Black Chocobo", player)
+                or state.has("Gold Chocobo", player)
+                or state.has("Highwind", player)
+                or (
+                    state.has("Blue Chocobo", player)
+                    and state.has("Lunar Harp", player)
+                    and (not bool(self.options.town_gating)
+                         or state.has("Bone Village Key", player))
+                )
+            )
+
+        _icicle_inn = world_map.connect(sub_regions["Icicle Inn"])
+        _icicle_inn.access_rule = _can_reach_icicle
+        _town_entrances["Icicle Inn"] = _icicle_inn
 
         # --- Mt. Nibel: the mountain behind Nibelheim. Reached via the Nibelheim
         # side, so when town gating is on it needs the Nibelheim Key too — always,
@@ -1095,7 +1149,8 @@ class FF7World(World):
             and (not _tg or state.has("Bone Village Key", player))
         )
         world_map.connect(sub_regions["Great Glacier"]).access_rule = (
-            lambda state: _ocean(state)
+            lambda state: _can_reach_icicle(state)
+            and (not _tg or state.has("Icicle Inn Key", player))
             and state.has("Snowboard", player)
             and state.has("Glacier Map", player)
         )
@@ -1136,6 +1191,20 @@ class FF7World(World):
         disable_gold_saucer = bool(self.options.disable_gold_saucer)
         ignore_fort_condor = bool(self.options.disable_fort_condor_checks)
         race_checks = bool(self.options.chocobo_race_checks)
+
+        # Chocobo Square is inside the Gold Saucer, so disable_gold_saucer removes
+        # the racing checks via the region filter below even when the player has
+        # explicitly opted into them. That combination is almost always a mistake in
+        # the YAML rather than an intent, and it fails SILENTLY — the locations just
+        # never appear. Say so at generation time.
+        if race_checks and disable_gold_saucer:
+            logging.warning(
+                "FF7 [player %d]: chocobo_race_checks is enabled but "
+                "disable_gold_saucer is also enabled — the racing checks are inside "
+                "the Gold Saucer, so they will NOT be included. Set "
+                "disable_gold_saucer to false to use them.",
+                self.player,
+            )
 
         for location_data in ALL_LOCATION_TABLE.values():
             if location_data.name == self.victory_location_name:

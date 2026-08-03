@@ -1,930 +1,1018 @@
 [
-  {
-    "code": 320000,
-    "name": "Sector 7 Weapon - AP Slot 1",
-    "shop_id": 0,
-    "token_id": 105,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320001,
-    "name": "Sector 7 Weapon - AP Slot 2",
-    "shop_id": 0,
-    "token_id": 106,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320002,
-    "name": "Sector 7 Weapon - AP Slot 3",
-    "shop_id": 0,
-    "token_id": 107,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320003,
-    "name": "Sector 7 Weapon - AP Slot 4",
-    "shop_id": 0,
-    "token_id": 108,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320004,
-    "name": "Sector 7 Item - AP Slot 1",
-    "shop_id": 1,
-    "token_id": 109,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320005,
-    "name": "Sector 7 Item - AP Slot 2",
-    "shop_id": 1,
-    "token_id": 110,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320006,
-    "name": "Sector 7 Item - AP Slot 3",
-    "shop_id": 1,
-    "token_id": 111,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320007,
-    "name": "Sector 7 Item - AP Slot 4",
-    "shop_id": 1,
-    "token_id": 112,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320008,
-    "name": "Sector 7 Drug Store - AP Slot 1",
-    "shop_id": 2,
-    "token_id": 113,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320009,
-    "name": "Sector 7 Drug Store - AP Slot 2",
-    "shop_id": 2,
-    "token_id": 114,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320010,
-    "name": "Sector 7 Drug Store - AP Slot 3",
-    "shop_id": 2,
-    "token_id": 115,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320011,
-    "name": "Sector 5 Weapon - AP Slot 1",
-    "shop_id": 3,
-    "token_id": 86,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320012,
-    "name": "Sector 5 Weapon - AP Slot 2",
-    "shop_id": 3,
-    "token_id": 102,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320013,
-    "name": "Sector 5 Weapon - AP Slot 3",
-    "shop_id": 3,
-    "token_id": 103,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320014,
-    "name": "Sector 5 Weapon - AP Slot 4",
-    "shop_id": 3,
-    "token_id": 104,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320015,
-    "name": "Sector 5 Item - AP Slot 1",
-    "shop_id": 4,
-    "token_id": 252,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320016,
-    "name": "Sector 5 Item - AP Slot 2",
-    "shop_id": 4,
-    "token_id": 253,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320017,
-    "name": "Sector 5 Item - AP Slot 3",
-    "shop_id": 4,
-    "token_id": 254,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320018,
-    "name": "Sector 5 Item - AP Slot 4",
-    "shop_id": 4,
-    "token_id": 271,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320019,
-    "name": "Sector 5 Materia - AP Slot",
-    "shop_id": 5,
-    "token_id": 22,
-    "token_type": "materia",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320020,
-    "name": "Wall Market Weapon - AP Slot 1",
-    "shop_id": 6,
-    "token_id": 272,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320021,
-    "name": "Wall Market Weapon - AP Slot 2",
-    "shop_id": 6,
-    "token_id": 273,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320022,
-    "name": "Wall Market Weapon - AP Slot 3",
-    "shop_id": 6,
-    "token_id": 282,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320023,
-    "name": "Wall Market Weapon - AP Slot 4",
-    "shop_id": 6,
-    "token_id": 283,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320024,
-    "name": "Wall Market Materia - AP Slot",
-    "shop_id": 7,
-    "token_id": 38,
-    "token_type": "materia",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320025,
-    "name": "Wall Market Item - AP Slot",
-    "shop_id": 8,
-    "token_id": 2,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320026,
-    "name": "Sector 7 Pillar - AP Slot 1",
-    "shop_id": 9,
-    "token_id": 4,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320027,
-    "name": "Sector 7 Pillar - AP Slot 2",
-    "shop_id": 9,
-    "token_id": 5,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320028,
-    "name": "Sector 7 Pillar - AP Slot 3",
-    "shop_id": 9,
-    "token_id": 6,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320029,
-    "name": "Shinra HQ - AP Slot 1",
-    "shop_id": 10,
-    "token_id": 16,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320030,
-    "name": "Shinra HQ - AP Slot 2",
-    "shop_id": 10,
-    "token_id": 17,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320031,
-    "name": "Shinra HQ - AP Slot 3",
-    "shop_id": 10,
-    "token_id": 18,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320032,
-    "name": "Shinra HQ - AP Slot 4",
-    "shop_id": 10,
-    "token_id": 19,
-    "token_type": "item",
-    "region": "Midgar Sector 5"
-  },
-  {
-    "code": 320033,
-    "name": "Kalm Weapon - AP Slot 1",
-    "shop_id": 11,
-    "token_id": 21,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320034,
-    "name": "Kalm Weapon - AP Slot 2",
-    "shop_id": 11,
-    "token_id": 22,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320035,
-    "name": "Kalm Weapon - AP Slot 3",
-    "shop_id": 11,
-    "token_id": 23,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320036,
-    "name": "Kalm Weapon - AP Slot 4",
-    "shop_id": 11,
-    "token_id": 24,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320037,
-    "name": "Kalm Item - AP Slot 1",
-    "shop_id": 12,
-    "token_id": 25,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320038,
-    "name": "Kalm Item - AP Slot 2",
-    "shop_id": 12,
-    "token_id": 26,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320039,
-    "name": "Kalm Item - AP Slot 3",
-    "shop_id": 12,
-    "token_id": 27,
-    "token_type": "item",
-    "region": "Kalm"
-  },
-  {
-    "code": 320040,
-    "name": "Kalm Materia - AP Slot",
-    "shop_id": 13,
-    "token_id": 45,
-    "token_type": "materia",
-    "region": "Kalm"
-  },
-  {
-    "code": 320041,
-    "name": "Fort Condor Item - AP Slot 1",
-    "shop_id": 16,
-    "token_id": 28,
-    "token_type": "item",
-    "region": "Fort Condor"
-  },
-  {
-    "code": 320042,
-    "name": "Fort Condor Item - AP Slot 2",
-    "shop_id": 16,
-    "token_id": 29,
-    "token_type": "item",
-    "region": "Fort Condor"
-  },
-  {
-    "code": 320043,
-    "name": "Fort Condor Item - AP Slot 3",
-    "shop_id": 16,
-    "token_id": 30,
-    "token_type": "item",
-    "region": "Fort Condor"
-  },
-  {
-    "code": 320044,
-    "name": "Fort Condor Item - AP Slot 4",
-    "shop_id": 16,
-    "token_id": 32,
-    "token_type": "item",
-    "region": "Fort Condor"
-  },
-  {
-    "code": 320045,
-    "name": "Fort Condor Materia - AP Slot",
-    "shop_id": 17,
-    "token_id": 46,
-    "token_type": "materia",
-    "region": "Fort Condor"
-  },
-  {
-    "code": 320046,
-    "name": "Lower Junon Weapon - AP Slot 1",
-    "shop_id": 18,
-    "token_id": 33,
-    "token_type": "item",
-    "region": "Junon Lower"
-  },
-  {
-    "code": 320047,
-    "name": "Lower Junon Weapon - AP Slot 2",
-    "shop_id": 18,
-    "token_id": 34,
-    "token_type": "item",
-    "region": "Junon Lower"
-  },
-  {
-    "code": 320048,
-    "name": "Lower Junon Weapon - AP Slot 3",
-    "shop_id": 18,
-    "token_id": 36,
-    "token_type": "item",
-    "region": "Junon Lower"
-  },
-  {
-    "code": 320049,
-    "name": "Lower Junon Weapon - AP Slot 4",
-    "shop_id": 18,
-    "token_id": 37,
-    "token_type": "item",
-    "region": "Junon Lower"
-  },
-  {
-    "code": 320050,
-    "name": "Upper Junon Weapon 1 - AP Slot 1",
-    "shop_id": 19,
-    "token_id": 38,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320051,
-    "name": "Upper Junon Weapon 1 - AP Slot 2",
-    "shop_id": 19,
-    "token_id": 39,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320052,
-    "name": "Upper Junon Weapon 1 - AP Slot 3",
-    "shop_id": 19,
-    "token_id": 40,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320053,
-    "name": "Upper Junon Weapon 1 - AP Slot 4",
-    "shop_id": 19,
-    "token_id": 41,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320054,
-    "name": "Upper Junon Item - AP Slot",
-    "shop_id": 20,
-    "token_id": 42,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320055,
-    "name": "Upper Junon Materia - AP Slot",
-    "shop_id": 21,
-    "token_id": 47,
-    "token_type": "materia",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320056,
-    "name": "Upper Junon Weapon 2 - AP Slot 1",
-    "shop_id": 22,
-    "token_id": 43,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320057,
-    "name": "Upper Junon Weapon 2 - AP Slot 2",
-    "shop_id": 22,
-    "token_id": 44,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320058,
-    "name": "Upper Junon Weapon 2 - AP Slot 3",
-    "shop_id": 22,
-    "token_id": 45,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320059,
-    "name": "Upper Junon Weapon 2 - AP Slot 4",
-    "shop_id": 22,
-    "token_id": 46,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320060,
-    "name": "Upper Junon Accessory - AP Slot 1",
-    "shop_id": 23,
-    "token_id": 47,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320061,
-    "name": "Upper Junon Accessory - AP Slot 2",
-    "shop_id": 23,
-    "token_id": 48,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320062,
-    "name": "Upper Junon Accessory - AP Slot 3",
-    "shop_id": 23,
-    "token_id": 49,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320063,
-    "name": "Upper Junon Accessory - AP Slot 4",
-    "shop_id": 23,
-    "token_id": 55,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320064,
-    "name": "Upper Junon Materia 2 - AP Slot",
-    "shop_id": 24,
-    "token_id": 63,
-    "token_type": "materia",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320065,
-    "name": "Cargo Ship Item - AP Slot 1",
-    "shop_id": 25,
-    "token_id": 56,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320066,
-    "name": "Cargo Ship Item - AP Slot 2",
-    "shop_id": 25,
-    "token_id": 57,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320067,
-    "name": "Cargo Ship Item - AP Slot 3",
-    "shop_id": 25,
-    "token_id": 58,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320068,
-    "name": "Cargo Ship Item - AP Slot 4",
-    "shop_id": 25,
-    "token_id": 59,
-    "token_type": "item",
-    "region": "Junon Upper"
-  },
-  {
-    "code": 320069,
-    "name": "Costa del Sol Weapon - AP Slot 1",
-    "shop_id": 26,
-    "token_id": 60,
-    "token_type": "item",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320070,
-    "name": "Costa del Sol Weapon - AP Slot 2",
-    "shop_id": 26,
-    "token_id": 61,
-    "token_type": "item",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320071,
-    "name": "Costa del Sol Weapon - AP Slot 3",
-    "shop_id": 26,
-    "token_id": 71,
-    "token_type": "item",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320072,
-    "name": "Costa del Sol Weapon - AP Slot 4",
-    "shop_id": 26,
-    "token_id": 72,
-    "token_type": "item",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320073,
-    "name": "Costa del Sol Materia - AP Slot",
-    "shop_id": 27,
-    "token_id": 66,
-    "token_type": "materia",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320074,
-    "name": "Costa del Sol Item - AP Slot",
-    "shop_id": 28,
-    "token_id": 73,
-    "token_type": "item",
-    "region": "Costa del Sol"
-  },
-  {
-    "code": 320075,
-    "name": "North Corel Weapon - AP Slot 1",
-    "shop_id": 29,
-    "token_id": 74,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320076,
-    "name": "North Corel Weapon - AP Slot 2",
-    "shop_id": 29,
-    "token_id": 75,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320077,
-    "name": "North Corel Weapon - AP Slot 3",
-    "shop_id": 29,
-    "token_id": 76,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320078,
-    "name": "North Corel Weapon - AP Slot 4",
-    "shop_id": 29,
-    "token_id": 77,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320079,
-    "name": "North Corel Item - AP Slot 1",
-    "shop_id": 30,
-    "token_id": 78,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320080,
-    "name": "North Corel Item - AP Slot 2",
-    "shop_id": 30,
-    "token_id": 128,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320081,
-    "name": "North Corel Item - AP Slot 3",
-    "shop_id": 30,
-    "token_id": 139,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320082,
-    "name": "North Corel Item - AP Slot 4",
-    "shop_id": 30,
-    "token_id": 140,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320083,
-    "name": "North Corel General - AP Slot 1",
-    "shop_id": 31,
-    "token_id": 141,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320084,
-    "name": "North Corel General - AP Slot 2",
-    "shop_id": 31,
-    "token_id": 142,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320085,
-    "name": "North Corel General - AP Slot 3",
-    "shop_id": 31,
-    "token_id": 143,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320086,
-    "name": "North Corel General - AP Slot 4",
-    "shop_id": 31,
-    "token_id": 144,
-    "token_type": "item",
-    "region": "Corel"
-  },
-  {
-    "code": 320087,
-    "name": "Gongaga Weapon - AP Slot",
-    "shop_id": 34,
-    "token_id": 152,
-    "token_type": "item",
-    "region": "Gongaga"
-  },
-  {
-    "code": 320088,
-    "name": "Gongaga Item - AP Slot",
-    "shop_id": 35,
-    "token_id": 157,
-    "token_type": "item",
-    "region": "Gongaga"
-  },
-  {
-    "code": 320089,
-    "name": "Gongaga Accessory - AP Slot",
-    "shop_id": 36,
-    "token_id": 158,
-    "token_type": "item",
-    "region": "Gongaga"
-  },
-  {
-    "code": 320090,
-    "name": "Cosmo Canyon Weapon - AP Slot 1",
-    "shop_id": 37,
-    "token_id": 159,
-    "token_type": "item",
-    "region": "Cosmo Canyon"
-  },
-  {
-    "code": 320091,
-    "name": "Cosmo Canyon Weapon - AP Slot 2",
-    "shop_id": 37,
-    "token_id": 160,
-    "token_type": "item",
-    "region": "Cosmo Canyon"
-  },
-  {
-    "code": 320092,
-    "name": "Cosmo Canyon Item - AP Slot",
-    "shop_id": 38,
-    "token_id": 173,
-    "token_type": "item",
-    "region": "Cosmo Canyon"
-  },
-  {
-    "code": 320093,
-    "name": "Cosmo Canyon Materia - AP Slot",
-    "shop_id": 39,
-    "token_id": 67,
-    "token_type": "materia",
-    "region": "Cosmo Canyon"
-  },
-  {
-    "code": 320094,
-    "name": "Nibelheim General - AP Slot 1",
-    "shop_id": 40,
-    "token_id": 174,
-    "token_type": "item",
-    "region": "Nibelheim"
-  },
-  {
-    "code": 320095,
-    "name": "Nibelheim General - AP Slot 2",
-    "shop_id": 40,
-    "token_id": 175,
-    "token_type": "item",
-    "region": "Nibelheim"
-  },
-  {
-    "code": 320096,
-    "name": "Nibelheim General - AP Slot 3",
-    "shop_id": 40,
-    "token_id": 186,
-    "token_type": "item",
-    "region": "Nibelheim"
-  },
-  {
-    "code": 320097,
-    "name": "Nibelheim General - AP Slot 4",
-    "shop_id": 40,
-    "token_id": 187,
-    "token_type": "item",
-    "region": "Nibelheim"
-  },
-  {
-    "code": 320098,
-    "name": "Rocket Town Weapon - AP Slot 1",
-    "shop_id": 41,
-    "token_id": 188,
-    "token_type": "item",
-    "region": "Rocket Town"
-  },
-  {
-    "code": 320099,
-    "name": "Rocket Town Weapon - AP Slot 2",
-    "shop_id": 41,
-    "token_id": 189,
-    "token_type": "item",
-    "region": "Rocket Town"
-  },
-  {
-    "code": 320100,
-    "name": "Rocket Town Weapon - AP Slot 3",
-    "shop_id": 41,
-    "token_id": 190,
-    "token_type": "item",
-    "region": "Rocket Town"
-  },
-  {
-    "code": 320101,
-    "name": "Rocket Town Weapon - AP Slot 4",
-    "shop_id": 41,
-    "token_id": 199,
-    "token_type": "item",
-    "region": "Rocket Town"
-  },
-  {
-    "code": 320102,
-    "name": "Rocket Town Item - AP Slot",
-    "shop_id": 42,
-    "token_id": 200,
-    "token_type": "item",
-    "region": "Rocket Town"
-  },
-  {
-    "code": 320103,
-    "name": "Wutai Weapon - AP Slot",
-    "shop_id": 43,
-    "token_id": 207,
-    "token_type": "item",
-    "region": "Wutai"
-  },
-  {
-    "code": 320104,
-    "name": "Wutai Item - AP Slot",
-    "shop_id": 44,
-    "token_id": 208,
-    "token_type": "item",
-    "region": "Wutai"
-  },
-  {
-    "code": 320105,
-    "name": "Temple of the Ancients - AP Slot 1",
-    "shop_id": 45,
-    "token_id": 211,
-    "token_type": "item",
-    "region": "Temple of the Ancients"
-  },
-  {
-    "code": 320106,
-    "name": "Temple of the Ancients - AP Slot 2",
-    "shop_id": 45,
-    "token_id": 212,
-    "token_type": "item",
-    "region": "Temple of the Ancients"
-  },
-  {
-    "code": 320107,
-    "name": "Icicle Inn Weapon - AP Slot",
-    "shop_id": 46,
-    "token_id": 213,
-    "token_type": "item",
-    "region": "Icicle Inn"
-  },
-  {
-    "code": 320108,
-    "name": "Mideel Weapon - AP Slot",
-    "shop_id": 47,
-    "token_id": 214,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320109,
-    "name": "Mideel Accessory - AP Slot 1",
-    "shop_id": 48,
-    "token_id": 215,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320110,
-    "name": "Mideel Accessory - AP Slot 2",
-    "shop_id": 48,
-    "token_id": 226,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320111,
-    "name": "Mideel Accessory - AP Slot 3",
-    "shop_id": 48,
-    "token_id": 227,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320112,
-    "name": "Mideel Item - AP Slot 1",
-    "shop_id": 49,
-    "token_id": 228,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320113,
-    "name": "Mideel Item - AP Slot 2",
-    "shop_id": 49,
-    "token_id": 239,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320114,
-    "name": "Mideel Item - AP Slot 3",
-    "shop_id": 49,
-    "token_id": 240,
-    "token_type": "item",
-    "region": "Mideel"
-  },
-  {
-    "code": 320116,
-    "name": "Bone Village - AP Slot",
-    "shop_id": 65,
-    "token_id": 241,
-    "token_type": "item",
-    "region": "Bone Village"
-  }
+ {
+  "code": 320000,
+  "name": "Sector 7 Weapon - AP Slot 1",
+  "shop_id": 0,
+  "token_id": 105,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320001,
+  "name": "Sector 7 Weapon - AP Slot 2",
+  "shop_id": 0,
+  "token_id": 106,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320002,
+  "name": "Sector 7 Weapon - AP Slot 3",
+  "shop_id": 0,
+  "token_id": 107,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320003,
+  "name": "Sector 7 Weapon - AP Slot 4",
+  "shop_id": 0,
+  "token_id": 108,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320004,
+  "name": "Sector 7 Item - AP Slot 1",
+  "shop_id": 1,
+  "token_id": 109,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320005,
+  "name": "Sector 7 Item - AP Slot 2",
+  "shop_id": 1,
+  "token_id": 110,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320006,
+  "name": "Sector 7 Item - AP Slot 3",
+  "shop_id": 1,
+  "token_id": 111,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320007,
+  "name": "Sector 7 Item - AP Slot 4",
+  "shop_id": 1,
+  "token_id": 112,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320008,
+  "name": "Sector 7 Drug Store - AP Slot 1",
+  "shop_id": 2,
+  "token_id": 113,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320009,
+  "name": "Sector 7 Drug Store - AP Slot 2",
+  "shop_id": 2,
+  "token_id": 114,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320010,
+  "name": "Sector 7 Drug Store - AP Slot 3",
+  "shop_id": 2,
+  "token_id": 115,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320011,
+  "name": "Sector 5 Weapon - AP Slot 1",
+  "shop_id": 3,
+  "token_id": 86,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320012,
+  "name": "Sector 5 Weapon - AP Slot 2",
+  "shop_id": 3,
+  "token_id": 102,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320013,
+  "name": "Sector 5 Weapon - AP Slot 3",
+  "shop_id": 3,
+  "token_id": 103,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320014,
+  "name": "Sector 5 Weapon - AP Slot 4",
+  "shop_id": 3,
+  "token_id": 104,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320015,
+  "name": "Sector 5 Item - AP Slot 1",
+  "shop_id": 4,
+  "token_id": 252,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320016,
+  "name": "Sector 5 Item - AP Slot 2",
+  "shop_id": 4,
+  "token_id": 253,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320017,
+  "name": "Sector 5 Item - AP Slot 3",
+  "shop_id": 4,
+  "token_id": 254,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320018,
+  "name": "Sector 5 Item - AP Slot 4",
+  "shop_id": 4,
+  "token_id": 271,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320019,
+  "name": "Sector 5 Materia - AP Slot",
+  "shop_id": 5,
+  "token_id": 22,
+  "token_type": "materia",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320020,
+  "name": "Wall Market Weapon - AP Slot 1",
+  "shop_id": 6,
+  "token_id": 272,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320021,
+  "name": "Wall Market Weapon - AP Slot 2",
+  "shop_id": 6,
+  "token_id": 273,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320022,
+  "name": "Wall Market Weapon - AP Slot 3",
+  "shop_id": 6,
+  "token_id": 282,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320023,
+  "name": "Wall Market Weapon - AP Slot 4",
+  "shop_id": 6,
+  "token_id": 283,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320024,
+  "name": "Wall Market Materia - AP Slot",
+  "shop_id": 7,
+  "token_id": 38,
+  "token_type": "materia",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320025,
+  "name": "Wall Market Item - AP Slot",
+  "shop_id": 8,
+  "token_id": 2,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320026,
+  "name": "Sector 7 Pillar - AP Slot 1",
+  "shop_id": 9,
+  "token_id": 4,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320027,
+  "name": "Sector 7 Pillar - AP Slot 2",
+  "shop_id": 9,
+  "token_id": 5,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320028,
+  "name": "Sector 7 Pillar - AP Slot 3",
+  "shop_id": 9,
+  "token_id": 6,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320029,
+  "name": "Shinra HQ - AP Slot 1",
+  "shop_id": 10,
+  "token_id": 16,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320030,
+  "name": "Shinra HQ - AP Slot 2",
+  "shop_id": 10,
+  "token_id": 17,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320031,
+  "name": "Shinra HQ - AP Slot 3",
+  "shop_id": 10,
+  "token_id": 18,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320032,
+  "name": "Shinra HQ - AP Slot 4",
+  "shop_id": 10,
+  "token_id": 19,
+  "token_type": "item",
+  "region": "Midgar Sector 5"
+ },
+ {
+  "code": 320033,
+  "name": "Kalm Weapon - AP Slot 1",
+  "shop_id": 11,
+  "token_id": 21,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320034,
+  "name": "Kalm Weapon - AP Slot 2",
+  "shop_id": 11,
+  "token_id": 22,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320035,
+  "name": "Kalm Weapon - AP Slot 3",
+  "shop_id": 11,
+  "token_id": 23,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320036,
+  "name": "Kalm Weapon - AP Slot 4",
+  "shop_id": 11,
+  "token_id": 24,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320037,
+  "name": "Kalm Item - AP Slot 1",
+  "shop_id": 12,
+  "token_id": 25,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320038,
+  "name": "Kalm Item - AP Slot 2",
+  "shop_id": 12,
+  "token_id": 26,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320039,
+  "name": "Kalm Item - AP Slot 3",
+  "shop_id": 12,
+  "token_id": 27,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320040,
+  "name": "Kalm Materia - AP Slot",
+  "shop_id": 13,
+  "token_id": 45,
+  "token_type": "materia",
+  "region": "Kalm"
+ },
+ {
+  "code": 320041,
+  "name": "Fort Condor Item - AP Slot 1",
+  "shop_id": 16,
+  "token_id": 28,
+  "token_type": "item",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320042,
+  "name": "Fort Condor Item - AP Slot 2",
+  "shop_id": 16,
+  "token_id": 29,
+  "token_type": "item",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320043,
+  "name": "Fort Condor Item - AP Slot 3",
+  "shop_id": 16,
+  "token_id": 30,
+  "token_type": "item",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320044,
+  "name": "Fort Condor Item - AP Slot 4",
+  "shop_id": 16,
+  "token_id": 32,
+  "token_type": "item",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320045,
+  "name": "Fort Condor Materia - AP Slot",
+  "shop_id": 17,
+  "token_id": 46,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320046,
+  "name": "Lower Junon Weapon - AP Slot 1",
+  "shop_id": 18,
+  "token_id": 33,
+  "token_type": "item",
+  "region": "Junon Lower"
+ },
+ {
+  "code": 320047,
+  "name": "Lower Junon Weapon - AP Slot 2",
+  "shop_id": 18,
+  "token_id": 34,
+  "token_type": "item",
+  "region": "Junon Lower"
+ },
+ {
+  "code": 320048,
+  "name": "Lower Junon Weapon - AP Slot 3",
+  "shop_id": 18,
+  "token_id": 36,
+  "token_type": "item",
+  "region": "Junon Lower"
+ },
+ {
+  "code": 320049,
+  "name": "Lower Junon Weapon - AP Slot 4",
+  "shop_id": 18,
+  "token_id": 37,
+  "token_type": "item",
+  "region": "Junon Lower"
+ },
+ {
+  "code": 320050,
+  "name": "Upper Junon Weapon 1 - AP Slot 1",
+  "shop_id": 19,
+  "token_id": 38,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320051,
+  "name": "Upper Junon Weapon 1 - AP Slot 2",
+  "shop_id": 19,
+  "token_id": 39,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320052,
+  "name": "Upper Junon Weapon 1 - AP Slot 3",
+  "shop_id": 19,
+  "token_id": 40,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320053,
+  "name": "Upper Junon Weapon 1 - AP Slot 4",
+  "shop_id": 19,
+  "token_id": 41,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320054,
+  "name": "Upper Junon Item - AP Slot",
+  "shop_id": 20,
+  "token_id": 42,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320055,
+  "name": "Upper Junon Materia - AP Slot",
+  "shop_id": 21,
+  "token_id": 47,
+  "token_type": "materia",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320056,
+  "name": "Upper Junon Weapon 2 - AP Slot 1",
+  "shop_id": 22,
+  "token_id": 43,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320057,
+  "name": "Upper Junon Weapon 2 - AP Slot 2",
+  "shop_id": 22,
+  "token_id": 44,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320058,
+  "name": "Upper Junon Weapon 2 - AP Slot 3",
+  "shop_id": 22,
+  "token_id": 45,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320059,
+  "name": "Upper Junon Weapon 2 - AP Slot 4",
+  "shop_id": 22,
+  "token_id": 46,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320060,
+  "name": "Upper Junon Accessory - AP Slot 1",
+  "shop_id": 23,
+  "token_id": 47,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320061,
+  "name": "Upper Junon Accessory - AP Slot 2",
+  "shop_id": 23,
+  "token_id": 48,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320062,
+  "name": "Upper Junon Accessory - AP Slot 3",
+  "shop_id": 23,
+  "token_id": 49,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320063,
+  "name": "Upper Junon Accessory - AP Slot 4",
+  "shop_id": 23,
+  "token_id": 55,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320064,
+  "name": "Upper Junon Materia 2 - AP Slot",
+  "shop_id": 24,
+  "token_id": 63,
+  "token_type": "materia",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320065,
+  "name": "Cargo Ship Item - AP Slot 1",
+  "shop_id": 25,
+  "token_id": 56,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320066,
+  "name": "Cargo Ship Item - AP Slot 2",
+  "shop_id": 25,
+  "token_id": 57,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320067,
+  "name": "Cargo Ship Item - AP Slot 3",
+  "shop_id": 25,
+  "token_id": 58,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320068,
+  "name": "Cargo Ship Item - AP Slot 4",
+  "shop_id": 25,
+  "token_id": 59,
+  "token_type": "item",
+  "region": "Junon Upper"
+ },
+ {
+  "code": 320069,
+  "name": "Costa del Sol Weapon - AP Slot 1",
+  "shop_id": 26,
+  "token_id": 60,
+  "token_type": "item",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320070,
+  "name": "Costa del Sol Weapon - AP Slot 2",
+  "shop_id": 26,
+  "token_id": 61,
+  "token_type": "item",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320071,
+  "name": "Costa del Sol Weapon - AP Slot 3",
+  "shop_id": 26,
+  "token_id": 71,
+  "token_type": "item",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320072,
+  "name": "Costa del Sol Weapon - AP Slot 4",
+  "shop_id": 26,
+  "token_id": 72,
+  "token_type": "item",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320073,
+  "name": "Costa del Sol Materia - AP Slot",
+  "shop_id": 27,
+  "token_id": 66,
+  "token_type": "materia",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320074,
+  "name": "Costa del Sol Item - AP Slot",
+  "shop_id": 28,
+  "token_id": 73,
+  "token_type": "item",
+  "region": "Costa del Sol"
+ },
+ {
+  "code": 320075,
+  "name": "North Corel Weapon - AP Slot 1",
+  "shop_id": 29,
+  "token_id": 74,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320076,
+  "name": "North Corel Weapon - AP Slot 2",
+  "shop_id": 29,
+  "token_id": 75,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320077,
+  "name": "North Corel Weapon - AP Slot 3",
+  "shop_id": 29,
+  "token_id": 76,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320078,
+  "name": "North Corel Weapon - AP Slot 4",
+  "shop_id": 29,
+  "token_id": 77,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320079,
+  "name": "North Corel Item - AP Slot 1",
+  "shop_id": 30,
+  "token_id": 78,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320080,
+  "name": "North Corel Item - AP Slot 2",
+  "shop_id": 30,
+  "token_id": 128,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320081,
+  "name": "North Corel Item - AP Slot 3",
+  "shop_id": 30,
+  "token_id": 139,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320082,
+  "name": "North Corel Item - AP Slot 4",
+  "shop_id": 30,
+  "token_id": 140,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320083,
+  "name": "North Corel General - AP Slot 1",
+  "shop_id": 31,
+  "token_id": 141,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320084,
+  "name": "North Corel General - AP Slot 2",
+  "shop_id": 31,
+  "token_id": 142,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320085,
+  "name": "North Corel General - AP Slot 3",
+  "shop_id": 31,
+  "token_id": 143,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320086,
+  "name": "North Corel General - AP Slot 4",
+  "shop_id": 31,
+  "token_id": 144,
+  "token_type": "item",
+  "region": "Corel"
+ },
+ {
+  "code": 320087,
+  "name": "Gongaga Weapon - AP Slot",
+  "shop_id": 34,
+  "token_id": 152,
+  "token_type": "item",
+  "region": "Gongaga"
+ },
+ {
+  "code": 320088,
+  "name": "Gongaga Item - AP Slot",
+  "shop_id": 35,
+  "token_id": 157,
+  "token_type": "item",
+  "region": "Gongaga"
+ },
+ {
+  "code": 320089,
+  "name": "Gongaga Accessory - AP Slot",
+  "shop_id": 36,
+  "token_id": 158,
+  "token_type": "item",
+  "region": "Gongaga"
+ },
+ {
+  "code": 320090,
+  "name": "Cosmo Canyon Weapon - AP Slot 1",
+  "shop_id": 37,
+  "token_id": 159,
+  "token_type": "item",
+  "region": "Cosmo Canyon"
+ },
+ {
+  "code": 320091,
+  "name": "Cosmo Canyon Weapon - AP Slot 2",
+  "shop_id": 37,
+  "token_id": 160,
+  "token_type": "item",
+  "region": "Cosmo Canyon"
+ },
+ {
+  "code": 320092,
+  "name": "Cosmo Canyon Item - AP Slot",
+  "shop_id": 38,
+  "token_id": 173,
+  "token_type": "item",
+  "region": "Cosmo Canyon"
+ },
+ {
+  "code": 320093,
+  "name": "Cosmo Canyon Materia - AP Slot",
+  "shop_id": 39,
+  "token_id": 67,
+  "token_type": "materia",
+  "region": "Cosmo Canyon"
+ },
+ {
+  "code": 320094,
+  "name": "Nibelheim General - AP Slot 1",
+  "shop_id": 40,
+  "token_id": 174,
+  "token_type": "item",
+  "region": "Nibelheim"
+ },
+ {
+  "code": 320095,
+  "name": "Nibelheim General - AP Slot 2",
+  "shop_id": 40,
+  "token_id": 175,
+  "token_type": "item",
+  "region": "Nibelheim"
+ },
+ {
+  "code": 320096,
+  "name": "Nibelheim General - AP Slot 3",
+  "shop_id": 40,
+  "token_id": 186,
+  "token_type": "item",
+  "region": "Nibelheim"
+ },
+ {
+  "code": 320097,
+  "name": "Nibelheim General - AP Slot 4",
+  "shop_id": 40,
+  "token_id": 187,
+  "token_type": "item",
+  "region": "Nibelheim"
+ },
+ {
+  "code": 320098,
+  "name": "Rocket Town Weapon - AP Slot 1",
+  "shop_id": 41,
+  "token_id": 188,
+  "token_type": "item",
+  "region": "Rocket Town"
+ },
+ {
+  "code": 320099,
+  "name": "Rocket Town Weapon - AP Slot 2",
+  "shop_id": 41,
+  "token_id": 189,
+  "token_type": "item",
+  "region": "Rocket Town"
+ },
+ {
+  "code": 320100,
+  "name": "Rocket Town Weapon - AP Slot 3",
+  "shop_id": 41,
+  "token_id": 190,
+  "token_type": "item",
+  "region": "Rocket Town"
+ },
+ {
+  "code": 320101,
+  "name": "Rocket Town Weapon - AP Slot 4",
+  "shop_id": 41,
+  "token_id": 199,
+  "token_type": "item",
+  "region": "Rocket Town"
+ },
+ {
+  "code": 320102,
+  "name": "Rocket Town Item - AP Slot",
+  "shop_id": 42,
+  "token_id": 200,
+  "token_type": "item",
+  "region": "Rocket Town"
+ },
+ {
+  "code": 320103,
+  "name": "Wutai Weapon - AP Slot",
+  "shop_id": 43,
+  "token_id": 207,
+  "token_type": "item",
+  "region": "Wutai"
+ },
+ {
+  "code": 320104,
+  "name": "Wutai Item - AP Slot",
+  "shop_id": 44,
+  "token_id": 208,
+  "token_type": "item",
+  "region": "Wutai"
+ },
+ {
+  "code": 320105,
+  "name": "Temple of the Ancients - AP Slot 1",
+  "shop_id": 45,
+  "token_id": 211,
+  "token_type": "item",
+  "region": "Temple of the Ancients"
+ },
+ {
+  "code": 320106,
+  "name": "Temple of the Ancients - AP Slot 2",
+  "shop_id": 45,
+  "token_id": 212,
+  "token_type": "item",
+  "region": "Temple of the Ancients"
+ },
+ {
+  "code": 320107,
+  "name": "Icicle Inn Weapon - AP Slot",
+  "shop_id": 46,
+  "token_id": 213,
+  "token_type": "item",
+  "region": "Icicle Inn"
+ },
+ {
+  "code": 320108,
+  "name": "Mideel Weapon - AP Slot",
+  "shop_id": 47,
+  "token_id": 214,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320109,
+  "name": "Mideel Accessory - AP Slot 1",
+  "shop_id": 48,
+  "token_id": 215,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320110,
+  "name": "Mideel Accessory - AP Slot 2",
+  "shop_id": 48,
+  "token_id": 226,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320111,
+  "name": "Mideel Accessory - AP Slot 3",
+  "shop_id": 48,
+  "token_id": 227,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320112,
+  "name": "Mideel Item - AP Slot 1",
+  "shop_id": 49,
+  "token_id": 228,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320113,
+  "name": "Mideel Item - AP Slot 2",
+  "shop_id": 49,
+  "token_id": 239,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320114,
+  "name": "Mideel Item - AP Slot 3",
+  "shop_id": 49,
+  "token_id": 240,
+  "token_type": "item",
+  "region": "Mideel"
+ },
+ {
+  "code": 320116,
+  "name": "Bone Village - AP Slot",
+  "shop_id": 65,
+  "token_id": 241,
+  "token_type": "item",
+  "region": "Bone Village"
+ },
+ {
+  "code": 320117,
+  "name": "Kalm Weapon - AP Slot 5",
+  "shop_id": 11,
+  "token_id": 116,
+  "token_type": "item",
+  "region": "Kalm"
+ },
+ {
+  "code": 320118,
+  "name": "Kalm Materia - AP Slot 2",
+  "shop_id": 13,
+  "token_id": 2,
+  "token_type": "materia",
+  "region": "Kalm"
+ },
+ {
+  "code": 320119,
+  "name": "Kalm Materia - AP Slot 3",
+  "shop_id": 13,
+  "token_id": 4,
+  "token_type": "materia",
+  "region": "Kalm"
+ },
+ {
+  "code": 320120,
+  "name": "Kalm Materia - AP Slot 4",
+  "shop_id": 13,
+  "token_id": 5,
+  "token_type": "materia",
+  "region": "Kalm"
+ },
+ {
+  "code": 320121,
+  "name": "Kalm Materia - AP Slot 5",
+  "shop_id": 13,
+  "token_id": 6,
+  "token_type": "materia",
+  "region": "Kalm"
+ },
+ {
+  "code": 320122,
+  "name": "Fort Condor Item - AP Slot 5",
+  "shop_id": 16,
+  "token_id": 117,
+  "token_type": "item",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320123,
+  "name": "Fort Condor Materia - AP Slot 2",
+  "shop_id": 17,
+  "token_id": 7,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320124,
+  "name": "Fort Condor Materia - AP Slot 3",
+  "shop_id": 17,
+  "token_id": 8,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320125,
+  "name": "Fort Condor Materia - AP Slot 4",
+  "shop_id": 17,
+  "token_id": 9,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320126,
+  "name": "Fort Condor Materia - AP Slot 5",
+  "shop_id": 17,
+  "token_id": 10,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ },
+ {
+  "code": 320127,
+  "name": "Fort Condor Materia - AP Slot 6",
+  "shop_id": 17,
+  "token_id": 11,
+  "token_type": "materia",
+  "region": "Fort Condor"
+ }
 ]

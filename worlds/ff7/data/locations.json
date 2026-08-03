@@ -3167,6 +3167,32 @@
     "bit": 4
   },
   {
+    "name": "Gold Saucer Area - Chocobo Racing Rank B",
+    "code": 310101,
+    "map": "crcin_1",
+    "maps": [
+      "crcin_1"
+    ],
+    "item_text": "Chocobo Racing Rank B",
+    "category": "standard",
+    "bank": 5,
+    "address": 23,
+    "bit": 0
+  },
+  {
+    "name": "Gold Saucer Area - Chocobo Racing Rank A",
+    "code": 310102,
+    "map": "crcin_1",
+    "maps": [
+      "crcin_1"
+    ],
+    "item_text": "Chocobo Racing Rank A",
+    "category": "standard",
+    "bank": 5,
+    "address": 23,
+    "bit": 1
+  },
+  {
     "name": "Sleeping Forest - Kujata",
     "code": 300234,
     "map": "slfrst_2",
