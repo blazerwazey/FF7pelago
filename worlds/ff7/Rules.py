@@ -100,9 +100,14 @@ def _apply_free_roam_rules(world: "FF7World") -> None:
     accepts Green/Blue/Black/Submarine/Highwind, and the goal needs Highwind), so
     restricting where it can be placed cannot soft-lock a seed.
 
-    Also prevent Submarine from being placed in foot-only regions to ensure
-    AP sends a mountain-crossing vehicle first (Submarine's in-game location
-    at Junon requires mountain crossing to reach)."""
+    Also prevent Submarine from being placed in foot-only regions, as a placement
+    PREFERENCE only — the sub sits at the Junon dock, so a sub found before a
+    mountain-crossing vehicle is dead weight until one shows up.
+
+    This list is NOT the safety net: it omits Midgar (foot-reachable behind Key to
+    Sector 5), which is where seed 81032245788812016663 put the sub, stranding the
+    player in v0.0.5. Correctness now lives in _sub/_underwater in __init__.py,
+    which AND the Junon mountain crossing into every Submarine credit."""
     player = world.player
     for location in world.multiworld.get_locations(player):
         region = location.parent_region

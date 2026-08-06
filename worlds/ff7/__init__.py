@@ -293,7 +293,12 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "sinin1_2":   "Nibelheim",
     "sinin2_1":   "Nibelheim",
     "sinin2_2":   "Nibelheim",
-    "sininb42":   "Shinra Mansion Basement",
+    # sininb42 (Destruct) is NOT behind the Basement-Key door — playtest-confirmed
+    # 2026-08-05. Gold Saucer's BASEMENT_GATE patch re-gates sininb2, and sininb42
+    # sits on the near side of it, so the materia is reachable from the mansion
+    # proper. It lives in Nibelheim with the rest of the mansion (sinin1_2 /
+    # sinin2_1 / sinin2_2) rather than in the key-gated basement region.
+    "sininb42":   "Nibelheim",
     "sininb1":    "Shinra Mansion Basement",   # Vincent's coffin room (Recruit Vincent check)
     "mtnvl2":     "Mt. Nibel",
     "mtnvl3":     "Mt. Nibel",
@@ -601,11 +606,18 @@ _CHOCOBO_RACE_CHECK_CODES = frozenset({
     310098,                   # Gold Saucer Area - First Chocobo Race    (bit 2)
     310099,                   # Gold Saucer Area - Chocobo Racing Rank S (bit 4)
     # Rank B and A have NO dedicated flag in 0xE2E — it only records the first
-    # race, Rank S (9 wins) and the 19-win Sprint Shoes. They are read instead
-    # from the CURRENT RACING CLASS byte, savemap 0xDBB (bank 5 / addr 23),
-    # documented as "00: Class C | 01: Class B | 02: Class A | 03: Class S".
-    # As a bitfield that lands conveniently: B = bit 0, A = bit 1, and S (3) sets
-    # both — so reaching S also satisfies the two ranks it was reached through.
+    # race, Rank S (9 wins) and the 19-win Sprint Shoes. Their bank/address/bit in
+    # locations.json points at the CURRENT RACING CLASS byte, savemap 0xDBB
+    # (bank 5 / addr 23), "00: Class C | 01: Class B | 02: Class A | 03: Class S".
+    #
+    # That entry is RETAINED ONLY so these codes stay in the pool — Locations.py
+    # _load_placeable_codes() keeps a location only if it has bank >= 0, so
+    # clearing the flag here would delete both checks outright. The client no
+    # longer DETECTS on it: 0xDBB is a value, not an achievement bitfield, so
+    # reading bit 0 / bit 1 both misses Rank B when the class is exactly A and
+    # misfires on any class the player did not earn. The client's
+    # _BITON_SCAN_EXCLUDE skips these two codes and the per-chocobo win counter
+    # in _chocobo_rank_checks() is authoritative (2026-08-06).
     310101,                   # Gold Saucer Area - Chocobo Racing Rank B (bit 0)
     310102,                   # Gold Saucer Area - Chocobo Racing Rank A (bit 1)
 })
@@ -889,11 +901,15 @@ class FF7World(World):
             world_region.locations.append(ff7_location)
 
         # Shop-slot AP locations (linear: all in the single world region).
-        for shop_data in SHOP_LOCATION_TABLE.values():
-            shop_loc = FF7Location(
-                self.player, shop_data.name, shop_data.code, world_region,
-            )
-            world_region.locations.append(shop_loc)
+        # Only exist when shop randomization is on — see the note in
+        # _create_free_roam_regions: Gold Saucer never injects the AP token slots
+        # with the feature off, so these checks are unobtainable in-game.
+        if self.options.randomize_shops:
+            for shop_data in SHOP_LOCATION_TABLE.values():
+                shop_loc = FF7Location(
+                    self.player, shop_data.name, shop_data.code, world_region,
+                )
+                world_region.locations.append(shop_loc)
 
         victory_loc = FF7Location(self.player, self.victory_location_name, None, world_region)
         victory_loc.place_locked_item(
@@ -980,13 +996,24 @@ class FF7World(World):
             return (state.has("Blue Chocobo", player) or state.has("Black Chocobo", player)
                     or state.has("Gold Chocobo", player) or state.has("Highwind", player))
 
+        # The Submarine is PARKED AT THE JUNON DOCK (client _VEHICLE_FIXED_POS[13] =
+        # 169884/-240/149694), so owning the item is worthless until you can physically
+        # walk to Junon — and Junon is behind the mountain crossing. Holding the sub
+        # usable on its own let fill strand a seed: put every mountain-capable item
+        # (Green/Black/Gold chocobo, Highwind) behind the sub or the ocean and the
+        # player is dead on the starting continent holding a sub they can never board.
+        # Shipped that way in v0.0.5 — seed 81032245788812016663 (2026-08-04).
+        # If the sub is ever re-parked somewhere foot-reachable, drop this AND.
+        def _has_sub(state):
+            return state.has("Submarine", player) and _mountain(state)
+
         def _sub(state):         # North Corel + Gold Saucer (Submarine), or full ocean
-            return (state.has("Submarine", player) or state.has("Blue Chocobo", player)
+            return (_has_sub(state) or state.has("Blue Chocobo", player)
                     or state.has("Black Chocobo", player) or state.has("Gold Chocobo", player)
                     or state.has("Highwind", player))
 
         def _underwater(state):  # underwater only (Submarine)
-            return state.has("Submarine", player)
+            return _has_sub(state)
 
         # --- Eastern continent, foot-reachable (no gate) ---
         world_map.connect(sub_regions["Kalm"])
@@ -1166,9 +1193,15 @@ class FF7World(World):
         )
 
         # --- Underwater (Submarine): Underwater Reactor + sunken Gelnika ---
-        # Underwater Reactor requires mountain crossing to reach Junon
+        # Underwater Reactor is entered on foot from Junon, so it needs the mountain
+        # crossing — plus the Junon Key ONLY when town gating is on. The key was
+        # required unconditionally, but it is not added to the pool with gating off
+        # (the default), so the region and its 3 checks were permanently unreachable
+        # in every default seed. Caught by test_default_all_state_can_reach_everything.
+        _tg_junon = bool(self.options.town_gating)
         world_map.connect(sub_regions["Underwater Reactor"]).access_rule = (
-            lambda state: _mountain(state) and state.has("Junon Key", player)
+            lambda state: (_mountain(state)
+                           and (not _tg_junon or state.has("Junon Key", player)))
         )
         # Red Submarine requires Submarine item to drive underwater
         world_map.connect(sub_regions["Red Submarine"]).access_rule = _underwater
@@ -1240,18 +1273,27 @@ class FF7World(World):
         # Shop-slot AP locations: placed in their shop's Free Roam region, so the
         # region's access rule gates reachability (e.g. Junon shops need Green
         # Chocobo). Shops whose region isn't created are skipped (unreachable).
-        for shop_data in SHOP_LOCATION_TABLE.values():
-            if shop_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
-                continue
-            if disable_gold_saucer and shop_data.region == "Gold Saucer Area":
-                continue
-            target_region = sub_regions.get(shop_data.region)
-            if target_region is None:
-                continue
-            shop_loc = FF7Location(
-                player, shop_data.name, shop_data.code, target_region,
-            )
-            target_region.locations.append(shop_loc)
+        #
+        # Gated on randomize_shops. The AP token slots are injected by Gold
+        # Saucer's ShopRandomizer (loadApShops/applyApShops), and SimpleMainWindow
+        # only calls randomizeShops() when Config::ShopRandomization is on — which
+        # it sets from this very option in the .apff7. So with the option off the
+        # slots are never written to the exe and every shop check is unobtainable
+        # in-game, while AP happily filled them (progression included). Same
+        # unbeatable-seed class as the parked Submarine. Fixed 2026-08-04.
+        if self.options.randomize_shops:
+            for shop_data in SHOP_LOCATION_TABLE.values():
+                if shop_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
+                    continue
+                if disable_gold_saucer and shop_data.region == "Gold Saucer Area":
+                    continue
+                target_region = sub_regions.get(shop_data.region)
+                if target_region is None:
+                    continue
+                shop_loc = FF7Location(
+                    player, shop_data.name, shop_data.code, target_region,
+                )
+                target_region.locations.append(shop_loc)
 
         # Weapon bosses are world-map encounters (not field maps), so wire them
         # directly onto World Map with their own access rules. Optional via
@@ -1445,20 +1487,37 @@ class FF7World(World):
                 "Keycard 60", "Keycard 62", "Keycard 65", "Keycard 66", "Keycard 68",
             ]
 
+        # Items that must be placed FIRST, i.e. last in the pool. fill_restrictive
+        # pops from the END, so the FRONT of the pool is placed last — when almost
+        # nothing is collected and only sphere-0 locations are reachable. The Gold
+        # Chocobo is barred from every sphere-0 region by Rules.py
+        # (_GOLD_CHOCOBO_EARLY_REGIONS), so landing at the front makes it
+        # unplaceable: "No more spots to place 1 items". Shop slots used to pad
+        # the pool enough to hide this; with randomize_shops off it fails outright
+        # on ~1% of seeds. Placing it first (state at its fullest, any late region
+        # legal) removes the conflict without weakening the early-region ban.
+        late_placement_items = ["Gold Chocobo"] if self.options.free_roam else []
+
         # Reorder progression pool: priority items first
         priority_items = []
         other_items = []
+        deferred_items = []
 
         for item in progitempool:
-            if item.name in early_priority_items and item.player == self.player:
+            if item.player != self.player:
+                other_items.append(item)
+            elif item.name in early_priority_items:
                 priority_items.append(item)
+            elif item.name in late_placement_items:
+                deferred_items.append(item)
             else:
                 other_items.append(item)
 
-        # Clear and rebuild progitempool with priority items first
+        # Clear and rebuild: priority (placed last) -> rest -> deferred (placed first)
         progitempool.clear()
         progitempool.extend(priority_items)
         progitempool.extend(other_items)
+        progitempool.extend(deferred_items)
 
     @classmethod
     def _get_ff7_option_names(cls) -> tuple[str, ...]:

@@ -199,3 +199,9 @@ _speedups.html
 .LSOverride
 Thumbs.db
 [Dd]esktop.ini
+worlds/ff7/test/test_chocobo_wins.py
+worlds/ff7/test/test_export_shops_off.py
+worlds/ff7/test/test_mansion.py
+worlds/ff7/test/test_options.py
+worlds/ff7/test/test_shops.py
+worlds/ff7/test/test_traversal.py

@@ -1,4 +1,5 @@
 from .bases import FF7TestBase
+from .. import _TOWN_GATE_KEYS
 
 # Each class here just exercises a different option combination. Defining the
 # class is enough: the inherited generic tests re-run reachability + fill for
@@ -88,11 +89,10 @@ class TestStartWithChocoboLureOff(FF7TestBase):
         self.assertFalse(any(it.name == "Chocobo Lure" for it in precollected))
 
 
-_TOWN_KEYS = (
-    "Fort Condor Key", "Junon Key", "North Corel Key", "Cosmo Canyon Key",
-    "Nibelheim Key", "Rocket Town Key", "Wutai Key", "Icicle Inn Key",
-    "Mideel Key", "Gongaga Key", "Bone Village Key",
-)
+# Derived from the gate map rather than hand-listed: the hard-coded copy went
+# stale when Fort Condor was ungated (2026-07-31, its key is excluded from the
+# pool now) and it had never been updated for Costa del Sol Key either.
+_TOWN_KEYS = tuple(sorted(set(_TOWN_GATE_KEYS.values())))
 
 
 class TestTownGatingOn(FF7TestBase):

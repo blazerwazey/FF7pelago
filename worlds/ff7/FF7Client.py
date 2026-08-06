@@ -472,18 +472,26 @@ ShopKey = Tuple[int, int, int]
 # are listed and each slot only actually exists in one of them.
 _SHOP_ID_MIRRORS: Dict[int, Tuple[int, ...]] = {
     16: (51,), 17: (52,),               # Fort Condor    item / materia
-    19: (54,),                          # Upper Junon    weapon #1
+    19: (54,),                          # Lower Junon    weapon
     20: (55,),                          # Upper Junon    item
-    22: (57,), 23: (58,),               # Upper Junon    weapon #2 / accessory
-    24: (59,),                          # Upper Junon    materia #2
+    22: (57,), 23: (58,),               # Upper Junon weapon / Lower Junon accessory
+    24: (59,),                          # Lower Junon    materia
     26: (60,), 27: (61,), 28: (62,),    # Costa del Sol  weapon / materia / item
     41: (63,), 42: (64,),               # Rocket Town    weapon / item
 }
-# NOTE: 59 is the D2 variant of shop 24 (Upper Junon Materia #2), NOT a second late
-# id for the item shop 20. An earlier build mapped 20 -> (55, 59) and had GS SPLIT
-# shop 20 across both, which overwrote shop 24 entirely — so its AP token ("Upper
-# Junon Materia 2 - AP Slot") lived in no reachable shop (reported 2026-07-23).
-# Shop 21 (Upper Junon Materia #1) has no D1/D2 split and needs no mirror.
+# NOTE: 59 is the D2 variant of shop 24 (the Lower Junon materia shop), NOT a second
+# late id for the item shop 20. An earlier build mapped 20 -> (55, 59) and had GS
+# SPLIT shop 20 across both, which overwrote shop 24 entirely — so its AP token
+# (then named "Upper Junon Materia 2 - AP Slot", now "Lower Junon Materia - AP
+# Slot") lived in no reachable shop (reported 2026-07-23).
+# Shop 21 (the Upper Junon materia shop) has no D1/D2 split and needs no mirror.
+#
+# Shop-id -> area, corrected 2026-08-06 from a playtest report: several shops were
+# NAMED "Upper Junon ..." but physically sit in Lower or Under Junon. Only the
+# names changed; codes, shop ids and token ids are untouched.
+#   18 = Under Junon weapon   19 = Lower Junon weapon    20 = Upper Junon item
+#   21 = Upper Junon materia  22 = Upper Junon weapon    23 = Lower Junon accessory
+#   24 = Lower Junon materia
 
 
 def _shops_from_apff7(
@@ -2586,15 +2594,44 @@ _CHOCO_RANK_CHECKS = {             # location code -> wins needed
     310099: 9,                     # Chocobo Racing Rank S (also has a native flag)
 }
 
+# Location codes the GENERIC BITON SCAN must not fire, because a dedicated
+# detector above already owns them.
+#
+# Rank B (310101) and Rank A (310102) carry biton metadata pointing at savemap
+# 0xDBB — but that byte is the CURRENTLY SELECTED RACING CLASS as a VALUE
+# (0=C, 1=B, 2=A, 3=S), not a bitfield of achievements. Reading bit 0 / bit 1 of
+# it is wrong in both directions:
+#   * it MISSES Rank B whenever the class is exactly A (2 -> bit 0 clear), and
+#   * it MISFIRES whenever the byte holds a class the player did not earn.
+# _chocobo_rank_checks() reads the per-chocobo win counter instead, which is
+# monotonic and is the reason the class-byte approach was replaced — but the
+# biton was never retired, leaving a duplicate and strictly worse path live.
+# Rank S (310099) and First Race (310098) are NOT excluded: their flags in 0xE2E
+# are genuine one-way achievement bits.
+_BITON_SCAN_EXCLUDE: frozenset = frozenset({310101, 310102})
+
 
 def _best_chocobo_wins(pm: "pymem.Pymem") -> int:
-    """Highest race-win count of any chocobo in the stable, or 0."""
+    """Highest race-win count of any OCCUPIED chocobo stable slot, or 0.
+
+    The occupancy bitmask at _CHOCO_MASK is authoritative — an UNOCCUPIED slot's
+    16 bytes are not owned by anything and hold whatever the md1stin Free Roam
+    baseline left there. This used to read all 6 slots and merely filter on
+    `0 < wins < 200`, which accepts almost any junk byte: a single unoccupied
+    slot holding >= 9 at +0x0D silently fired Chocobo Racing Rank B, A AND S at
+    once, for a player who had never entered the Chocobo Square (reported
+    2026-08-06 on v0.0.5). _deliver_chocobo already treats the mask as the
+    source of truth and explicitly zeroes raceswon; this now matches it.
+    """
     best = 0
     try:
         base = SAVEMAP_BASE + _CHOCO_SLOT0
+        mask = pm.read_uchar(SAVEMAP_BASE + _CHOCO_MASK)
         for n in range(_CHOCO_MAX_SLOTS):
+            if not (mask >> n) & 1:            # slot empty -> bytes are garbage
+                continue
             wins = pm.read_uchar(base + n * 16 + _CHOCO_WINS_OFFSET)
-            if 0 < wins < 200:                 # ignore junk in an unused slot
+            if 0 < wins < 200:                 # guard a torn/mid-write read
                 best = max(best, wins)
     except Exception as exc:
         logger.debug(f"chocobo win read failed: {exc}")
@@ -4492,7 +4529,8 @@ async def game_watcher(ctx: FF7Context) -> None:
             for code, (bank, address, bit) in ctx.biton_map.items():
                 if (code in ctx.checked_locations
                         or code in ctx._checked_this_session
-                        or code in ctx._baseline_locations):
+                        or code in ctx._baseline_locations
+                        or code in _BITON_SCAN_EXCLUDE):   # dedicated detector owns it
                     continue
                 try:
                     hit = _biton_is_set(bank, address, bit)

@@ -369,7 +369,7 @@
  },
  {
   "code": 320046,
-  "name": "Lower Junon Weapon - AP Slot 1",
+  "name": "Under Junon Weapon - AP Slot 1",
   "shop_id": 18,
   "token_id": 33,
   "token_type": "item",
@@ -377,7 +377,7 @@
  },
  {
   "code": 320047,
-  "name": "Lower Junon Weapon - AP Slot 2",
+  "name": "Under Junon Weapon - AP Slot 2",
   "shop_id": 18,
   "token_id": 34,
   "token_type": "item",
@@ -385,7 +385,7 @@
  },
  {
   "code": 320048,
-  "name": "Lower Junon Weapon - AP Slot 3",
+  "name": "Under Junon Weapon - AP Slot 3",
   "shop_id": 18,
   "token_id": 36,
   "token_type": "item",
@@ -393,7 +393,7 @@
  },
  {
   "code": 320049,
-  "name": "Lower Junon Weapon - AP Slot 4",
+  "name": "Under Junon Weapon - AP Slot 4",
   "shop_id": 18,
   "token_id": 37,
   "token_type": "item",
@@ -401,7 +401,7 @@
  },
  {
   "code": 320050,
-  "name": "Upper Junon Weapon 1 - AP Slot 1",
+  "name": "Lower Junon Weapon - AP Slot 1",
   "shop_id": 19,
   "token_id": 38,
   "token_type": "item",
@@ -409,7 +409,7 @@
  },
  {
   "code": 320051,
-  "name": "Upper Junon Weapon 1 - AP Slot 2",
+  "name": "Lower Junon Weapon - AP Slot 2",
   "shop_id": 19,
   "token_id": 39,
   "token_type": "item",
@@ -417,7 +417,7 @@
  },
  {
   "code": 320052,
-  "name": "Upper Junon Weapon 1 - AP Slot 3",
+  "name": "Lower Junon Weapon - AP Slot 3",
   "shop_id": 19,
   "token_id": 40,
   "token_type": "item",
@@ -425,7 +425,7 @@
  },
  {
   "code": 320053,
-  "name": "Upper Junon Weapon 1 - AP Slot 4",
+  "name": "Lower Junon Weapon - AP Slot 4",
   "shop_id": 19,
   "token_id": 41,
   "token_type": "item",
@@ -449,7 +449,7 @@
  },
  {
   "code": 320056,
-  "name": "Upper Junon Weapon 2 - AP Slot 1",
+  "name": "Upper Junon Weapon - AP Slot 1",
   "shop_id": 22,
   "token_id": 43,
   "token_type": "item",
@@ -457,7 +457,7 @@
  },
  {
   "code": 320057,
-  "name": "Upper Junon Weapon 2 - AP Slot 2",
+  "name": "Upper Junon Weapon - AP Slot 2",
   "shop_id": 22,
   "token_id": 44,
   "token_type": "item",
@@ -465,7 +465,7 @@
  },
  {
   "code": 320058,
-  "name": "Upper Junon Weapon 2 - AP Slot 3",
+  "name": "Upper Junon Weapon - AP Slot 3",
   "shop_id": 22,
   "token_id": 45,
   "token_type": "item",
@@ -473,7 +473,7 @@
  },
  {
   "code": 320059,
-  "name": "Upper Junon Weapon 2 - AP Slot 4",
+  "name": "Upper Junon Weapon - AP Slot 4",
   "shop_id": 22,
   "token_id": 46,
   "token_type": "item",
@@ -481,7 +481,7 @@
  },
  {
   "code": 320060,
-  "name": "Upper Junon Accessory - AP Slot 1",
+  "name": "Lower Junon Accessory - AP Slot 1",
   "shop_id": 23,
   "token_id": 47,
   "token_type": "item",
@@ -489,7 +489,7 @@
  },
  {
   "code": 320061,
-  "name": "Upper Junon Accessory - AP Slot 2",
+  "name": "Lower Junon Accessory - AP Slot 2",
   "shop_id": 23,
   "token_id": 48,
   "token_type": "item",
@@ -497,7 +497,7 @@
  },
  {
   "code": 320062,
-  "name": "Upper Junon Accessory - AP Slot 3",
+  "name": "Lower Junon Accessory - AP Slot 3",
   "shop_id": 23,
   "token_id": 49,
   "token_type": "item",
@@ -505,7 +505,7 @@
  },
  {
   "code": 320063,
-  "name": "Upper Junon Accessory - AP Slot 4",
+  "name": "Lower Junon Accessory - AP Slot 4",
   "shop_id": 23,
   "token_id": 55,
   "token_type": "item",
@@ -513,7 +513,7 @@
  },
  {
   "code": 320064,
-  "name": "Upper Junon Materia 2 - AP Slot",
+  "name": "Lower Junon Materia - AP Slot",
   "shop_id": 24,
   "token_id": 63,
   "token_type": "materia",
