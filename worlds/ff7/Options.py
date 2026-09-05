@@ -55,7 +55,20 @@ class RandomizeStartingEquipment(DefaultOnToggle):
 
 
 class StartingEquipmentTier(Range):
-    """Tier of starting equipment when randomization is enabled (1-5, higher = better)."""
+    """How strong the randomized starting equipment is (1 = weakest, 5 = strongest).
+
+    Each character's weapon list, and the armor and accessory lists, are broadly
+    ordered weakest to strongest in FF7. The tier picks which fifth of those lists
+    your starting gear is drawn from, so tier 1 starts Cloud on a Buster Sword and
+    tier 5 can start him near the top of his list.
+
+    It also scales how much starting materia you get, and how likely you are to
+    begin with an accessory at all. Materia is chosen from the full list at every
+    tier: that list is ordered by type rather than power, so slicing it would leave
+    low tiers with no healing magic and high tiers with nothing but summons.
+
+    Has no effect unless randomize_starting_equipment is on.
+    """
     display_name = "Starting Equipment Tier"
     range_start = 1
     range_end = 5
@@ -75,7 +88,7 @@ class VictoryCondition(Choice):
 
 
 class FreeRoam(Toggle):
-    """Start the game on the world map at game moment 1603 (near-endgame state).
+    """Start the game on the world map at game moment 1997 (near-endgame state).
 
     When enabled, the game begins with Cloud and party on the world map with
     foot access to all continents. Vehicles (Tiny Bronco, Highwind, Submarine)
@@ -150,14 +163,111 @@ class DisableFortCondorChecks(Toggle):
     default = False
 
 
+class ShopSlotsPerShop(Range):
+    """How many Archipelago check slots each shop gets (Free Roam, shops on).
+
+    0 (default) keeps the hand-authored counts, which vary from 1 to 6 depending
+    on the shop. Any value from 1 to 10 overrides that uniformly: every shop
+    offers exactly that many AP slots.
+
+    10 is the hard ceiling — the game's shop records hold ten 8-byte slots each,
+    and AP slots take priority over the shop's ordinary stock, so a high value
+    means shops sell less of their normal inventory. Raising this adds a lot of
+    checks: at 10 the pool gains well over 300.
+
+    Has no effect unless randomize_shops is on.
+    """
+    display_name = "Shop Slots Per Shop"
+    range_start = 0
+    range_end = 10
+    default = 0
+
+
+class ProgressiveChocobos(Toggle):
+    """Replace the four colour chocobos with one progressive item (Free Roam).
+
+    Off (default): Green, Blue, Black and Gold Chocobo are four separate items,
+    each granting its own terrain.
+
+    On: the pool instead holds four copies of "Progressive Chocobo", and each
+    copy grants the next bird in order —
+
+      1. Yellow — a chocobo of your own, but it crosses nothing
+      2. Green  — cross the Junon mountains
+      3. Black  — mountains and open ocean
+      4. Gold   — all terrain, including Knights of the Round
+
+    Blue is not on the ladder. Blue and Green are siblings rather than steps —
+    one crosses water, the other mountains — so a four-rung ladder has to pick
+    one, and this order is how a player actually breeds them.
+
+    Holding N copies means you own every bird up to N, so the tiers are
+    cumulative in capability. The first copy opens no new destination; ocean
+    crossings arrive with Black at tier 3, which is also when the Chocobo Sage,
+    the HP<->MP Cave and the Ancient Forest open.
+    """
+    display_name = "Progressive Chocobos"
+    default = False
+
+
+class PartyLevelSync(DefaultOnToggle):
+    """Characters join at the party leader's level instead of their vanilla one.
+
+    In Free Roam the story never recruits anyone, so six of the eight optional
+    characters arrived at their kernel starting level — near level 1 — while
+    Cloud had been raised to the Free Roam start level and levelled from there.
+    With this on, a delivered character is raised to Cloud's current level, with
+    stats computed from their OWN growth curve, once each. Their materia,
+    equipment and limit progress are untouched, and a character you have already
+    levelled past Cloud is left alone.
+
+    Turn it off if you would rather bring newcomers up yourself.
+    """
+    display_name = "Party Level Sync"
+
+
+class DisableGilDumpChecks(Toggle):
+    """Remove the "pay a pile of gil" check locations from the pool (Free Roam).
+
+    Two checks are gated purely on spending money rather than on reaching
+    anywhere: the Wall Market weapon shop's Sneak Glove, and buying Cloud's
+    Villa in Costa del Sol. Enable this if you'd rather not have checks that
+    amount to a gil tax. The items on them return to the pool and appear
+    elsewhere, so nothing is lost.
+    """
+    display_name = "Disable Gil Dump Checks"
+    default = False
+
+
+class DisableBoneVillageDigs(Toggle):
+    """Remove the Bone Village dig checks from the pool (Free Roam only).
+
+    Drops all five dig rewards — Buntline, Megalixir and Mop, plus the two key
+    items normally dug up there (the Lunar Harp and the Key to Sector 5).
+    Enable this if you'd rather not play the excavation minigame.
+
+    The Lunar Harp and Key to Sector 5 ITEMS stay in the pool and are placed
+    somewhere else, so you never have to dig for them — only the dig locations
+    go away. Removing just the three loot digs would have left you excavating
+    for two progression items anyway, which is why this covers all five.
+    """
+    display_name = "Disable Bone Village Digs"
+    default = False
+
+
 class WeaponFightChecks(DefaultOnToggle):
     """Include the optional Weapon superbosses as check locations (Free Roam).
 
     When on (default), defeating Ultimate, Ruby, and Emerald Weapon each award
     an Archipelago check. When off, the Weapons are not checks — they can still
-    be fought, but no item is placed on them. Reaching each still requires the
-    relevant traversal (Ultimate: Highwind; Ruby: Highwind + Ultimate defeated;
-    Emerald: Submarine).
+    be fought, but no item is placed on them.
+
+    Logic requires the Highwind for Ultimate and Ruby, and the Submarine for
+    Emerald. Ruby additionally cannot be fought until Ultimate is dead, but that
+    is enforced by the GAME, not by logic — Ruby does not spawn until then, and
+    Archipelago cannot model a battle outcome, only which items you hold. So
+    Ruby enters logic alongside Ultimate: you are expected to kill Ultimate
+    first, which the Highwind already lets you do.
     """
     display_name = "Weapon Fight Checks"
 
@@ -189,22 +299,6 @@ class TownGating(Toggle):
     display_name = "Town Gating"
     default = False
 
-
-class StartWithChocoboLure(Toggle):
-    """Start with a Chocobo Lure materia in your inventory.
-
-    Chocobo Lure raises the chocobo encounter rate on chocobo tracks, making it
-    easier to find (and catch) chocobos early. When enabled you begin the game
-    with one Chocobo Lure already in your materia stock, in addition to any that
-    may appear in the item pool.
-    """
-    display_name = "Start with Chocobo Lure"
-    default = False
-
-
-# ---------------------------------------------------------------------------
-# Options dataclass
-# ---------------------------------------------------------------------------
 
 class TrapFillPercent(Range):
     """Percentage of filler item slots to replace with traps (0 = no traps)."""
@@ -409,9 +503,13 @@ class FF7Options(PerGameCommonOptions):
     # Saucer, so that option silently removes them and the two must be read together.
     chocobo_race_checks: ChocoboRaceChecks
     disable_fort_condor_checks: DisableFortCondorChecks
+    shop_slots_per_shop: ShopSlotsPerShop
+    progressive_chocobos: ProgressiveChocobos
+    party_level_sync: PartyLevelSync
+    disable_gil_dump_checks: DisableGilDumpChecks
+    disable_bone_village_digs: DisableBoneVillageDigs
     weapon_fight_checks: WeaponFightChecks
     town_gating: TownGating
-    start_with_chocobo_lure: StartWithChocoboLure
 
     # Goal
     victory_condition: VictoryCondition

@@ -5085,5 +5085,45 @@
     "bank": 13,
     "address": 147,
     "bit": 6
+  },
+  {
+    "name": "Gongaga Jungle - Reno & Rude Chest",
+    "code": 310103,
+    "map": "gonjun2",
+    "item_text": "",
+    "category": "standard",
+    "bank": 3,
+    "address": 27,
+    "bit": 0
+  },
+  {
+    "name": "Under Junon - Bottomswell Chest",
+    "code": 310104,
+    "map": "ujunon2",
+    "item_text": "",
+    "category": "standard",
+    "bank": 3,
+    "address": 28,
+    "bit": 0
+  },
+  {
+    "name": "Midgar Sector 5 - Motor Ball Chest",
+    "code": 310105,
+    "map": "mds5_5",
+    "item_text": "",
+    "category": "standard",
+    "bank": 3,
+    "address": 29,
+    "bit": 0
+  },
+  {
+    "name": "Temple of the Ancients - Demons Gate Chest",
+    "code": 310106,
+    "map": "kuro_12",
+    "item_text": "",
+    "category": "standard",
+    "bank": 3,
+    "address": 30,
+    "bit": 0
   }
 ]

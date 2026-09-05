@@ -243,18 +243,51 @@ _FREE_ROAM_FORCE_FLAGS = [
                    #    The vanilla event that sets this is skipped in Free Roam. No
                    #    location detects on bit 5 (snowboard=bit1, glacier map=bit6).
     (0x0C26, 7),   # #7 First time snowboarding
-    # Junon "Junon area story flags" — Var[1][129] (0xBA4+0x81 = 0xC25). Force the
-    # whole byte (all 8 bits = 0xFF) so the one-time Junon arrival sequence (Priscilla
-    # CPR, climb-the-tower, top-of-pole, etc.) is marked done and won't re-trigger on
-    # Free Roam entry.
-    (0x0C25, 0),   # #0 Priscilla warnings given
+    # Junon "Junon area story flags" — Var[1][129] (0xBA4+0x81 = 0xC25). Forcing a
+    # bit ON marks that one-time event done so it won't re-trigger on Free Roam entry.
+    #
+    # BITS 0 AND 4 ARE DELIBERATELY ABSENT. This list used to force the whole byte
+    # (all 8 bits) on the assumption that every bit here reads "already done" and is
+    # tested OFF. That is wrong for these two, which are tested ON to FIRE content:
+    #   ujunon2 `drctr` script 0 Main @0x00607: IFUB Var[1][129].0 bit_on -> falls
+    #     through to REQEW cloud script 12, the "washed ashore" scene (Cloud face-down,
+    #     gets up, Priscilla asks "Did you drown?").
+    #   cloud script 12 @0x00899: IFUB Var[1][129].4 bit_on picks the "Did you drown?"
+    #     line over the alternative.
+    # In vanilla, ujunon3 BITONs bit 0 as you swim out and ujunon2's scene BITOFFs 0
+    # and 4 to consume it — a transient handoff, not a "done" latch. Forcing them ON
+    # every poll re-armed the scene faster than the script could clear it, so it fired
+    # on every ujunon2 entry, forever. Playtester report 2026-09-02.
+    # With both left clear, drctr's IFUB jumps to 0x00623 (UC 00 / MENU2 00 / RET) and
+    # the field loads normally. Verified against the disassembly, not inferred.
     (0x0C25, 1),   # #1 Oldman: "Do CPR!"
     (0x0C25, 2),   # #2 Free rest offer made
     (0x0C25, 3),   # #3 Talk about black cape man
-    (0x0C25, 4),   # #4 Priscilla: "Gets deeper..."
     (0x0C25, 5),   # #5 Tifa: "5 years ago"
     (0x0C25, 6),   # #6 Cloud: "Hey!" (climb tower)
     (0x0C25, 7),   # #7 Reached top of pole
+    # Shinra Mansion basement — suppress the Zack flashback. Var[1][233] bit 4
+    # (0xBA4 + 0xE9 = 0xC8D). This is a genuine "already played" latch, and the
+    # POLARITY IS THE OPPOSITE of the Junon bits above, which is why forcing it is
+    # safe here and was not there:
+    #   sininb35 `zax` (Zack's own entity) ends the flashback with
+    #     BITON Var[1][233].4 @0x025A, immediately before its MAPJUMP out.
+    #   sininb32 `dir` script 0 @0x03DF: IFUB Var[1][233].4 bit_off, jump 92 —
+    #     bit CLEAR runs the cutscene (UC/MENU2/PMJMP/FADE/AKAO chain), bit SET
+    #     jumps clean past it.
+    #   sininb34 `dir` script 0 @0x0223: same test, selecting the "already seen"
+    #     presentation instead of the flashback one.
+    # So the scene is gated on the bit being OFF and the game sets it when the
+    # scene finishes: forcing it ON means "played already", and the flashback is
+    # skipped. (Contrast the 0xC25 bits, which are tested ON to FIRE.)
+    #
+    # blackbg1 @0x04B5 does BITOFF this bit, but only inside its temp-dispatch
+    # case that also does SETWORD game_moment = 1600 — a scripted disc-2 story
+    # transition Free Roam never takes. Verified against the disassembly.
+    # No AP location detects on bank 1 address 233 at any bit (checked against
+    # locations.json, field_pickup_flags.json and key_item_biton_map.json), so
+    # this cannot hide a pickup or auto-suppress a check.
+    (0x0C8D, 4),   # Shinra Mansion basement: Zack flashback already played
     # NOTE: Cave of the Gi (cosin2) story is handled by Gold Saucer neutering the
     # BUGEN cutscene script directly (GI_CAVE_STORY), not a force-flag. The earlier
     # Var[3][173].7 attempt did not gate it and was removed.
@@ -1415,6 +1448,8 @@ class FF7Context(CommonContext):
         self._pending_vehicle_models: Set[int] = set()
         # model_id -> (X, Z, Y) for /highwind moves awaiting a loaded entity
         self._pending_vehicle_moves: Dict[int, Tuple[int, int, int]] = {}
+        # Last field name published for auto-tabbing.
+        self._last_tracker_map: Optional[str] = None
 
         settings = _load_settings()
         stored_dir  = settings.get("ff7_dir")
@@ -1481,6 +1516,17 @@ class FF7Context(CommonContext):
         # mask survived a LOST fight and fired later, handing the player a free
         # Ruby/Emerald check "when you load back into the game" (report 2026-07-27).
         self._weapon_kill_ticks: int = 0
+        # Were any party members still standing at the last sample taken DURING a
+        # weapon battle? None = unknown. A wipe is a loss, and the module trail
+        # alone could not tell one from a win — a player got "Defeat Emerald
+        # Weapon" after being wiped (2026-08-31). See _weapon_kill_step.
+        self._weapon_battle_party_alive: Optional[bool] = None
+        # Characters already levelled to the party leader this session, so the
+        # sync runs once each and never re-raises someone the player has since
+        # levelled past Cloud. See _sync_character_to_leader.
+        self._level_synced: set = set()
+        # party_level_sync YAML option; set from slot_data on Connected.
+        self._party_level_sync: bool = True
         # Latched while in Ultimate's final battle (287); drained on the way
         # out to register the kill the game does not register itself.
         # DORMANT since 2026-07-27 — nothing sets or reads this while the client's
@@ -1491,7 +1537,7 @@ class FF7Context(CommonContext):
         # True while Ultimate's kill has been written on entering battle
         # 287 but the player has not yet come out of it alive.
         # Baseline established once per game connection: locations whose detection
-        # bit is already set at connect (Free Roam starts at game moment 1603,
+        # bit is already set at connect (Free Roam starts at game moment 1997,
         # which leaves savemap progress noise). Suppressed so we never
         # false-report them as fresh checks.
         self._baseline_locations: Set[int] = set()
@@ -1580,6 +1626,9 @@ class FF7Context(CommonContext):
             # slot_data["options"], and on_package is sync so the ConnectUpdate is
             # scheduled as a task.
             opts = sd.get("options", {})
+            # Default ON: the option is a DefaultOnToggle, and an older seed with
+            # no such key should still get the fix.
+            self._party_level_sync = bool(opts.get("party_level_sync", 1))
             if opts.get("death_link"):
                 self.tags.add("DeathLink")
             if opts.get("trap_link"):
@@ -2321,6 +2370,108 @@ _GLACIER_WAKEUP_ADDR = 0x0C5D
 _GLACIER_WAKEUP_BIT  = 0x01      # bit 0 ONLY — see above, bit 1 strands the player
 
 
+# Temple of the Ancients state machine (v0.0.6).
+#
+# The Temple drives itself with one progress variable, advancing 604 -> 609 -> 612
+# ... as the player works through it. In vanilla that variable IS the global game
+# moment, which Free Roam cannot allow — entering a room would slam the moment from
+# 1997 down into the 600s and re-lock story gates across the whole game. Gold Saucer
+# therefore rewrites every Temple write AND gate onto a private savemap word at
+# 0x0CC4 (see redirectTempleStateMachine in FieldPickupRandomizer_ff7tk.cpp).
+#
+# What the redirect cannot supply is the STARTING value. In vanilla the player
+# arrives at the Temple already at 604, set by the story on the way there; Free Roam
+# has no such story, so the word sits at 0 and jtmpin1's director matches neither of
+# its branches and simply returns — the altar animates and nothing happens.
+#
+# jtmpin1's `direct` S0-Main (read off Makou Reactor) is:
+#     if var == 609:  tuon #10, sound, shake, cloud #11   <- the descent to kuro_1
+#     elif var == 604:
+#         if Var[3][234] bit 2:  tuon #10 only            <- short path
+#         else:                  full arrival cutscene
+#     else: return                                        <- where we were stuck
+#
+# So seed the ARRIVAL value 604 and set Var[3][234] bit 2. That gives the whole
+# designed sequence — altar -> jtmpin2 close-up (which writes 609) -> back to
+# jtmpin1 -> descent — while the bit makes the director take the short path and skip
+# the arrival cutscene. Skipping it matters: that cutscene forces the party to
+# "Cloud | Aerith | (Empty)", does a party SPLIT, and runs scripts on `earith`, who
+# may never have been recruited in Free Roam.
+#
+# The state word is written ONLY while it reads 0, so the Temple's own scripts can
+# advance it (609, 612, ...) without being dragged back to the start every poll.
+_TEMPLE_STATE_ADDR  = 0x0CC4   # savemap 0x0CA4 + 0x20 = Var[4][0x20]
+_TEMPLE_STATE_START = 604      # "arrived at the Temple"
+_TEMPLE_SKIP_ADDR   = 0x0D8E   # savemap 0x0CA4 + 0xEA = Var[3][234]
+_TEMPLE_SKIP_BIT    = 0x04     # bit 2 — "arrival cutscene already played"
+_TEMPLE_KEY_ITEM    = "Keystone"   # withholding the seed IS the in-game gate
+
+
+def _seed_temple_state(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Start the Temple's private state machine and skip its arrival cutscene.
+
+    THIS IS THE KEYSTONE GATE. Nothing in the Temple's own scripts ever checks for
+    the Keystone — vanilla relies on the story to guarantee it — so seeding the
+    state machine unconditionally let the player walk in and descend without it
+    (playtest 2026-08-14). Withholding the seed is the gate: the private word stays
+    0, jtmpin1's director matches neither of its branches and simply returns, so the
+    altar does nothing and kuro_1 is unreachable. No field patching needed.
+
+    Deliberately keyed on the AP item rather than the savemap possession bit
+    (bank1[0x45].2): the Temple's own arrival cutscene sets that bit itself, so it
+    is a statement about the story, not about what Archipelago has granted.
+
+    It also REWINDS the state to 604 whenever the player is out on the world map,
+    which is what makes the dungeon re-enterable. The Temple leaves the state where
+    the story left it — kuro_82 writes 624 on the way out — and the entire entry
+    chain keys on 604: `jtempl`'s `kuroman` (Tseng) gates his scene on `state ==
+    604`, and `jtmpin1`'s director and `cloud` both do the same. At 624 none of them
+    match, so Tseng is absent and the way in is dead (playtest 2026-08-31). Vanilla
+    never had to care because the story never sends you back.
+
+    Rewinding only on the world map is the safe place to do it: the player is
+    provably outside the Temple, so a run in progress can never be reset under its
+    own feet. The dungeon simply replays from the start on each visit; checks are
+    flag-based, so nothing is awarded twice.
+    """
+    if not ctx.free_roam:
+        return
+    if _TEMPLE_KEY_ITEM not in getattr(ctx, "_received_item_names", set()):
+        return
+    try:
+        addr = SAVEMAP_BASE + _TEMPLE_STATE_ADDR
+        current = pm.read_ushort(addr)
+        if current == 0:
+            pm.write_ushort(addr, _TEMPLE_STATE_START)
+            logger.debug(
+                f"Temple of the Ancients: seeded state 0x{_TEMPLE_STATE_ADDR:04X} "
+                f"= {_TEMPLE_STATE_START} (arrived)"
+            )
+        elif current != _TEMPLE_STATE_START:
+            # Only ever from outside — see the docstring.
+            try:
+                on_world = pm.read_uchar(GAME_MODULE_ADDR) == GAME_MODULE_WORLD
+            except Exception:
+                on_world = False
+            if on_world:
+                pm.write_ushort(addr, _TEMPLE_STATE_START)
+                logger.debug(
+                    f"Temple of the Ancients: rewound state {current} -> "
+                    f"{_TEMPLE_STATE_START} on the world map (re-entry)"
+                )
+        skip = SAVEMAP_BASE + _TEMPLE_SKIP_ADDR
+        v = pm.read_uchar(skip)
+        if not (v & _TEMPLE_SKIP_BIT):
+            pm.write_uchar(skip, v | _TEMPLE_SKIP_BIT)
+            logger.debug(
+                f"Temple of the Ancients: set Var[3][234] bit 2 "
+                f"(0x{_TEMPLE_SKIP_ADDR:04X}) — skip the arrival cutscene"
+            )
+    except Exception as exc:
+        logger.debug(f"temple state seed failed: {exc}")
+
+
+
 def _seed_glacier_wakeup(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
     """Mark the Great Glacier wake-up as already seen WHILE ON THE WORLD MAP.
 
@@ -2420,6 +2571,79 @@ def _seed_ultimate_hp(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
         logger.debug(f"ultimate HP seed failed: {exc}")
 
 
+def _weapon_kill_step(pending: int, ticks: int, module: int,
+                      formation: Optional[int], party_alive: Optional[bool],
+                      game_over_seen: bool, wk: int):
+    """One decision step of the weapon-kill latch. PURE — no memory access.
+
+    Returns ``(new_pending, new_ticks, byte_to_write_or_None, reason)``.
+
+    Split out of _resolve_weapon_battles in v0.0.6 so the rules can be unit
+    tested. A player reported "Defeat Emerald Weapon" firing after the party was
+    WIPED (2026-08-31), and the old logic could not tell a win from a loss: it
+    latched on entering a weapon battle and committed the moment the module read
+    World *or Field*, never looking at the outcome. Win, flee and a transient
+    pass-through on the way to the game over were indistinguishable at a 0.2s
+    poll.
+
+    Three independent guards, none of which needs an address we do not already
+    have:
+
+    * ``module == GAME_MODULE_WORLD`` only. Every formation in
+      _WEAPON_BATTLE_FORMATIONS is a world-map encounter, so a *field* on the way
+      out is never legitimate — it means a game over sent the player to a
+      Continue/load. This alone kills the reported failure mode.
+    * ``game_over_seen`` — the watcher already tracks this for item re-delivery;
+      the two mechanisms simply never consulted each other.
+    * ``party_alive`` — the last sample taken while the battle was live. You
+      cannot win a Weapon fight with all three members dead. (A simultaneous kill
+      by a counter-attack would be scored as a loss; documented, not solved,
+      because it costs a check rather than corrupting one.)
+
+    Also enforces the Ruby/Ultimate ordering the logic side cannot: the engine
+    does not spawn Ruby until weapons_killed bit0 is set, so a pending Ruby kill
+    with Ultimate still alive is impossible and is dropped.
+    """
+    if module == GAME_MODULE_BATTLE:
+        mask = _WEAPON_BATTLE_FORMATIONS.get(formation) if formation is not None else None
+        if mask:
+            return pending | mask, _WEAPON_KILL_WINDOW_TICKS, None, ""
+        return pending, ticks, None, ""
+
+    if module == GAME_MODULE_GAMEOVER:
+        return 0, 0, None, "game over" if pending else ""
+
+    if not pending:
+        return 0, 0, None, ""
+
+    if game_over_seen:
+        return 0, 0, None, "a game over is still in flight"
+
+    if module not in _BATTLE_EXIT_MODULES:
+        return 0, 0, None, f"module {module} is off the battle-exit path"
+
+    ticks -= 1
+    if ticks <= 0:
+        return 0, 0, None, (f"no return to gameplay within "
+                            f"{_WEAPON_KILL_WINDOW_TICKS * POLL_INTERVAL:.0f}s")
+
+    # Commit only on the world map — see the docstring.
+    if module != GAME_MODULE_WORLD:
+        return pending, ticks, None, ""
+
+    if party_alive is False:
+        return 0, 0, None, "the party was wiped — that is a loss, not a kill"
+
+    # Ruby cannot legitimately die before Ultimate; he has not spawned yet.
+    if pending & 0x08 and not (wk & 0x01):
+        pending &= ~0x08
+        if not pending:
+            return 0, 0, None, "Ruby cannot be dead before Ultimate (bit0 clear)"
+
+    new = wk | pending
+    return 0, 0, (new if new != wk else None), ""
+
+
 def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
     """Register Ruby/Emerald Weapon kills in Free Roam by watching battles.
 
@@ -2437,55 +2661,46 @@ def _resolve_weapon_battles(ctx, pm: "pymem.Pymem") -> None:
     deliberately suppressed rather than fixed. See the table comment for why."""
     try:
         module = pm.read_uchar(GAME_MODULE_ADDR)
+        wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
+
+        formation = None
         if module == GAME_MODULE_BATTLE:
             formation = pm.read_ushort(BATTLE_FORMATION_ADDR)
-            mask = _WEAPON_BATTLE_FORMATIONS.get(formation)
-            if mask:
-                ctx._weapon_kill_pending |= mask
-                ctx._weapon_kill_ticks = _WEAPON_KILL_WINDOW_TICKS
-            return
-        if module == GAME_MODULE_GAMEOVER:
-            ctx._weapon_kill_pending = 0          # player lost — not a kill
-            ctx._weapon_kill_ticks = 0
-            return
-        # A LOSS MUST NEVER REGISTER AS A KILL. Clearing on GAME_MODULE_GAMEOVER
-        # alone was not enough: if that module was missed, or the loss took some
-        # other path, the mask simply sat there until the player reloaded and the
-        # first Field/World poll cashed it in as a win. So also discard it when the
-        # module leaves the known battle-exit path, and expire it on a timer.
-        if ctx._weapon_kill_pending:
-            if module not in _BATTLE_EXIT_MODULES:
-                logger.debug(f"weapon kill 0x{ctx._weapon_kill_pending:02x} discarded "
-                             f"— module {module} is off the battle-exit path")
-                ctx._weapon_kill_pending = 0
-                ctx._weapon_kill_ticks = 0
-                return
-            ctx._weapon_kill_ticks -= 1
-            if ctx._weapon_kill_ticks <= 0:
-                logger.debug(f"weapon kill 0x{ctx._weapon_kill_pending:02x} expired "
-                             f"— no return to gameplay within "
-                             f"{_WEAPON_KILL_WINDOW_TICKS * POLL_INTERVAL:.0f}s")
-                ctx._weapon_kill_pending = 0
-                return
-        if not ctx._weapon_kill_pending:
-            return
-        if module in (GAME_MODULE_WORLD, GAME_MODULE_FIELD):
-            wk_addr = SAVEMAP_BASE + WEAPONS_KILLED_OFFSET
-            wk = pm.read_uchar(wk_addr)
-            new = wk | ctx._weapon_kill_pending
-            if new != wk:
-                names = []
-                if ctx._weapon_kill_pending & 0x08:
-                    names.append("Ruby")
-                if ctx._weapon_kill_pending & 0x10:
-                    names.append("Emerald")
-                pm.write_uchar(wk_addr, new)
-                logger.debug(
-                    f"{'/'.join(names)} Weapon defeat registered (Free Roam) — "
-                    f"weapons_killed 0x{wk:02x} -> 0x{new:02x}."
-                )
-            ctx._weapon_kill_pending = 0
-            ctx._weapon_kill_ticks = 0
+            # Sample who is still standing while the battle is LIVE; once it ends
+            # the actor array is no longer meaningful, so the last sample is what
+            # decides win-vs-wipe below. Only sample during a weapon fight.
+            if _WEAPON_BATTLE_FORMATIONS.get(formation):
+                try:
+                    from .TrapLink import live_party_actors
+                    ctx._weapon_battle_party_alive = bool(live_party_actors(pm))
+                except Exception:
+                    pass    # unknown -> None/stale, treated as "not a wipe"
+
+        before = ctx._weapon_kill_pending
+        wk = pm.read_uchar(wk_addr) if before else 0
+        pending, ticks, write, reason = _weapon_kill_step(
+            before, ctx._weapon_kill_ticks, module, formation,
+            getattr(ctx, "_weapon_battle_party_alive", None),
+            bool(getattr(ctx, "_game_over_seen", False)), wk,
+        )
+        ctx._weapon_kill_pending = pending
+        ctx._weapon_kill_ticks = ticks
+
+        if reason and before:
+            logger.debug(f"weapon kill 0x{before:02x} discarded — {reason}")
+        if write is not None:
+            names = []
+            if (write & ~wk) & 0x08:
+                names.append("Ruby")
+            if (write & ~wk) & 0x10:
+                names.append("Emerald")
+            pm.write_uchar(wk_addr, write)
+            logger.debug(
+                f"{'/'.join(names)} Weapon defeat registered (Free Roam) — "
+                f"weapons_killed 0x{wk:02x} -> 0x{write:02x}."
+            )
+        if module != GAME_MODULE_BATTLE and not pending:
+            ctx._weapon_battle_party_alive = None
     except Exception as exc:
         logger.debug(f"resolve weapon battles failed: {exc}")
 
@@ -2534,12 +2749,50 @@ _CHOCO_MAX_SLOTS  = 6       # FF7 stable holds up to 6 chocobos
 # Terrain: Green=mountains, Blue=rivers/shallows, Black=mountains+rivers,
 # Gold=all terrain incl. deep ocean.
 _CHOCO_TYPES = {
+    "Yellow Chocobo": 0,   # not an AP item name; only the progressive ladder
+                           # grants one, so nothing can arrive under this name.
     "Green Chocobo": 1,
     "Blue Chocobo":  2,
     "Black Chocobo": 3,
     "Gold Chocobo":  4,
 }
 CHOCOBO_ITEM_NAMES = frozenset(_CHOCO_TYPES)
+
+# Progressive chocobos (v0.0.6 option): the pool holds four copies of one item
+# instead of the four colours, and copy N grants the Nth bird in this order.
+#
+# The ladder is Yellow -> Green -> Black -> Gold, which is the order a player
+# actually breeds them. Blue is deliberately NOT on it: Blue and Green are
+# siblings rather than steps (one crosses water, the other mountains), so the
+# ladder would have to pick one anyway. Consequence for logic: OCEAN access now
+# arrives with BLACK at tier 3, not at tier 2 — tier 1 (Yellow) unlocks no
+# traversal at all. Rules.py/__init__ tier the capabilities to match.
+PROGRESSIVE_CHOCOBO = "Progressive Chocobo"
+_PROGRESSIVE_CHOCO_ORDER = ("Yellow Chocobo", "Green Chocobo",
+                            "Black Chocobo", "Gold Chocobo")
+
+
+def _progressive_chocobo_colour(ctx, item_index: int) -> str:
+    """Which colour this copy of Progressive Chocobo grants.
+
+    Counts the copies at or before item_index in items_received, so the answer is
+    stable: the ordinal is a property of the position in the received list, not of
+    when delivery happened. That matters because _requeue_all_received_items
+    re-delivers everything after a game over, and _deliver_chocobo is idempotent
+    per colour — a re-run must resolve to the same colours, not shift them.
+    """
+    code_map = _get_code_to_item_name()
+    n = 0
+    for i, net in enumerate(getattr(ctx, "items_received", None) or []):
+        if i > item_index:
+            break
+        code = getattr(net, "item", None)
+        name = (code_map.get(code) if isinstance(code, int)
+                else (code if isinstance(code, str) else None))
+        if name == PROGRESSIVE_CHOCOBO:
+            n += 1
+    n = max(1, min(len(_PROGRESSIVE_CHOCO_ORDER), n))
+    return _PROGRESSIVE_CHOCO_ORDER[n - 1]
 
 # Racing stats per breed, as (speed, maxspeed, sprint, maxsprint, stamina,
 # accel, coop, intelligence).
@@ -2566,7 +2819,8 @@ CHOCOBO_ITEM_NAMES = frozenset(_CHOCO_TYPES)
 # (0x10 at savemap 0xE2E) — it would fire without a single race, turning a fix
 # into a bug.
 _CHOCO_RACE_STATS = {
-    #                 speed maxspd sprint maxspr stam accel coop int
+    #                  speed maxspd sprint maxspr stam accel coop int
+    "Yellow Chocobo": (2200,  3600,  2900,  4300, 3900,  48,  70,  70),
     "Green Chocobo": (2600,  4200,  3400,  5000, 4500,  55,  80,  80),
     "Blue Chocobo":  (2800,  4600,  3600,  5400, 5000,  60,  85,  85),
     "Black Chocobo": (3200,  5200,  4100,  6000, 5600,  68,  95,  95),
@@ -2608,6 +2862,13 @@ _CHOCO_RANK_CHECKS = {             # location code -> wins needed
 # biton was never retired, leaving a duplicate and strictly worse path live.
 # Rank S (310099) and First Race (310098) are NOT excluded: their flags in 0xE2E
 # are genuine one-way achievement bits.
+# The Weapon-boss codes are deliberately NOT excluded. Their savemap bits
+# (weapons_killed 0x0C1F: Ultimate bit0, Ruby bit3, Emerald bit4) are read by
+# this scan like any other check, and that is correct — the scan owns baseline
+# suppression, checked_locations and dedupe. The v0.0.6 "Emerald fired after a
+# wipe" bug was in the WRITER (_weapon_kill_step), not here; excluding them would
+# have moved the bug rather than fixed it. Ultimate's must stay in the scan
+# regardless: the battle engine sets bit0 itself, with no client write involved.
 _BITON_SCAN_EXCLUDE: frozenset = frozenset({310101, 310102})
 
 
@@ -3006,6 +3267,10 @@ _CHR_WEAPON = 0x1C; _CHR_ARMOR = 0x1D; _CHR_ACCESSORY = 0x1E
 _CHR_STATUS = 0x1F; _CHR_ROW = 0x20
 _CHR_CURHP = 0x2C; _CHR_BASEHP = 0x2E; _CHR_CURMP = 0x30; _CHR_BASEMP = 0x32
 _CHR_MAXHP = 0x38; _CHR_MAXMP = 0x3A; _CHR_MATERIA = 0x40  # 16 × 4 bytes
+# quint32 each. Offsets from ff7tk's Type_FF7CHAR.h (exp @0x003C, expNext @0x0080);
+# Gold Saucer's StartingEquipmentRandomizer writes the same two for Cloud.
+_CHR_EXP = 0x3C; _CHR_EXP_TO_NEXT = 0x80
+_CLOUD_CID = 0                 # character id 0; always the party leader
 
 
 def _encode_ff7_name(name: str, width: int = 12) -> bytes:
@@ -3113,6 +3378,80 @@ def _init_character_record(pm: "pymem.Pymem", cid: int, seed: str = "",
 # cutscene writing the char block while we happen to read it) must not trigger one.
 _CHAR_REBUILD_STABLE_TICKS = 3
 _char_invalid_ticks: Dict[int, int] = {}
+
+
+def _sync_character_to_leader(pm: "pymem.Pymem", cid: int,
+                              ctx: Optional["FF7Context"] = None) -> bool:
+    """Raise a newly delivered character to Cloud's level. Free Roam only.
+
+    Six of the eight optional recruits used to join at their VANILLA starting
+    level. _init_character_record clones Cloud's live record — level, EXP and
+    EXP-to-next included — so anyone built by that path is already in step; but
+    _ensure_character_record only calls it for a record that looks INVALID, which
+    is just Cait Sith and Vincent (their kernel records are Young Cloud and
+    Sephiroth). Barret, Tifa, Aerith, Red XIII, Yuffie and Cid all ship valid
+    kernel records, pass the validity test untouched, and arrive at level 1-ish
+    while Gold Saucer has raised only Cloud. The gap widens the longer a run goes.
+
+    Only ever raises, never lowers, and runs once per character per session, so a
+    character the player has since levelled past Cloud is left alone.
+
+    Deliberately NOT a rebuild: materia, equipment and the limit block are
+    untouched. Only level / EXP / EXP-to-next and the growth-curve stat block move.
+    maxHP/maxMP are left for the engine — _deliver_character calls
+    _set_party_member right after this, which recomputes them from base plus
+    equipment plus materia. Writing max here would understate it until then.
+    """
+    if ctx is not None and not getattr(ctx, "free_roam", False):
+        return False
+    if ctx is not None and not getattr(ctx, "_party_level_sync", True):
+        return False
+    if cid == _CLOUD_CID:
+        return False
+    done = getattr(ctx, "_level_synced", None) if ctx is not None else None
+    if done is not None and cid in done:
+        return False
+    try:
+        chars = SAVEMAP_BASE + _CHARS_OFFSET
+        leader_level = pm.read_uchar(chars + _CHR_LEVEL)
+        if not 1 <= leader_level <= 99:
+            return False
+        rec = chars + cid * _CHAR_RECORD_SIZE
+        level = pm.read_uchar(rec + _CHR_LEVEL)
+        if level >= leader_level:
+            logger.debug(f"cid {cid} already at level {level} (leader {leader_level})"
+                         f" — no sync")
+            if done is not None:
+                done.add(cid)
+            return False
+
+        exp = pm.read_uint(chars + _CHR_EXP)
+        exp_next = pm.read_uint(chars + _CHR_EXP_TO_NEXT)
+        pm.write_uchar(rec + _CHR_LEVEL, leader_level)
+        pm.write_uint(rec + _CHR_EXP, exp)
+        pm.write_uint(rec + _CHR_EXP_TO_NEXT, exp_next)
+
+        # Their OWN growth curve at the new level — not Cloud's numbers.
+        grow = _growth_data(pm, ctx)
+        stats = _growth_stats(grow, cid, leader_level) if grow else None
+        if stats:
+            pm.write_bytes(rec + _CHR_STATS,
+                           bytes(stats[k] for k in _CHR_STAT_KEYS), 6)
+            pm.write_ushort(rec + _CHR_BASEHP, stats["hp"])
+            pm.write_ushort(rec + _CHR_BASEMP, stats["mp"])
+            pm.write_ushort(rec + _CHR_CURHP, stats["hp"])
+            pm.write_ushort(rec + _CHR_CURMP, stats["mp"])
+        else:
+            logger.debug(f"cid {cid} levelled to {leader_level} but growth curves "
+                         f"were unavailable — stats left as they were")
+        if done is not None:
+            done.add(cid)
+        logger.debug(f"cid {cid} synced to leader level {leader_level} "
+                     f"(was {level})")
+        return True
+    except Exception as exc:
+        logger.debug(f"level sync failed for cid {cid}: {exc}")
+        return False
 
 
 def _ensure_character_record(pm: "pymem.Pymem", cid: int, seed: str = "",
@@ -3305,6 +3644,10 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str, seed: str = "",
         # as id 0 "Cloud" with 0 max HP → instant death). Clone-and-retarget Cloud.
         if _ensure_character_record(pm, cid, seed, ctx):
             logger.debug(f"Initialized {char_name} character record (was uninitialised/invalid)")
+        # Bring them up to the leader's level. Runs AFTER the record exists and
+        # BEFORE the PHS/party writes below, so the _set_party_member call those
+        # make recomputes max HP/MP from the synced base values.
+        _sync_character_to_leader(pm, cid, ctx)
         # Make the member available AND swappable in the PHS: SET the visibility
         # bit and CLEAR the lock bit. (Previously we set BOTH masks, but 0x10A4 is
         # the LOCK mask — setting it made delivered members appear but be un-
@@ -3318,10 +3661,15 @@ def _deliver_character(pm: "pymem.Pymem", char_name: str, seed: str = "",
         if lock & bit:
             pm.write_ushort(lock_addr, lock & ~bit)
         # Auto-fill an empty active party slot (0xFF empty / 0xFE locked).
+        # Slot 0 is SKIPPED: it belongs to Cloud, who is always the party leader
+        # in Free Roam (v0.0.6 — see _enforce_cloud_leader). Before that, an AP
+        # character delivered while slot 0 happened to be empty became the leader,
+        # which is how placeholder characters ended up leading a field with no
+        # valid player model.
         base = SAVEMAP_BASE + _PARTY_OFFSET
         slots = [pm.read_uchar(base + i) for i in range(3)]
         if cid not in slots:
-            for i in range(3):
+            for i in range(1, 3):
                 if slots[i] in (0xFF, 0xFE):
                     pm.write_uchar(base + i, cid)
                     # Rebuild the engine's party-member data (incl. the limit
@@ -3434,6 +3782,62 @@ _FIELD_FLAG_RESETS_ON_ENTRY: Dict[str, Tuple[Tuple[int, int], ...]] = {
 _FIELD_FLAG_RESET_ONCE: "frozenset[str]" = frozenset({"las0_8"})
 
 
+# ── Fort Condor: losing must not lock the minigame out ───────────────────────
+# Savemap bank 1 (base 0x0BA4). Variable numbers are Ultima's, which names this
+# whole block; ff7tk only documents the first two bytes and calls the rest
+# "z_17". Confirmed against a live pre-fight state 2026-09-01.
+#
+#   #168 0x0C4C  story progress 1 (bitfield)
+#          bit 0 Oldman asks for help      bit 1 Cloud joins fight
+#          bit 2 Additional services       bit 3 No more Shinra troops
+#          bit 4 BANISHED after losing Huge Materia
+#          bit 5 Phoenix materia obtained  bit 6 Condor born movie seen
+#          bit 7 ROPE CUT after losing
+#   #172 0x0C50  battle result   (0 victory, 1 defeat)
+#   #176 0x0C54  battle type     (0 none, 1 normal, 3 final boss)
+#
+# Bits 4 and 7 are the two the game sets when you LOSE, and they are what shuts
+# the area down. Everything else in the block — wins, losses, rank, funds,
+# rewards, access flags — is legitimate history and is deliberately left alone,
+# so clearing these does not hand the player anything they did not earn.
+_FORT_CONDOR_PROGRESS_OFF = 0x0C4C
+_FORT_CONDOR_LOSS_BITS    = 0x90        # bit 4 banished | bit 7 rope cut
+_FORT_CONDOR_RESULT_OFF   = 0x0C50
+_FORT_CONDOR_BTLTYPE_OFF  = 0x0C54
+
+
+def _reset_fort_condor(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
+    """Un-latch a lost Fort Condor so the minigame can be attempted again.
+
+    Done from the WORLD MAP, not on field entry: losing sets "banished", which
+    stops the player reaching the fields at all, so a field-entry reset could
+    never fire. Same reasoning as the Temple's re-entry rewind — the player is
+    provably outside, so a run in progress can never be reset under its own feet.
+
+    Only the two loss latches are cleared, plus the transient battle result and
+    battle type so the next attempt starts from a clean slate. Idempotent.
+    """
+    if not ctx.free_roam:
+        return
+    try:
+        if pm.read_uchar(GAME_MODULE_ADDR) != GAME_MODULE_WORLD:
+            return
+        addr = SAVEMAP_BASE + _FORT_CONDOR_PROGRESS_OFF
+        v = pm.read_uchar(addr)
+        if not (v & _FORT_CONDOR_LOSS_BITS):
+            return                      # never lost, or already cleared
+        pm.write_uchar(addr, v & ~_FORT_CONDOR_LOSS_BITS)
+        for off in (_FORT_CONDOR_RESULT_OFF, _FORT_CONDOR_BTLTYPE_OFF):
+            if pm.read_uchar(SAVEMAP_BASE + off):
+                pm.write_uchar(SAVEMAP_BASE + off, 0)
+        logger.debug(
+            f"Fort Condor: cleared loss latches (0x{_FORT_CONDOR_PROGRESS_OFF:X} "
+            f"0x{v:02x} -> 0x{v & ~_FORT_CONDOR_LOSS_BITS:02x}) — minigame available again"
+        )
+    except Exception as exc:
+        logger.debug(f"fort condor reset failed: {exc}")
+
+
 def _apply_field_flag_resets(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
     """Clear latched sequence-done flags while in a field adjacent to a locked
     room (see _FIELD_FLAG_RESETS). Idempotent — only writes when a bit is set."""
@@ -3487,6 +3891,38 @@ def _read_field_name(pm: "pymem.Pymem") -> str:
     except Exception:
         return ""
 
+def _tracker_map_for_context(game_module: int, field_name: str) -> str:
+    if not field_name:
+        return "world"
+    if game_module == GAME_MODULE_WORLD:
+        return "world"
+    return field_name
+
+async def _publish_tracker_map(ctx: FF7Context, pm: "pymem.Pymem") -> None:
+    """Push the current field name to data storage for auto-tabbing."""
+    if not ctx.server or not ctx.slot:
+        return
+    try:
+        module = pm.read_uchar(GAME_MODULE_ADDR)
+    except Exception:
+        return
+    if module not in (GAME_MODULE_FIELD, GAME_MODULE_WORLD):
+        return
+    field = _read_field_name(pm)
+    map_name = _tracker_map_for_context(module, field)
+    if map_name == ctx._last_tracker_map:
+        return
+    try:
+        await ctx.send_msgs([{
+            "cmd": "Set",
+            "key": f"Slot:{ctx.slot}:Current Map",
+            "default": "",
+            "want_reply": False,
+            "operations": [{"operation": "replace", "value": map_name}],
+        }])
+    except Exception as exc:
+        return
+    ctx._last_tracker_map = map_name
 
 # Story fields entered out of sequence in Free Roam load some NPCs non-solid /
 # non-interactable (their field-script SOLID/VISI state doesn't stick), which blocks
@@ -3586,6 +4022,98 @@ def _char_is_recruited(pm: "pymem.Pymem", cid: int) -> bool:
                 and pm.read_ushort(rec + _CHR_MAXHP) > 0)
     except Exception:
         return False
+
+
+# Fields where the party is legitimately NOT Cloud-led and must be left alone.
+# lastmap is Bizarro Sephiroth's three-group formation — Cloud leads exactly one
+# group and _dedupe_bizarro_aerith owns the party there. The Northern Crater
+# split scenes hand out partial rosters on purpose. Forcing Cloud into slot 0
+# during either would fight the field's own script.
+_NO_LEADER_ENFORCEMENT_FIELDS: frozenset = frozenset(
+    {"lastmap", "lastflor", "las0_8", "las2_1"} | set(_CRATER_SPLIT_CAST)
+)
+
+
+def _enforce_cloud_leader(pm: "pymem.Pymem", ctx: FF7Context) -> None:
+    """Keep Cloud in active party slot 0 (Free Roam).
+
+    Nothing used to write slot 0 at all, so the leader was whoever the game or a
+    delivery happened to leave there. In Free Roam that is not cosmetic: field
+    scripts address the leader constantly, several set pieces assume Cloud, and
+    _suppress_undelivered_chars could not evict a placeholder character (Cait
+    Sith / Vincent, whose kernel records are Young Cloud / Sephiroth) from slot 0
+    without leaving the field with no player model — so it just logged and asked
+    the player to fix it by hand.
+
+    Two writes, both idempotent:
+
+    * the active party array (savemap 0x04F8, three character ids) — Cloud is
+      swapped into slot 0, and whoever was there takes his old slot;
+    * the PHS lock mask (0x10A4, one bit per character) — bit 0 set means the
+      PHS cannot swap Cloud out. Note 0x10A4 is the LOCK mask; 0x10A6 is
+      visibility. While enforcement is suppressed the bit is CLEARED again, so a
+      script that legitimately removes Cloud is never fought.
+
+    A raw slot write is not enough on its own: the engine caches per-slot battle
+    data, including the limit-technique list, so each touched slot goes through
+    _set_party_member — the same four-call rebuild the game's own party-change
+    code performs.
+    """
+    if not ctx.free_roam:
+        return
+    try:
+        module = pm.read_uchar(GAME_MODULE_ADDR)
+        # Battle and menu operate on working copies of the party; writing the
+        # savemap underneath them races the engine. Same gate as
+        # _heal_party_limit_lists.
+        if module not in (GAME_MODULE_FIELD, GAME_MODULE_WORLD):
+            return
+
+        lock_addr = SAVEMAP_BASE + _PHS_LOCK_OFFSET
+        if module == GAME_MODULE_FIELD and \
+                _read_field_name(pm) in _NO_LEADER_ENFORCEMENT_FIELDS:
+            # Release the lock so the field's own party scripting can run.
+            lock = pm.read_ushort(lock_addr)
+            if lock & 0x01:
+                pm.write_ushort(lock_addr, lock & ~0x01)
+                logger.debug("Cloud PHS lock released for a party-split field")
+            return
+
+        base = SAVEMAP_BASE + _PARTY_OFFSET
+        slots = [pm.read_uchar(base + i) for i in range(3)]
+
+        if slots[0] != _CLOUD_CID:
+            if _CLOUD_CID in slots:
+                other = slots.index(_CLOUD_CID)
+                slots[0], slots[other] = slots[other], slots[0]
+                touched = (0, other)
+            else:
+                # Cloud is not in the party at all. Displace slot 0's occupant
+                # into a free slot if there is one, otherwise drop them — the
+                # PHS can put them back, and a leaderless party cannot.
+                displaced = slots[0]
+                free = next((i for i in (1, 2) if slots[i] in (0xFF, 0xFE)), None)
+                slots[0] = _CLOUD_CID
+                if free is not None:
+                    slots[free] = displaced
+                    touched = (0, free)
+                else:
+                    touched = (0,)
+            for i in range(3):
+                pm.write_uchar(base + i, slots[i])
+            for i in touched:
+                try:
+                    _set_party_member(pm, i)
+                except Exception as exc:
+                    logger.debug(f"party rebuild call failed (non-fatal): {exc}")
+            logger.debug(f"Cloud restored as party leader — slots now {slots}")
+
+        lock = pm.read_ushort(lock_addr)
+        if not (lock & 0x01):
+            pm.write_ushort(lock_addr, lock | 0x01)
+            logger.debug("Cloud locked in the PHS (party leader)")
+    except Exception as exc:
+        logger.debug(f"cloud leader enforcement failed: {exc}")
 
 
 def _dedupe_bizarro_aerith(pm: "pymem.Pymem", ctx: FF7Context) -> None:
@@ -3743,10 +4271,15 @@ def _suppress_undelivered_chars(pm: "pymem.Pymem", ctx: FF7Context) -> None:
                 if pm.read_uchar(base + i) != cid:
                     continue
                 if i == 0:
-                    logger.info(f"Character {cid} was granted by the game before "
-                                f"Archipelago delivered them and is the party "
-                                f"LEADER — swap leader in the PHS, then they will "
-                                f"be removed automatically.")
+                    # Slot 0 is still skipped here — evicting the leader outright
+                    # would leave the field with no player model. It no longer
+                    # needs the player to act, though: _enforce_cloud_leader runs
+                    # immediately after this pass and swaps Cloud back into slot 0,
+                    # which moves this character to slot 1/2 and lets the branch
+                    # below remove them on the next tick. Debug, not info.
+                    logger.debug(f"Character {cid} was granted by the game before "
+                                 f"Archipelago delivered them and is the party "
+                                 f"LEADER — leaving to _enforce_cloud_leader.")
                     continue
                 pm.write_uchar(base + i, 0xFF)      # 0xFF = empty slot
                 logger.debug(f"Undelivered char {cid}: removed from party slot {i}")
@@ -4019,7 +4552,8 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
             _nm = code_map.get(_code) if isinstance(_code, int) else (_code if isinstance(_code, str) else None)
             if not _nm:
                 continue
-            if (_nm in CHOCOBO_ITEM_NAMES or _nm in VEHICLE_ITEM_FLAGS
+            if (_nm in CHOCOBO_ITEM_NAMES or _nm == PROGRESSIVE_CHOCOBO
+                    or _nm in VEHICLE_ITEM_FLAGS
                     or _nm in _CHARACTER_IDS or _nm in KEY_ITEM_FLAGS):
                 continue
             _r = _item_name_to_ff7_id(_nm)
@@ -4058,9 +4592,11 @@ def _deliver_items_to_game(pm: "pymem.Pymem", ctx: FF7Context) -> None:
             ctx._delivered_item_indices.add(item_index)
             continue
 
-        if item_name in CHOCOBO_ITEM_NAMES:
+        if item_name in CHOCOBO_ITEM_NAMES or item_name == PROGRESSIVE_CHOCOBO:
             sender = ctx.player_names.get(getattr(net_item, "player", None), "")
-            if _deliver_chocobo(pm, item_name, sender):
+            colour = (_progressive_chocobo_colour(ctx, item_index)
+                      if item_name == PROGRESSIVE_CHOCOBO else item_name)
+            if _deliver_chocobo(pm, colour, sender):
                 ctx._delivered_item_indices.add(item_index)
             else:
                 still_pending.append((item_index, net_item))
@@ -4390,11 +4926,22 @@ async def game_watcher(ctx: FF7Context) -> None:
         # ── Battle reward multipliers (one-time exe patch once connected) ──
         _apply_reward_multipliers(pm, ctx)
 
+        # ── UT / Visual Tracker auto-tab (publish current map name) ──
+        try:
+            await _publish_tracker_map(ctx, pm)
+        except Exception as exc:
+            logger.debug(f"tracker map tick failed: {exc}")
+
         # ── Force story-field NPCs interactable in Free Roam (e.g. Ester in the
         # Chocobo Square) so the player can actually talk to them. ──
         _apply_field_model_overrides(pm, ctx)
         # Undo any native character grant the game made ahead of AP delivery.
         _suppress_undelivered_chars(pm, ctx)
+        # ── Cloud is always the party leader ───────────────────────────────
+        # Runs after the suppression pass so a placeholder character sitting in
+        # slot 0 gets swapped out here and removed by suppression next tick,
+        # instead of being left for the player to fix by hand.
+        _enforce_cloud_leader(pm, ctx)
         _force_crater_cast_visible(pm, ctx)
         # AFTER the visibility pass — hiding must win if both would touch a model.
         _apply_field_hide_chars(pm, ctx)
@@ -4479,7 +5026,7 @@ async def game_watcher(ctx: FF7Context) -> None:
             game_moment = pm.read_ushort(SAVEMAP_BASE + GAME_MOMENT_OFFSET)
 
             # ── Establish baseline once per game connection ───────────────
-            # Free Roam starts at game moment 1603, so the savemap already looks
+            # Free Roam starts at game moment 1997, so the savemap already looks
             # "late": some location detection bits are pre-set, and every boss
             # game-moment threshold is already met. Snapshot those as
             # pre-satisfied so we never report them as fresh checks (which would
@@ -4565,6 +5112,12 @@ async def game_watcher(ctx: FF7Context) -> None:
 
             # ── Free Roam: skip the Great Glacier snowboard-arrival cutscene ───
             _seed_glacier_wakeup(pm, ctx)
+
+            # ── Free Roam: start the Temple's private state machine ────────────
+            _seed_temple_state(pm, ctx)
+
+            # ── Free Roam: a lost Fort Condor must not lock the minigame out ───
+            _reset_fort_condor(pm, ctx)
 
             # ── Free Roam: disarm the engine-driven Diamond Highwind scene ─────
             _suppress_diamond_scene(pm, ctx)

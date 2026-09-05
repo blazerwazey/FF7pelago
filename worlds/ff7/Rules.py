@@ -111,7 +111,14 @@ def _apply_free_roam_rules(world: "FF7World") -> None:
     player = world.player
     for location in world.multiworld.get_locations(player):
         region = location.parent_region
-        if region is not None and region.name in _GOLD_CHOCOBO_EARLY_REGIONS:
+        # Skipped under progressive_chocobos (v0.0.6): there is no "Gold Chocobo"
+        # item then. The progressive equivalent would be "bar the 4th copy", which
+        # item_rule cannot express — it is handed one item, not a count — and
+        # barring every copy would push all chocobo access out of sphere 0. The
+        # ladder makes it moot anyway: the 4th copy can only matter once the first
+        # three are held, so it is naturally late.
+        if (region is not None and region.name in _GOLD_CHOCOBO_EARLY_REGIONS
+                and not world.options.progressive_chocobos):
             prev = location.item_rule
             location.item_rule = (
                 lambda item, _prev=prev: _prev(item) and item.name != "Gold Chocobo"

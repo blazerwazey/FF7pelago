@@ -15,7 +15,8 @@ from worlds.LauncherComponents import Component, Type, components, launch
 from .Items import ITEM_TABLE, create_ff7_item, item_name_groups, item_name_to_id
 from .Locations import (
     ALL_LOCATION_TABLE, FF7Location, PLACEABLE_LOCATION_CODES,
-    SHOP_LOCATION_TABLE, location_name_groups, location_name_to_id,
+    SHOP_LOCATION_TABLE, SHOP_SLOTS_BY_SHOP, SHIPPED_SHOP_CODES,
+    location_name_groups, location_name_to_id,
 )
 from .Options import (
     FF7Options,
@@ -29,12 +30,16 @@ from .Options import (
     DisableGoldSaucer,
     ChocoboRaceChecks,
     DisableFortCondorChecks,
+    DisableGilDumpChecks,
+    DisableBoneVillageDigs,
+    ShopSlotsPerShop,
+    ProgressiveChocobos,
+    PartyLevelSync,
     WeaponFightChecks,
     TownGating,
     ExpMultiplier,
     GilMultiplier,
     APMultiplier,
-    StartWithChocoboLure,
     VictoryCondition,
     TrapFillPercent,
     FrogTrapWeight,
@@ -216,7 +221,13 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "mds5_2":     "Midgar Sector 5",
     "mds5_3":     "Midgar Sector 5",
     "mds5_4":     "Midgar Sector 5",
-    "mds5_5":     "Midgar Sector 5",
+    # mds5_5 is the field the Midgar highway EMPTIES INTO — the outskirts, on the
+    # near side of the Sector 5 walkmesh gate Gold Saucer installs. It is walkable
+    # from Kalm with no transport, so the Motor Ball chest standing there needs no
+    # Key to Sector 5. Confirmed in play 2026-09-05; it had inherited the interior
+    # region's rule, which was logic stricter than the game.
+    # It is the ONLY location on this field, so nothing else moves with it.
+    "mds5_5":     "Midgar Outskirts",
     "mds5_dk":    "Midgar Sector 5",
     "mds5_w":     "Midgar Sector 5",
     "mds5_i":     "Midgar Sector 5",
@@ -271,6 +282,9 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "delmin1":    "Costa del Sol",
     "delmin12":   "Costa del Sol",
     "gonjun1":    "Gongaga",
+    # Boss in a Box (v0.0.6): the jungle crossroads carries the Reno & Rude
+    # chest, so the field needs a region of its own to hang the check on.
+    "gonjun2":    "Gongaga",
     "gninn":      "Gongaga",
     "goson":      "Gongaga",
     "gnmk":       "Gongaga",        # Meltdown Reactor (Titan materia)
@@ -337,10 +351,27 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "hideway2":   "Wutai",   # Wutai Hidden Passage — Hairpin
     "hideway3":   "Wutai",   # Wutai Hidden Passage — HP Absorb
 
-    # --- Temple of the Ancients: NOT mapped. The temple collapses at the end
-    #     of the Keystone/Black Materia sequence (~moment 1000), so at Free Roam
-    #     moment 1603 the kuro_*/jtmpin1 fields are unreachable and every check
-    #     in them is dead. Dropping the maps here drops all their locations.
+    # --- Temple of the Ancients (v0.0.6). The old note here claimed the temple
+    #     "collapses at ~moment 1000" and was permanently unreachable. That was
+    #     WRONG: the temple is a self-contained state machine driven by its own
+    #     progress value, not something the global moment destroys. Gold Saucer now
+    #     moves that machine onto a private savemap word, restores the entry route
+    #     (jtempl -> gateway -> jtmpin1 -> jtmpin2 -> kuro_1) and the client seeds
+    #     the machine only once the Keystone has been received — which is what gates
+    #     the dungeon in-game. Only the 7 check-bearing maps need mapping; the
+    #     connecting rooms (jtempl/jtmpin1/jtmpin2/kuro_4/9/10/11/12) hold no checks.
+    "kuro_1":     "Temple of the Ancients",
+    "kuro_2":     "Temple of the Ancients",
+    "kuro_3":     "Temple of the Ancients",
+    "kuro_5":     "Temple of the Ancients",
+    "kuro_6":     "Temple of the Ancients",
+    "kuro_7":     "Temple of the Ancients",
+    "kuro_82":    "Temple of the Ancients",
+    # Demons Gate's own field. It stages BATTLE 644 already; the fight no
+    # longer fires in Free Roam, so a boss chest gives it back (see
+    # kBossChests). Without this line the chest location has no region and
+    # would be silently dropped from the pool.
+    "kuro_12":    "Temple of the Ancients",
 
     # --- Northern forests (extended-tier chocobo; Forgotten Capital also Lunar Harp) ---
     "bonevil":    "Bone Village",
@@ -370,7 +401,7 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "move_d":     "Great Glacier",
     # --- Gaea's Cliff: NOT mapped. Its checks are part of the one-way climb to
     #     the Whirlwind Maze (disc-2 story, ~moment 1100); at Free Roam moment
-    #     1603 the gaiin_*/holu_1 fields are dead, so dropping the maps here
+    #     1997 the gaiin_*/holu_1 fields are dead, so dropping the maps here
     #     drops all of their locations.
     "trnad_1":    "Whirlwind Maze",
     "trnad_2":    "Whirlwind Maze",
@@ -418,9 +449,16 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
 
 # Items that only belong in the pool when Free Roam is enabled (world-map
 # traversal unlocks: the Highwind + the layered colour chocobos).
+# The four colour chocobos, as a set — replaced in the pool by 4x "Progressive
+# Chocobo" when the progressive_chocobos option is on (v0.0.6).
+_COLOUR_CHOCOBO_ITEMS = frozenset({
+    "Green Chocobo", "Blue Chocobo", "Black Chocobo", "Gold Chocobo",
+})
+
 _FREE_ROAM_ONLY_ITEMS = frozenset({
     "Highwind", "Submarine",
     "Green Chocobo", "Blue Chocobo", "Black Chocobo", "Gold Chocobo",
+    "Progressive Chocobo",
     # Party members — in linear mode they join via story, so they are only AP
     # items in Free Roam. Vincent and Yuffie are the optional recruits (not
     # goal requirements); their joins are neutered by Gold Saucer so AP grants
@@ -432,6 +470,20 @@ _FREE_ROAM_ONLY_ITEMS = frozenset({
 # Optional party members (progression in Free Roam) and how many the goal
 # requires — winning needs the Highwind plus a real squad, not just Cloud.
 _PARTY_MEMBER_ITEMS = ["Barret", "Tifa", "Aerith", "Red XIII", "Cait Sith", "Cid"]
+
+# The deep-endgame areas — all three Weapons, the sunken Gelnika and the Underwater
+# Reactor — are brutal for a low-level solo Cloud, and Archipelago cannot see LEVEL
+# (fill reasons about items and events only). Party size is the one strength proxy
+# knowable at fill time, so it stands in for "you are equipped to be here". This
+# does not stop a player walking in underlevelled; it stops the SEED from ever
+# requiring them to.
+#
+# The POOL is deliberately wider than _PARTY_MEMBER_ITEMS: for raw combat strength
+# Vincent and Yuffie count like anyone else, so three of any EIGHT satisfies this.
+# The goal gate above stays on the six, because that is about having recruited the
+# canonical party, not about being strong enough for a fight.
+_ENDGAME_SQUAD_POOL = _PARTY_MEMBER_ITEMS + ["Vincent", "Yuffie"]
+_ENDGAME_SQUAD_SIZE = 3
 # Goal also requires the 4 Huge Materia (kept progression in Free Roam below).
 _GOAL_HUGE_MATERIA = [
     "Huge Materia (Fort Condor)", "Huge Materia (Corel)",
@@ -446,12 +498,24 @@ _GOAL_HUGE_MATERIA = [
 # chocobos (Green/Blue/Black/Gold), Key to Sector 5, Highwind, Lunar Harp,
 # Glacier Map, Snowboard, Basement Key, the 6 party members, and the 4 Huge
 # Materia (the last two are goal requirements, so they must stay progression).
-_FREE_ROAM_USEFUL_ITEMS = frozenset()
+# Upgraded to "useful" in Free Roam only. Done here rather than by editing the
+# item's record in items.json, because that record's `filler` classification is
+# load-bearing in three other places that read the RAW value: the padding cycle
+# in create_items, the truncation sort key, and get_filler_item_name. This set is
+# consulted only by _effective_classification, which is exactly the blast radius
+# we want. (One consequence: AP core can still hand out the single Hero Drink as
+# plando/item-link filler, because get_filler_item_name reads the raw table.)
+_FREE_ROAM_USEFUL_ITEMS = frozenset({
+    "Hero Drink",   # full-fight stat boost; genuinely worth finding (v0.0.6)
+})
 _FREE_ROAM_FILLER_ITEMS = frozenset({
     "Battery",
     "Cotton Dress", "Satin Dress", "Silk Dress",
     "Wig", "Dyed Wig", "Blonde Wig",
-    "Key to Ancients", "Black Materia", "Keystone", "PHS",
+    # Keystone is NOT here any more (v0.0.6): it gates the Temple of the Ancients,
+    # both in logic and in-game — the client withholds the temple's state seed until
+    # it has been received. It keeps its `progression` classification from items.json.
+    "Key to Ancients", "Black Materia", "PHS",
     "Keycard 60", "Keycard 62", "Keycard 65", "Keycard 66", "Keycard 68",
     "Midgar Parts 1", "Midgar Parts 2", "Midgar Parts 3",
     "Midgar Parts 4", "Midgar Parts 5",
@@ -465,7 +529,7 @@ _FREE_ROAM_FILLER_ITEMS = frozenset({
 # would still be pooled as progression whenever town_gating is ON.
 _FREE_ROAM_EXCLUDE_ITEMS = frozenset({"Gold Ticket", "Fort Condor Key"})
 
-# Locations that cannot be obtained in Free Roam (game moment 1603), so they
+# Locations that cannot be obtained in Free Roam (game moment 1997), so they
 # must not receive items or they soft-lock the seed:
 #   300062  Chocobo farm - Chocobo Lure — bought via a dialogue scene that the
 #           late game state skips, so the pickup flag is never set.
@@ -473,20 +537,20 @@ _FREE_ROAM_EXCLUDE_ITEMS = frozenset({"Gold Ticket", "Fort Condor Key"})
 #   310038  Fort Condor - Super Ball (convil_2) — a Fort Condor minigame reward
 #           that the Free Roam state can't reach, so its flag never sets.
 #   310014  Kalm - KeyItem: PHS (elminn_1) — the PHS hand-over only runs in the
-#           post-flashback script (~moment 100); it never fires at 1603, and
+#           post-flashback script (~moment 100); it never fires at 1997, and
 #           the PHS is an AP-sent item in Free Roam anyway.
 #   310010, 310020-310035  Wall Market Don Corneo dress-quest chain (Member's
 #           Card, Colognes, Pharmacy Coupon, Wigs, Dresses, Disinfectant trio,
 #           Tiaras) — disc-1-only events (~moment 300-400); the NPCs/scripts
-#           are replaced on the disc-2 Midgar return, so none fire at 1603.
+#           are replaced on the disc-2 Midgar return, so none fire at 1997.
 #   200018  Chocobo farm - Choco/Mog (farm) — the "talk to the chocobo" scene
-#           that grants the summon doesn't fire at 1603.
+#           that grants the summon doesn't fire at 1997.
 #   310071  Nibelheim - Played piano during flashback (niv_ti2) — only set
-#           inside the Kalm flashback (~moment 70); never fires at 1603.
+#           inside the Kalm flashback (~moment 70); never fires at 1997.
 #           (Listed once, with the Nibelheim House group further down.)
 # (frcyo "Chocobo Ranch" locations are dropped via FREE_ROAM_REGION_MAP, and
 #  the whole Temple of the Ancients is dropped the same way — it has collapsed
-#  by moment 1603.)
+#  by moment 1997.)
 _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     300061, 300062, 310038, 310014, 200018,
     # Wall Market dress-quest chain:
@@ -498,8 +562,10 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # Removed by request: Sector 7 (mds7 maps + shops)
     200000, 200001, 200002, 200003, 200004, 200005, 200006, 200007,  # Train Graveyard + No. 1 Reactor
     300160, 300161,                                  # Beginner's Hall
-    # Sector 7 shops (shop_ids 0/1/2/9 — all AP slots, per the expanded shops.json)
-    320000, 320001, 320002, 320003, 320004, 320005, 320006, 320007,
+    # Sector 7 shops (shop_ids 0/2/9 — all AP slots, per the expanded shops.json).
+    # 320004-320007 were here too, as shop 1's slots. Shop 1 is NOT Sector 7's —
+    # it is a Mideel storefront (see _DEAD_SHOP_IDS) — so they are live again.
+    320000, 320001, 320002, 320003,
     320008, 320009, 320010, 320026, 320027, 320028,
     # Removed by request: Nibelheim House (niv_ti maps). 310071/072 are flashback-only
     # piano flags on the niv_ti2 bank11 0x01 byte (0x0EA5), which is VOLATILE in Free
@@ -544,9 +610,16 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     310002, 310003, 310004, 310005, 310006, 310007, 310008,
     310040, 310041, 310048, 310049, 310050, 310051, 310052, 310053, 310054,
     310055, 310056, 310076, 310077, 310078, 310079,
-    # Removed by request: all Temple of the Ancients locations (kuro_*)
-    200305, 200306, 200307, 200308, 200309, 200310, 200311, 200313, 200314,
-    200315, 200316, 300109, 300111, 310093, 310094, 310095,
+    # Temple of the Ancients (v0.0.6): the 16 kuro_* field checks are LIVE again —
+    # the dungeon is reachable and Keystone-gated, so they are no longer listed
+    # here. (Being absent from this set is only half of it; they also need their
+    # maps in FREE_ROAM_REGION_MAP, which they now have.)
+    #
+    # The 2 SHOP slots stay dead: exe shop 45 is labelled "Temple of Ancients" and
+    # (Temple of the Ancients shop slots 320105/320106 were excluded here while a
+    # static scan could not prove a shop existed inside. It does: kuro_2's `shop`
+    # entity runs MENU type=0x08 param=45 — exe shop 45 — and the room is on the
+    # normal route. Confirmed in game 2026-08-31, so both slots are live again.)
     # Removed by request: all Cargo Ship locations + shop (shpin_2/shpin_3,
     # shop_id 25). NOTE: this is the Junon->Costa boat, NOT the Gelnika
     # "Cargo Room" (q_4, 200296/310090) which stays in.
@@ -574,9 +647,9 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
     # "BASEMENT_GATE" FieldPickup patch + the client gate-flag removal.)
     # Corneo dress key items still live (rest of the chain already excluded above):
     310066,                                          # Midgar Sector 5 - Bikini briefs
-    # All Shinra HQ shop locations (the Shinra Bldg./blin* field checks are already
-    # excluded above; these are the 4 AP shop slots).
-    320029, 320030, 320031, 320032,                  # Shinra HQ - AP Slots 1-4
+    # (Shinra HQ's shop slots used to be four literal codes here. They are keyed
+    # on the SHOP ID now — see _DEAD_SHOP_IDS — because the slot grid can generate
+    # more of them and listing codes would silently miss the new ones.)
     # Removed by request (2026-07-27, v0.0.5): Speed Square (jetin1) Umbrella prize.
     # The Flayer prize on the same screen (300090, same byte 0x0BD7 at bit 3) STAYS.
     300089,                                          # Gold Saucer Rollercoaster - Umbrella
@@ -588,11 +661,49 @@ _FREE_ROAM_DEAD_LOCATION_CODES = frozenset({
 # man after the final minigame fight. The Fort Condor SHOP slots are NOT here,
 # so the store stays in the pool. (Some of these also live in
 # _FREE_ROAM_DEAD_LOCATION_CODES already; the overlap is harmless.)
+# Shops whose slots are never checks in Free Roam, keyed by SHOP ID rather than
+# by location code. This exists because of the slot grid (v0.0.6): the dead-code
+# list names individual codes, so generating more slots for an excluded shop
+# would smuggle live checks into a shop the player can never reach. Every shop
+# here has ALL of its shipped slots in _FREE_ROAM_DEAD_LOCATION_CODES already —
+# this just makes the exclusion whole-shop so it covers generated slots too.
+_DEAD_SHOP_IDS = frozenset({
+    0, 2, 9,      # Sector 7 Weapon / Item / Pillar — sector destroyed
+    10,           # Shinra HQ — the whole building is unreachable at moment 1997
+    25,           # Cargo Ship Item — removed by request (v0.0.5)
+})
+# Shop 1 was in that set as "Sector 7 Item", which it is not. A field-script scan
+# of every MENU(type=8) shows shop 1 is opened by `itown1b` — MIDEEL's town field —
+# and by nothing else in the game; Sector 7's own stores are 0 (mds7_w1),
+# 2 (mds7_im) and 9 (mds7plr1). Dead-listing it deleted four AP slots from a
+# storefront the player can walk up to, which is the 2026-09-03 report that some
+# Mideel stores never populate. Its records now live in the Mideel region.
+
 _FORT_CONDOR_CHECK_CODES = frozenset({
     300038, 300040, 300041,   # Fort Condor Watch Room - Megalixir / Peace Ring / Magic Comb
     310037,                   # Fort Condor - Phoenix
     310038,                   # Fort Condor - Super Ball
     310011,                   # Fort Condor - KeyItem: Huge Materia: Fort Condor (old man)
+})
+
+# "Gil dump" checks: gated on spending money rather than on reaching anywhere.
+# Dropped by the disable_gil_dump_checks YAML option (v0.0.6).
+_GIL_DUMP_CHECK_CODES = frozenset({
+    200012,   # Wall Market Weapon Store - Sneak Glove       (mkt_w,   bank 1/37/4)
+    200320,   # Cloud's Villa - Purchased The House          (delmin1, bank 13/114/3)
+})
+
+# Bone Village excavation rewards, dropped by disable_bone_village_digs (v0.0.6).
+# ALL FIVE digs, not just the three loot ones: the Lunar Harp and Key to Sector 5
+# are dug up there too, and leaving those behind would mean opting out of the
+# minigame while still having to play it for two progression items. Their ITEMS
+# stay in the pool and get placed elsewhere, so nothing is lost.
+_BONE_VILLAGE_DIG_CODES = frozenset({
+    300287,   # Bone Village - Buntline    (bank 13/35/5)
+    300289,   # Bone Village - Megalixir   (bank 13/38/2)
+    300290,   # Bone Village - Mop         (bank 13/38/1)
+    310042,   # Bone Village - KeyItem: Lunar Harp
+    310082,   # Bone Village - KeyItem: Key To Sector 5
 })
 
 # Gold Saucer chocobo-racing result checks (Free Roam), gated by the
@@ -632,6 +743,14 @@ _FREE_ROAM_WEAPON_BOSSES = {
     # Diamond Weapon is omitted: his world-map model never renders in Free Roam, so
     # he is fully hidden (ambient spawn neutralized in wm0.ev) and is not a check.
 }
+
+# Weapons that need _ENDGAME_SQUAD_SIZE characters on top of their traversal tier.
+# All three: Ultimate was briefly exempt, but a solo Cloud has no business in any
+# Weapon fight, and exempting him left the Ultimate CHECK and the "Ultimate Weapon
+# Defeated" EVENT disagreeing about what the same kill costs.
+_WEAPON_BOSSES_NEEDING_SQUAD = frozenset({
+    "Defeat Ultimate Weapon", "Defeat Emerald Weapon", "Defeat Ruby Weapon",
+})
 
 # Kalm Traveler (House: 2f, elmin4_2) trades — each check requires its rare-item
 # input. The inputs are made progression (items.json) so the fill places them
@@ -749,6 +868,13 @@ class FF7Web(WebWorld):
         )
     ]
 
+    # EVERY option must appear in exactly one group here. An option left out is
+    # not dropped — get_option_groups() sweeps the leftovers into a synthetic
+    # "Game Options" group which the YAML renderer emits FIRST, so the option ends
+    # up at the top of the template, far from the ones it relates to. That is how
+    # shop_slots_per_shop came to be reported missing from generated templates
+    # (2026-09-02) when it was really 113 lines above randomize_shops. The earlier
+    # note on ChocoboRaceChecks below is the same bug in its other form.
     option_groups = [
         OptionGroup(
             "Randomizers",
@@ -757,6 +883,9 @@ class FF7Web(WebWorld):
                 FieldItemsMode,
                 FieldItemsKeepType,
                 RandomizeShops,
+                # Directly under RandomizeShops: meaningless without it.
+                ShopSlotsPerShop,
+                ProgressiveChocobos,
                 RandomizeStartingEquipment,
                 StartingEquipmentTier,
             ],
@@ -772,6 +901,8 @@ class FF7Web(WebWorld):
                 # so it never appeared in the WebHost Options Creator.
                 ChocoboRaceChecks,
                 DisableFortCondorChecks,
+                DisableGilDumpChecks,
+                DisableBoneVillageDigs,
                 WeaponFightChecks,
                 TownGating,
             ],
@@ -782,7 +913,7 @@ class FF7Web(WebWorld):
                 ExpMultiplier,
                 GilMultiplier,
                 APMultiplier,
-                StartWithChocoboLure,
+                PartyLevelSync,
             ],
         ),
         OptionGroup(
@@ -840,6 +971,23 @@ class FF7World(World):
     location_name_groups: ClassVar[dict[str, set[str]]] = location_name_groups
     required_client_version: ClassVar[tuple[int, int, int]] = (0, 6, 7)
     web: ClassVar[FF7Web] = FF7Web()
+    # NO `tracker_world` HERE, DELIBERATELY. Declaring it tells Universal Tracker
+    # this world ships a tracker PACK, after which UT's load_pack() unconditionally
+    # reads map pages out of the apworld:
+    #     load_json(PACK_NAME, f"/{tracker_world.map_page_folder}/{map_page}")
+    # We ship no map pack, so map_page_folder was empty, the resource became "//",
+    # and pkgutil.get_data resolved it to the package DIRECTORY ("ff7\\"), which
+    # zipimport cannot read:
+    #     OSError: [Errno 0] : 'ff7\'
+    # That is raised while UT processes the Connected packet, so every FF7 player
+    # got "Failed to connect to the multiworld server" and UT was unusable.
+    # Reported 2026-09-02; the hook had been added for map auto-tabbing without the
+    # pack it requires.
+    #
+    # The client still publishes the current map to data storage under
+    # "Slot:{player}:Current Map" (FF7Client._publish_tracker_map). That is the half
+    # that works and costs nothing; re-add `tracker_world` only together with a real
+    # map pack.
 
     victory_location_name = "Northern Crater - Defeat Sephiroth"
     victory_item_name = "FF7 Victory"
@@ -905,7 +1053,7 @@ class FF7World(World):
         # _create_free_roam_regions: Gold Saucer never injects the AP token slots
         # with the feature off, so these checks are unobtainable in-game.
         if self.options.randomize_shops:
-            for shop_data in SHOP_LOCATION_TABLE.values():
+            for shop_data in self._active_shop_slots():
                 shop_loc = FF7Location(
                     self.player, shop_data.name, shop_data.code, world_region,
                 )
@@ -945,10 +1093,12 @@ class FF7World(World):
             "Gongaga",
             "Cosmo Canyon",
             "Nibelheim",
+            "Midgar Outskirts",
             "Shinra Mansion Basement",
             "Mt. Nibel",
             "Rocket Town",
             "Ancient Forest",
+            "Temple of the Ancients",
             "Wutai",
             "Bone Village",
             "Sleeping Forest",
@@ -988,13 +1138,55 @@ class FF7World(World):
         # - Black: Junon mountain + open ocean
         # - Gold: Junon mountain + open ocean
         # - Highwind: Junon mountain + open ocean
+        # Capability helpers — ONE definition each, so every chocobo rule below
+        # composes these instead of spelling out its own OR over colour names.
+        # That refactor (v0.0.6) is what makes progressive_chocobos possible: with
+        # the option on, the four colours are replaced in the pool by four copies
+        # of a single "Progressive Chocobo", and owning N copies means owning
+        # every colour up to tier N.
+        #
+        # The ladder is Yellow -> Green -> Black -> Gold, the order a player
+        # actually breeds them. Blue is NOT on it: Blue and Green are siblings
+        # rather than steps (water vs mountains), so a four-rung ladder has to
+        # pick one. Two consequences the rules below depend on:
+        #   * tier 1 (Yellow) unlocks NO traversal. It is still progression,
+        #     because tiers 2-4 cannot be reached without it.
+        #   * OCEAN access first arrives with BLACK at tier 3, not tier 2. So
+        #     `_blue` — the ocean capability — is tiered at 3 alongside Black,
+        #     which is simply when the player can first cross water.
+        # Tiers remain cumulative in CAPABILITY, not in animal.
+        _prog = bool(self.options.progressive_chocobos)
+
+        def _choco(colour: str, tier: int):
+            if _prog:
+                return lambda state, t=tier: state.has("Progressive Chocobo", player, t)
+            return lambda state, c=colour: state.has(c, player)
+
+        # tier 1 = Yellow, which grants no traversal and so appears in no rule.
+        _green = _choco("Green Chocobo", 2)   # Junon mountain only
+        _blue  = _choco("Blue Chocobo",  3)   # ocean; first available on Black
+        _black = _choco("Black Chocobo", 3)   # mountain + ocean
+        _gold  = _choco("Gold Chocobo",  4)   # all terrain
+        _highwind = _has("Highwind")
+
+        def _squad(state):
+            """At least _ENDGAME_SQUAD_SIZE of the eight recruitable characters.
+
+            Counted rather than named, so any three will do — Vincent and Yuffie
+            included, because this gate is about combat strength and they fight as
+            well as anyone. Distinct from the goal gate, which wants the canonical
+            six by name.
+            """
+            return sum(state.has(c, player)
+                       for c in _ENDGAME_SQUAD_POOL) >= _ENDGAME_SQUAD_SIZE
+
         def _mountain(state):    # Junon (mountain crossing)
-            return (state.has("Green Chocobo", player) or state.has("Black Chocobo", player)
-                    or state.has("Gold Chocobo", player) or state.has("Highwind", player))
+            return (_green(state) or _black(state) or _gold(state)
+                    or _highwind(state))
 
         def _ocean(state):       # open-ocean continents
-            return (state.has("Blue Chocobo", player) or state.has("Black Chocobo", player)
-                    or state.has("Gold Chocobo", player) or state.has("Highwind", player))
+            return (_blue(state) or _black(state) or _gold(state)
+                    or _highwind(state))
 
         # The Submarine is PARKED AT THE JUNON DOCK (client _VEHICLE_FIXED_POS[13] =
         # 169884/-240/149694), so owning the item is worthless until you can physically
@@ -1008,9 +1200,8 @@ class FF7World(World):
             return state.has("Submarine", player) and _mountain(state)
 
         def _sub(state):         # North Corel + Gold Saucer (Submarine), or full ocean
-            return (_has_sub(state) or state.has("Blue Chocobo", player)
-                    or state.has("Black Chocobo", player) or state.has("Gold Chocobo", player)
-                    or state.has("Highwind", player))
+            return (_has_sub(state) or _blue(state) or _black(state)
+                    or _gold(state) or _highwind(state))
 
         def _underwater(state):  # underwater only (Submarine)
             return _has_sub(state)
@@ -1042,9 +1233,7 @@ class FF7World(World):
         # ocean to reach this continent; NOT _ocean — that allows Blue, which is
         # ocean-only and can't enter the mountain-walled area.)
         world_map.connect(sub_regions["Chocobo Sage"]).access_rule = (
-            lambda state: (state.has("Black Chocobo", player)
-                           or state.has("Gold Chocobo", player)
-                           or state.has("Highwind", player))
+            lambda state: _black(state) or _gold(state) or _highwind(state)
         )
 
         # --- Materia Caves (chocobo-specific terrain requirements) ---
@@ -1052,27 +1241,20 @@ class FF7World(World):
         # their own; a Green Chocobo climbs the mountains but needs the Highwind
         # to be ferried to the continent first. Highwind alone can't land there.
         world_map.connect(sub_regions["Mime Cave"]).access_rule = (
-            lambda state: (state.has("Black Chocobo", player)
-                           or state.has("Gold Chocobo", player)
-                           or (state.has("Green Chocobo", player)
-                               and state.has("Highwind", player)))
+            lambda state: (_black(state) or _gold(state)
+                           or (_green(state) and _highwind(state)))
         )
         # HP <-> MP Cave (zz6): Black/Gold Chocobo (mountain + ocean)
         world_map.connect(sub_regions["HP <-> MP Cave"]).access_rule = (
-            lambda state: (state.has("Black Chocobo", player)
-                           or state.has("Gold Chocobo", player))
+            lambda state: _black(state) or _gold(state)
         )
         # Quadra Magic Cave (zz7): Blue/Black/Gold Chocobo only — Highwind can't
         # land here, so this must NOT use _ocean (which includes Highwind).
         world_map.connect(sub_regions["Quadra Magic Cave"]).access_rule = (
-            lambda state: (state.has("Blue Chocobo", player)
-                           or state.has("Black Chocobo", player)
-                           or state.has("Gold Chocobo", player))
+            lambda state: _blue(state) or _black(state) or _gold(state)
         )
         # Knights of the Round Cave (zz8): Gold Chocobo only (all terrain)
-        world_map.connect(sub_regions["Knights of the Round Cave"]).access_rule = (
-            lambda state: state.has("Gold Chocobo", player)
-        )
+        world_map.connect(sub_regions["Knights of the Round Cave"]).access_rule = _gold
 
         # --- North Corel + Gold Saucer (Submarine reaches these; or Gold/Highwind) ---
         _town_entrances["Corel"] = world_map.connect(sub_regions["Corel"])
@@ -1090,11 +1272,31 @@ class FF7World(World):
 
         # --- Open-ocean continents (Blue/Black/Gold Chocobo or Highwind) ---
         for _name in ("Costa del Sol", "Gongaga", "Cosmo Canyon", "Nibelheim",
-                      "Rocket Town", "Wutai", "Bone Village", "Sleeping Forest",
+                      "Rocket Town", "Wutai", "Bone Village",
                       "Mideel"):
             _e = world_map.connect(sub_regions[_name])
             _e.access_rule = _ocean
             _town_entrances[_name] = _e
+
+        # --- Sleeping Forest: ocean traversal (+ its town key when gating) ---
+        # The Lunar Harp requirement added here in v0.0.6 was DROPPED by request
+        # (2026-09-05). Nothing in game enforces it: neither slfrst_1 nor
+        # slfrst_2 tests the Harp flag at all — both gate purely on game_moment
+        # (slfrst_1 on < 638, slfrst_2 on < 652 / >= 652), and at Free Roam's 1997
+        # none of that blocks entry. A logic rule stricter than the game only
+        # makes AP treat the forest's Kujata check (300234) as later than it is.
+        #
+        # Forgotten Capital and Corel Valley KEEP the Harp: their world entries
+        # (field.tbl 26/57/58) are already sealed by patchTownGates, so that gate
+        # is enforceable there in a way the forest's is not.
+        #
+        # Registered in _town_entrances BEFORE the town-gating loop below so that
+        # loop ANDs in _TOWN_GATE_KEYS["Sleeping Forest"] = "Bone Village Key" for
+        # us. Do NOT hand-write the key the way Forgotten Capital does — that
+        # region is connected after the loop and has no choice.
+        _e = world_map.connect(sub_regions["Sleeping Forest"])
+        _e.access_rule = _ocean
+        _town_entrances["Sleeping Forest"] = _e
 
         _town_entrances["Mt. Corel (Costa)"] = world_map.connect(sub_regions["Mt. Corel (Costa)"])
         _town_entrances["Mt. Corel (Costa)"].access_rule = _ocean
@@ -1103,11 +1305,11 @@ class FF7World(World):
 
         def _can_reach_icicle(state):
             return (
-                state.has("Black Chocobo", player)
-                or state.has("Gold Chocobo", player)
-                or state.has("Highwind", player)
+                _black(state)
+                or _gold(state)
+                or _highwind(state)
                 or (
-                    state.has("Blue Chocobo", player)
+                    _blue(state)
                     and state.has("Lunar Harp", player)
                     and (not bool(self.options.town_gating)
                          or state.has("Bone Village Key", player))
@@ -1118,16 +1320,19 @@ class FF7World(World):
         _icicle_inn.access_rule = _can_reach_icicle
         _town_entrances["Icicle Inn"] = _icicle_inn
 
-        # --- Mt. Nibel: the mountain behind Nibelheim. Reached via the Nibelheim
-        # side, so when town gating is on it needs the Nibelheim Key too — always,
-        # regardless of which vehicle crossed the ocean (same rule as any locked
-        # town: base traversal AND the key). ---
+        # --- Mt. Nibel: ocean traversal, and NOTHING else. ---
+        # It carried the Nibelheim Key under town gating on the assumption that the
+        # mountain is entered through the town. It is not — mtnvl2 and mtnvl4 have
+        # their own world-map entries, so the key gated a route the player never
+        # takes. Dropped by request 2026-09-05.
+        #
+        # Gold Saucer's patchTownGates rows for tbl#44/#46 were removed in the same
+        # change. Dropping only this side would have left the WORLD SCRIPT still
+        # sealing both entries on the Nibelheim key while logic believed they were
+        # open — logic looser than the game, which is the direction that strands a
+        # seed.
         _mt_nibel = world_map.connect(sub_regions["Mt. Nibel"])
-        if bool(self.options.town_gating):
-            _mt_nibel.access_rule = (lambda state:
-                _ocean(state) and state.has("Nibelheim Key", player))
-        else:
-            _mt_nibel.access_rule = _ocean
+        _mt_nibel.access_rule = _ocean
 
         # --- Town gating: AND each gated town's key into its entrance rule ---
         # (runs here so every gated town's base traversal rule is already set).
@@ -1140,17 +1345,36 @@ class FF7World(World):
                 _ent.access_rule = (lambda state, p=_prev, k=_key:
                                     p(state) and state.has(k, player))
         # Ancient Forest sits on a mountain-walled plateau (western continent); its
-        # entrance only fires on foot/chocobo. Routes: Black/Gold chocobo cross the
-        # terrain to it; the Highwind reaches it two ways that both reduce to "have
-        # Highwind" — (a) Highwind ferries a Green chocobo to climb the plateau, and
-        # (b) the Highwind lets you defeat Ultimate Weapon, which advances the
-        # overworld to world_progress 4 and opens a walkable foot path in (this is
-        # the post-2026-06-18 client behaviour: _resolve_ultimate_weapon sets the
-        # post-Ultimate state). A Green chocobo ALONE can't cross the ocean here, so
-        # it is intentionally not a standalone route. (No Blue.)
+        # entrance only fires on foot/chocobo. Two routes: a Black/Gold chocobo
+        # crosses the terrain to it, or Ultimate Weapon dies — his death advances
+        # the overworld to world_progress 4, which opens a walkable foot path in
+        # (post-2026-06-18 client behaviour: _resolve_ultimate_weapon sets the
+        # post-Ultimate state). A Green chocobo ALONE can't cross the ocean here,
+        # so it is intentionally not a standalone route. (No Blue.)
+        #
+        # v0.0.6: the Highwind half now REQUIRES the Ultimate event instead of
+        # just possession. The comment here already said Highwind was only valid
+        # because it implies Ultimate dies, but the rule accepted bare Highwind —
+        # so the forest was in logic the moment the airship arrived, with Ultimate
+        # still alive and no chocobo (reported 2026-08-31). The old comment also
+        # claimed the Highwind could ferry a Green chocobo up; it cannot carry
+        # chocobos at all, so that route never existed. With the event's own rule
+        # left at _has("Highwind") this is behaviourally identical to before —
+        # deliberately. The point is that the dependency is now STRUCTURAL: if the
+        # event is ever tightened, this tightens with it instead of quietly
+        # continuing to disagree with its own comment.
         world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
-            lambda state: (state.has("Black Chocobo", player)
-                    or state.has("Gold Chocobo", player) or state.has("Highwind", player))
+            lambda state: (_black(state) or _gold(state)
+                    or (_highwind(state)
+                        and state.has("Ultimate Weapon Defeated", player)))
+        )
+        # Temple of the Ancients (v0.0.6): its own island, so ocean traversal, plus
+        # the Keystone. The Keystone requirement is REAL, not just logical — nothing
+        # in the temple's scripts checks for it (vanilla relies on the story), so the
+        # client only starts the temple's state machine once the Keystone has been
+        # received. Without it the altar is inert and the interior is unreachable.
+        world_map.connect(sub_regions["Temple of the Ancients"]).access_rule = (
+            lambda state: _ocean(state) and state.has("Keystone", player)
         )
         # Shinra Mansion basement: ocean + Basement Key. The mansion sits INSIDE
         # Nibelheim (no world-map entrance of its own), so under town gating it
@@ -1175,9 +1399,30 @@ class FF7World(World):
             lambda state: _ocean(state) and state.has("Lunar Harp", player)
             and (not _tg or state.has("Bone Village Key", player))
         )
+        # Great Glacier does NOT share Icicle Inn's route, despite sitting behind
+        # it. The Highwind can land at Icicle Inn but CANNOT reach the glacier on
+        # its own, and a Green chocobo cannot cross the water to get there — so the
+        # ways in are Black, Gold, or the Highwind FERRYING a Green, exactly the
+        # Mime Cave pattern. Reported from play 2026-09-05.
+        #
+        # This was _can_reach_icicle, which accepts a bare Highwind (and Blue +
+        # Lunar Harp). That is logic LOOSER than the game: fill could place
+        # progression on the glacier's checks behind a Highwind the player cannot
+        # actually get there with — the unbeatable-seed direction. Tightening it
+        # can only delay items, never strand them.
+        def _can_reach_glacier(state):
+            return (_black(state) or _gold(state)
+                    or (_highwind(state) and _green(state)))
+
+        # NO Icicle Inn Key, even under town gating (removed by request
+        # 2026-09-05). The key was here because the glacier sits behind the inn,
+        # but the route above does not go through the town — and Gold Saucer does
+        # not seal the glacier's own fields either: patchTownGates covers the
+        # `snow` entries, and its source says outright that the `hyou` fields are
+        # "gated in logic by Snowboard+Glacier Map, not here". So the key gated
+        # nothing the player could feel, in either direction.
         world_map.connect(sub_regions["Great Glacier"]).access_rule = (
-            lambda state: _can_reach_icicle(state)
-            and (not _tg or state.has("Icicle Inn Key", player))
+            lambda state: _can_reach_glacier(state)
             and state.has("Snowboard", player)
             and state.has("Glacier Map", player)
         )
@@ -1201,16 +1446,33 @@ class FF7World(World):
         _tg_junon = bool(self.options.town_gating)
         world_map.connect(sub_regions["Underwater Reactor"]).access_rule = (
             lambda state: (_mountain(state)
-                           and (not _tg_junon or state.has("Junon Key", player)))
+                           and (not _tg_junon or state.has("Junon Key", player))
+                           and _squad(state))
         )
         # Red Submarine requires Submarine item to drive underwater
         world_map.connect(sub_regions["Red Submarine"]).access_rule = _underwater
-        world_map.connect(sub_regions["Gelnika"]).access_rule = _underwater
+        world_map.connect(sub_regions["Gelnika"]).access_rule = (
+            lambda state: _underwater(state) and _squad(state))
 
         # --- Midgar return (Key to Sector 5) ---
         world_map.connect(sub_regions["Midgar Sector 5"]).access_rule = _has("Key to Sector 5")
+        # The outskirts are OUTSIDE that gate: eastern continent, walkable from
+        # Kalm, no rule at all. Only the Motor Ball chest lives here.
+        world_map.connect(sub_regions["Midgar Outskirts"])
 
         # Resolve weapon-boss traversal tiers to predicates (used below).
+        #
+        # What "Ultimate Weapon Defeated" does and does NOT mean (v0.0.6):
+        # it marks the point at which Ultimate becomes FIGHTABLE, not the kill.
+        # Archipelago's fill only ever sees items and events, so no rule here can
+        # require that a battle was actually won — the event's own rule is
+        # _has("Highwind"), identical to Ultimate's, which makes _ruby equivalent
+        # to plain Highwind. That is the honest ceiling for logic, and it is
+        # correct: with the Highwind you can go and kill Ultimate, after which
+        # Ruby spawns. The ORDERING is enforced where it can be — at runtime, by
+        # the client: _resolve_weapon_battles refuses to latch Ruby's kill bit
+        # unless Ultimate's is already set. Previously the docstring on
+        # WeaponFightChecks promised sequencing this could never deliver.
         def _ruby(state):
             return (state.has("Highwind", player)
                     and state.has("Ultimate Weapon Defeated", player))
@@ -1219,10 +1481,31 @@ class FF7World(World):
                        "underwater": _underwater, "highwind": _has("Highwind"),
                        "ruby": _ruby}
 
+        # The event that grants "Ultimate Weapon Defeated". Created UNCONDITIONALLY
+        # (it used to live inside the weapon_fight_checks block) because the
+        # Ancient Forest rule references it too — with it inside the option, that
+        # region's rule silently changed shape when the option was toggled off.
+        # It costs nothing when unused: code=None plus a locked item, so
+        # create_items' available-location count skips it (loc.item is not None)
+        # and json_export skips it (address is None).
+        uw_event = FF7Location(player, "Ultimate Weapon Defeated", None, world_map)
+        # Same price as the Ultimate CHECK above. The event stands for "Ultimate is
+        # dead", and Ruby's rule and the Ancient Forest both read it — so if the
+        # kill needs a squad, so does the event, or logic would believe a solo
+        # Cloud could produce it.
+        uw_event.access_rule = (
+            lambda state: _tier_rules["highwind"](state) and _squad(state))
+        uw_event.place_locked_item(
+            Item("Ultimate Weapon Defeated", ItemClassification.progression, None, player)
+        )
+        world_map.locations.append(uw_event)
+
         # Optionally drop every Gold Saucer check (and its shop slots) from the
         # pool — all those locations resolve to the "Gold Saucer Area" region.
         disable_gold_saucer = bool(self.options.disable_gold_saucer)
         ignore_fort_condor = bool(self.options.disable_fort_condor_checks)
+        ignore_gil_dumps = bool(self.options.disable_gil_dump_checks)
+        ignore_bone_digs = bool(self.options.disable_bone_village_digs)
         race_checks = bool(self.options.chocobo_race_checks)
 
         # Chocobo Square is inside the Gold Saucer, so disable_gold_saucer removes
@@ -1243,9 +1526,13 @@ class FF7World(World):
             if location_data.name == self.victory_location_name:
                 continue
             if location_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
-                continue  # unobtainable at game moment 1603 — would soft-lock
+                continue  # unobtainable at game moment 1997 — would soft-lock
             if ignore_fort_condor and location_data.code in _FORT_CONDOR_CHECK_CODES:
                 continue  # YAML opt-out of the Fort Condor minigame checks (shop kept)
+            if ignore_gil_dumps and location_data.code in _GIL_DUMP_CHECK_CODES:
+                continue  # YAML opt-out of the buy-it-with-gil checks
+            if ignore_bone_digs and location_data.code in _BONE_VILLAGE_DIG_CODES:
+                continue  # YAML opt-out of the Bone Village excavation minigame
             if not race_checks and location_data.code in _CHOCOBO_RACE_CHECK_CODES:
                 continue  # chocobo-racing checks are opt-in (grindy minigame)
             if location_data.code not in PLACEABLE_LOCATION_CODES:
@@ -1282,8 +1569,10 @@ class FF7World(World):
         # in-game, while AP happily filled them (progression included). Same
         # unbeatable-seed class as the parked Submarine. Fixed 2026-08-04.
         if self.options.randomize_shops:
-            for shop_data in SHOP_LOCATION_TABLE.values():
+            for shop_data in self._active_shop_slots():
                 if shop_data.code in _FREE_ROAM_DEAD_LOCATION_CODES:
+                    continue
+                if shop_data.shop_id in _DEAD_SHOP_IDS:
                     continue
                 if disable_gold_saucer and shop_data.region == "Gold Saucer Area":
                     continue
@@ -1304,16 +1593,12 @@ class FF7World(World):
                 if boss_data is None:
                     continue
                 boss_loc = FF7Location(player, boss_name, boss_data.code, world_map)
-                boss_loc.access_rule = _tier_rules.get(tier, _ocean)
+                _rule = _tier_rules.get(tier, _ocean)
+                # Every Weapon additionally wants a real squad (v0.0.6).
+                if boss_name in _WEAPON_BOSSES_NEEDING_SQUAD:
+                    _rule = (lambda state, r=_rule: r(state) and _squad(state))
+                boss_loc.access_rule = _rule
                 world_map.locations.append(boss_loc)
-            # Event location (code=None) that grants "Ultimate Weapon Defeated" so
-            # Ruby's access rule can require it.  Shares Ultimate's access rule.
-            uw_event = FF7Location(player, "Ultimate Weapon Defeated", None, world_map)
-            uw_event.access_rule = _tier_rules.get("highwind", _ocean)
-            uw_event.place_locked_item(
-                Item("Ultimate Weapon Defeated", ItemClassification.progression, None, player)
-            )
-            world_map.locations.append(uw_event)
 
         victory_loc = FF7Location(player, self.victory_location_name, None, world_map)
         # Gate the goal so winning requires real endgame progression: the
@@ -1332,11 +1617,7 @@ class FF7World(World):
     def create_items(self) -> None:
         free_roam = bool(self.options.free_roam)
         town_gating = free_roam and bool(self.options.town_gating)
-        # Optional starter: begin with a Chocobo Lure materia. Precollected items
-        # are delivered to the client as received items (the runtime writes the
-        # materia), and don't occupy a location, so the pool fill below is unchanged.
-        if self.options.start_with_chocobo_lure:
-            self.multiworld.push_precollected(self.create_item("Chocobo Lure"))
+        progressive_chocobos = free_roam and bool(self.options.progressive_chocobos)
         # Count only locations that still need an item. The victory location is
         # pre-filled with a locked item in create_regions; counting it here would
         # create one item too many for the available spots and break fill.
@@ -1359,6 +1640,14 @@ class FF7World(World):
                 continue
             if name in _TOWN_KEY_ITEMS and not town_gating:
                 continue  # town keys only when town_gating is enabled
+            # Progressive chocobos: exactly ONE of the two models is in the pool.
+            # Having both would double-count every traversal gate — a seed with
+            # Green AND 4x Progressive satisfies mountain access twice over, and
+            # the ladder stops meaning anything.
+            if progressive_chocobos and name in _COLOUR_CHOCOBO_ITEMS:
+                continue
+            if not progressive_chocobos and name == "Progressive Chocobo":
+                continue
             pool_names.extend([name] * data.count)
 
         # Classification with Free Roam downgrades applied (drives truncation).
@@ -1435,6 +1724,27 @@ class FF7World(World):
                 pool.extend([name] * weight)
         return pool
 
+    def _active_shop_slots(self):
+        """The shop slots this seed actually uses, in stable per-shop order.
+
+        The full grid is pre-declared up to the exe's ten-slot ceiling because
+        location ids are static and cannot be minted per seed. A seed takes a
+        PREFIX of each shop's list, so raising shop_slots_per_shop only ever adds
+        slots and never renumbers existing ones.
+
+        0 means "leave the hand-authored counts alone" — the shipped 1-6 per shop.
+        That cannot be expressed as a single number, which is why 0 is a mode
+        rather than an amount.
+        """
+        want = int(self.options.shop_slots_per_shop)
+        if want <= 0:
+            return [d for d in SHOP_LOCATION_TABLE.values()
+                    if d.code in SHIPPED_SHOP_CODES]
+        active = []
+        for _shop_id, slots in sorted(SHOP_SLOTS_BY_SHOP.items()):
+            active.extend(slots[:want])
+        return active
+
     def _effective_classification(self, name: str) -> ItemClassification:
         """Item classification, applying Free Roam downgrades (linear unchanged)."""
         data = ITEM_TABLE.get(name)
@@ -1496,7 +1806,15 @@ class FF7World(World):
         # the pool enough to hide this; with randomize_shops off it fails outright
         # on ~1% of seeds. Placing it first (state at its fullest, any late region
         # legal) removes the conflict without weakening the early-region ban.
-        late_placement_items = ["Gold Chocobo"] if self.options.free_roam else []
+        #
+        # Not needed under progressive_chocobos: there is no "Gold Chocobo" item
+        # then, and the 4th Progressive Chocobo is inherently late because the
+        # first three gate it. Rules.py's early-region ban is likewise skipped —
+        # item_rule sees one item, not a count, so it cannot bar "the 4th copy"
+        # and barring ALL copies would push every chocobo out of sphere 0.
+        late_placement_items = (["Gold Chocobo"]
+                                if self.options.free_roam
+                                and not self.options.progressive_chocobos else [])
 
         # Reorder progression pool: priority items first
         priority_items = []

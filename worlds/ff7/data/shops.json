@@ -33,35 +33,35 @@
  },
  {
   "code": 320004,
-  "name": "Sector 7 Item - AP Slot 1",
+  "name": "Mideel Item #2 - AP Slot 1",
   "shop_id": 1,
   "token_id": 109,
   "token_type": "item",
-  "region": "Midgar Sector 5"
+  "region": "Mideel"
  },
  {
   "code": 320005,
-  "name": "Sector 7 Item - AP Slot 2",
+  "name": "Mideel Item #2 - AP Slot 2",
   "shop_id": 1,
   "token_id": 110,
   "token_type": "item",
-  "region": "Midgar Sector 5"
+  "region": "Mideel"
  },
  {
   "code": 320006,
-  "name": "Sector 7 Item - AP Slot 3",
+  "name": "Mideel Item #2 - AP Slot 3",
   "shop_id": 1,
   "token_id": 111,
   "token_type": "item",
-  "region": "Midgar Sector 5"
+  "region": "Mideel"
  },
  {
   "code": 320007,
-  "name": "Sector 7 Item - AP Slot 4",
+  "name": "Mideel Item #2 - AP Slot 4",
   "shop_id": 1,
   "token_id": 112,
   "token_type": "item",
-  "region": "Midgar Sector 5"
+  "region": "Mideel"
  },
  {
   "code": 320008,
@@ -1014,5 +1014,85 @@
   "token_id": 11,
   "token_type": "materia",
   "region": "Fort Condor"
+ },
+ {
+  "code": 320471,
+  "name": "Mideel Materia - AP Slot 1",
+  "shop_id": 50,
+  "token_id": 2,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320472,
+  "name": "Mideel Materia - AP Slot 2",
+  "shop_id": 50,
+  "token_id": 4,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320473,
+  "name": "Mideel Materia - AP Slot 3",
+  "shop_id": 50,
+  "token_id": 5,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320474,
+  "name": "Mideel Materia - AP Slot 4",
+  "shop_id": 50,
+  "token_id": 6,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320475,
+  "name": "Mideel Materia - AP Slot 5",
+  "shop_id": 50,
+  "token_id": 7,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320476,
+  "name": "Mideel Materia - AP Slot 6",
+  "shop_id": 50,
+  "token_id": 8,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320477,
+  "name": "Mideel Materia - AP Slot 7",
+  "shop_id": 50,
+  "token_id": 9,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320478,
+  "name": "Mideel Materia - AP Slot 8",
+  "shop_id": 50,
+  "token_id": 10,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320479,
+  "name": "Mideel Materia - AP Slot 9",
+  "shop_id": 50,
+  "token_id": 11,
+  "token_type": "materia",
+  "region": "Mideel"
+ },
+ {
+  "code": 320480,
+  "name": "Mideel Materia - AP Slot 10",
+  "shop_id": 50,
+  "token_id": 22,
+  "token_type": "materia",
+  "region": "Mideel"
  }
 ]

@@ -205,3 +205,10 @@ worlds/ff7/test/test_mansion.py
 worlds/ff7/test/test_options.py
 worlds/ff7/test/test_shops.py
 worlds/ff7/test/test_traversal.py
+worlds/ff7/test/test_boss_chests.py
+worlds/ff7/test/test_disable_checks.py
+worlds/ff7/test/test_options.py
+worlds/ff7/test/test_progressive_chocobos.py
+worlds/ff7/test/test_temple.py
+worlds/ff7/test/test_traversal_gates.py
+worlds/ff7/test/test_weapon_kills.py

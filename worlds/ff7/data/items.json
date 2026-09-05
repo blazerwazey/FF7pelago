@@ -1579,7 +1579,7 @@
     "ff7_id": 310
   },
   {
-    "name": "th Soldier",
+    "name": "1/35 Soldier",
     "code": 100264,
     "classification": "filler",
     "ff7_id": 95
@@ -2761,6 +2761,13 @@
     "classification": "progression",
     "category": "key_item",
     "count": 1
+  },
+  {
+    "name": "Progressive Chocobo",
+    "code": 300508,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 4
   },
   {
     "name": "Barret",

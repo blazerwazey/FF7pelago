@@ -255,6 +255,56 @@ class FF7JSONExporter:
             "death_link":            bool(opts.death_link),
         }
 
+    def _serialize_options(self) -> list:
+        """Every YAML option, verbatim, for Gold Saucer's "what this seed asks
+        for" chips.
+
+        Separate from `rules` on purpose. `rules` is the behaviour contract — the
+        keys Gold Saucer ACTS on, whose shape has to stay stable — while this is
+        presentation: what the player asked for, so they can check the seed against
+        the YAML they submitted before spending two minutes building it.
+
+        A LIST, not an object, because QJsonObject sorts its keys alphabetically
+        and would throw away the dataclass order that puts the decision-relevant
+        options first. Each entry carries both a machine `value` and a `display`
+        string taken from the option's own `current_key`, so a Choice reads as
+        "balanced" rather than "3" and Gold Saucer needs no per-option formatting.
+        New YAML options therefore appear in the chips with no Gold Saucer change.
+
+        Non-scalar options (start_inventory, item/location groups) are skipped:
+        they have no useful one-line form and would drown the row.
+        """
+        import dataclasses
+
+        out = []
+        for field in dataclasses.fields(self.world.options):
+            opt = getattr(self.world.options, field.name, None)
+            if opt is None:
+                continue
+            value = getattr(opt, "value", opt)
+            if not isinstance(value, (bool, int, str)):
+                continue
+            # current_key is a PROPERTY that raises for a Range whose value has
+            # no name (KeyError: 50 on trap_fill_percent), so getattr's default
+            # does not protect this — it has to be caught.
+            try:
+                display = opt.current_key
+            except Exception:
+                display = None
+            # The option's own default, so Gold Saucer can tell "the player chose
+            # this" from "nobody touched it" without carrying its own copy of
+            # every default — which would go stale the moment one changes here.
+            default = getattr(type(opt), "default", None)
+            if not isinstance(default, (bool, int, str)):
+                default = None
+            out.append({
+                "name":    field.name,
+                "value":   int(value) if isinstance(value, bool) else value,
+                "display": str(display) if display is not None else str(value),
+                "default": int(default) if isinstance(default, bool) else default,
+            })
+        return out
+
     def build_payload(self) -> Dict[str, Any]:
         mw = self.world.multiworld
         player = self.world.player
@@ -298,6 +348,7 @@ class FF7JSONExporter:
             ],
             "features":   features,
             "rules":      self._serialize_rules(),
+            "options":    self._serialize_options(),
             "placements": self._serialize_placements(),
             "shops":      self._serialize_shops(),
         }
