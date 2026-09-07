@@ -37,3 +37,30 @@ class TestDataPackageIntegrity(FF7TestBase):
         # json_export.FF7JSONExporter.write_file.
         base = self.multiworld.get_out_file_name_base(self.player)
         self.assertIn(f"_P{self.player}_", base)
+
+
+class TestItemGroups(FF7TestBase):
+    """Item groups are hint targets (`!hint <group>`) and are also usable in
+    YAML for local_items / non_local_items / item links, so their membership is
+    part of the world's public surface."""
+
+    options = {}
+
+    CHARACTERS = {
+        "Barret", "Tifa", "Aerith", "Red XIII",
+        "Cait Sith", "Cid", "Vincent", "Yuffie",
+    }
+
+    def test_characters_group_is_the_full_roster(self) -> None:
+        """Exactly the eight recruitables. Cloud is NOT one: he starts in the
+        party and has no item, so a group containing him would hint nothing."""
+        group = self.world.item_name_groups["Characters"]
+        self.assertEqual(set(group), self.CHARACTERS)
+        self.assertNotIn("Cloud", group)
+
+    def test_characters_group_members_are_real_items(self) -> None:
+        """A group naming an item that does not exist is silently skipped by the
+        server's hint expansion, which would make the group quietly incomplete."""
+        for name in self.world.item_name_groups["Characters"]:
+            with self.subTest(name):
+                self.assertIn(name, self.world.item_name_to_id)

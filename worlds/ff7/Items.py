@@ -58,6 +58,21 @@ item_name_groups: Dict[str, set[str]] = {
     "Progression": {name for name, data in ITEM_TABLE.items() if data.classification is ItemClassification.progression},
     "Useful": {name for name, data in ITEM_TABLE.items() if data.classification is ItemClassification.useful},
     "Filler": {name for name, data in ITEM_TABLE.items() if data.classification is ItemClassification.filler},
+    # The eight recruitable characters. Worth its own group because the only
+    # existing group containing them is "Progression", which is far too broad to
+    # aim a hint at, and the roster is what players actually chase.
+    #
+    # `!hint Characters` expands to every member, then the server pops the LOWEST
+    # sphere of the unfound ones (MultiServer.get_hints), one per call while hint
+    # costs are on — so the answer is "which character can you reach soonest?",
+    # which is the question worth paying a hint for. Ties prefer another player's
+    # world, then break randomly.
+    #
+    # Derived from the category rather than a name list so a future recruit is
+    # picked up for free. Cloud is deliberately absent: he starts in the party
+    # and is not an item. NOTE these are Free-Roam-only items, so in a linear
+    # seed the group resolves but matches nothing in the pool.
+    "Characters": {name for name, data in ITEM_TABLE.items() if data.category == "character"},
     "Vehicles": {name for name in ITEM_TABLE if any(keyword in name for keyword in ("Tiny Bronco", "Highwind", "Submarine", "Snowboard"))},
     "Key Cards": {name for name in ITEM_TABLE if name.startswith("Keycard")},
     "Coupons": {name for name in ITEM_TABLE if name.endswith("Coupon")},

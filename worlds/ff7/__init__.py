@@ -34,6 +34,7 @@ from .Options import (
     DisableBoneVillageDigs,
     ShopSlotsPerShop,
     ProgressiveChocobos,
+    ProgressiveLimits,
     PartyLevelSync,
     WeaponFightChecks,
     TownGating,
@@ -455,6 +456,17 @@ _COLOUR_CHOCOBO_ITEMS = frozenset({
     "Green Chocobo", "Blue Chocobo", "Black Chocobo", "Gold Chocobo",
 })
 
+# Five copies each, one per playable character (Cloud included - he is the one
+# character always in the party, so his limits matter most). Classified
+# `useful`, and deliberately absent from every access rule: limits make fights
+# easier, they do not open regions, and putting 45 items into logic would
+# tighten fill for no gain in reachability.
+_PROGRESSIVE_LIMIT_ITEMS = frozenset(
+    f"Progressive Limit ({name})" for name in
+    ("Cloud", "Barret", "Tifa", "Aerith", "Red XIII",
+     "Yuffie", "Cait Sith", "Vincent", "Cid")
+)
+
 _FREE_ROAM_ONLY_ITEMS = frozenset({
     "Highwind", "Submarine",
     "Green Chocobo", "Blue Chocobo", "Black Chocobo", "Gold Chocobo",
@@ -808,7 +820,7 @@ _TOWN_GATE_KEYS = {
     "Bone Village": "Bone Village Key",
     "Costa del Sol": "Costa del Sol Key",
     # The Sleeping Forest (and everything past it) is Bone Village's back yard:
-    # its only world entrances are the Corral Valley strip, which Gold Saucer
+    # its only world entrances are the Corel Valley strip, which Gold Saucer
     # seals on the same key, so the whole northern chain flows through Bone
     # Village. (Forgotten Capital / Corel Valley additionally need the Lunar
     # Harp — their entrance rules AND the key in directly, see
@@ -886,6 +898,7 @@ class FF7Web(WebWorld):
                 # Directly under RandomizeShops: meaningless without it.
                 ShopSlotsPerShop,
                 ProgressiveChocobos,
+                ProgressiveLimits,
                 RandomizeStartingEquipment,
                 StartingEquipmentTier,
             ],
@@ -1363,11 +1376,40 @@ class FF7World(World):
         # deliberately. The point is that the dependency is now STRUCTURAL: if the
         # event is ever tightened, this tightens with it instead of quietly
         # continuing to disagree with its own comment.
-        world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
-            lambda state: (_black(state) or _gold(state)
-                    or (_highwind(state)
-                        and state.has("Ultimate Weapon Defeated", player)))
-        )
+        # The Highwind route exists ONLY when weapon_fight_checks is on
+        # (changed by request 2026-09-06). It runs through "Ultimate Weapon
+        # Defeated", and fill can never see a battle outcome — the event really
+        # means "you are equipped to go and kill Ultimate", not that you did. With
+        # the checks ON the player at least has a check telling them the fight
+        # matters; with them OFF nothing points at Ultimate at all, so a tracker
+        # would show the forest open while the plateau is still shut, and the
+        # player has no reason to guess why.
+        #
+        # The chocobo routes are unchanged: Black and Gold climb to the plateau
+        # directly, which is why they never needed the event.
+        #
+        # The event itself stays UNCONDITIONAL — see uw_event below. Making its
+        # creation depend on the option is the exact bug that silently reshaped
+        # this rule once already; with checks off it is simply unreferenced, and
+        # an unreferenced event costs nothing (code=None plus a locked item).
+        # The chocobo half, shared by both branches. Black and Gold climb to the
+        # plateau on their own. GREEN climbs it too, but cannot cross the ocean to
+        # get there, so it needs the Highwind to ferry it — the same pattern as the
+        # Mime Cave, and confirmed in play 2026-09-06.
+        def _ancient_forest_chocobo(state):
+            return (_black(state) or _gold(state)
+                    or (_green(state) and _highwind(state)))
+
+        if bool(self.options.weapon_fight_checks):
+            world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
+                lambda state: (_ancient_forest_chocobo(state)
+                        or (_highwind(state)
+                            and state.has("Ultimate Weapon Defeated", player)))
+            )
+        else:
+            world_map.connect(sub_regions["Ancient Forest"]).access_rule = (
+                lambda state: _ancient_forest_chocobo(state)
+            )
         # Temple of the Ancients (v0.0.6): its own island, so ocean traversal, plus
         # the Keystone. The Keystone requirement is REAL, not just logical — nothing
         # in the temple's scripts checks for it (vanilla relies on the story), so the
@@ -1387,7 +1429,7 @@ class FF7World(World):
         )
         # Northern forests past Sleeping Forest need the Lunar Harp — and, with
         # town gating, the Bone Village Key: their only world entrances (the
-        # Corral Valley strip, tbl#26/#57/#58) are sealed by Gold Saucer on the
+        # Corel Valley strip, tbl#26/#57/#58) are sealed by Gold Saucer on the
         # Bone Village key bit, so the whole area is reached through Bone
         # Village -> Sleeping Forest.
         _tg = bool(self.options.town_gating)
@@ -1618,6 +1660,8 @@ class FF7World(World):
         free_roam = bool(self.options.free_roam)
         town_gating = free_roam and bool(self.options.town_gating)
         progressive_chocobos = free_roam and bool(self.options.progressive_chocobos)
+        # Not Free-Roam-gated: limits work the same in both modes.
+        progressive_limits = bool(self.options.progressive_limits)
         # Count only locations that still need an item. The victory location is
         # pre-filled with a locked item in create_regions; counting it here would
         # create one item too many for the available spots and break fill.
@@ -1647,6 +1691,10 @@ class FF7World(World):
             if progressive_chocobos and name in _COLOUR_CHOCOBO_ITEMS:
                 continue
             if not progressive_chocobos and name == "Progressive Chocobo":
+                continue
+            # With the option off, limits unlock the vanilla way and these items
+            # have nothing to grant.
+            if not progressive_limits and name in _PROGRESSIVE_LIMIT_ITEMS:
                 continue
             pool_names.extend([name] * data.count)
 
@@ -1866,6 +1914,11 @@ class FF7World(World):
             "shops": exporter._serialize_shops(),
             "victory_condition": self.options.victory_condition.value,
             "free_roam": bool(self.options.free_roam),
+            # The client needs this to know whether to SUPPRESS the game's own
+            # limit teaching. Without the flag it cannot tell an option-off seed
+            # (leave the game alone) from an option-on seed where no limit items
+            # have arrived yet (hold everyone at Level 1-1).
+            "progressive_limits": bool(self.options.progressive_limits),
             "exp_multiplier": int(self.options.exp_multiplier.value),
             "gil_multiplier": int(self.options.gil_multiplier.value),
             "ap_multiplier": int(self.options.ap_multiplier.value),

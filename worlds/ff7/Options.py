@@ -183,6 +183,35 @@ class ShopSlotsPerShop(Range):
     default = 0
 
 
+class ProgressiveLimits(DefaultOnToggle):
+    """Limit breaks come from Archipelago instead of from killing things.
+
+    On (default): the pool holds five copies of "Progressive Limit" for each of
+    the nine playable characters, and each copy teaches that character their
+    next limit in order —
+
+      1. Level 1-2
+      2. Level 2-1
+      3. Level 2-2
+      4. Level 3-1
+      5. Level 3-2
+
+    The client also STOPS the game teaching them the usual way, so kill counts
+    and limit-use counts no longer unlock anything. Without that the items would
+    be a shortcut rather than the source, since grinding would hand out the same
+    limits for free.
+
+    Level 4 is deliberately untouched: it already comes from a manual item
+    (Omnislash, Catastrophe, Great Gospel, ...) that is in the pool and works.
+
+    Everyone keeps Level 1-1 from the start, so no character is ever left with
+    no limit at all.
+
+    Off: limits unlock normally and the items are absent from the pool.
+    """
+    display_name = "Progressive Limits"
+
+
 class ProgressiveChocobos(Toggle):
     """Replace the four colour chocobos with one progressive item (Free Roam).
 
@@ -505,6 +534,7 @@ class FF7Options(PerGameCommonOptions):
     disable_fort_condor_checks: DisableFortCondorChecks
     shop_slots_per_shop: ShopSlotsPerShop
     progressive_chocobos: ProgressiveChocobos
+    progressive_limits: ProgressiveLimits
     party_level_sync: PartyLevelSync
     disable_gil_dump_checks: DisableGilDumpChecks
     disable_bone_village_digs: DisableBoneVillageDigs

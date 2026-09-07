@@ -3004,5 +3004,77 @@
     "code": 100916,
     "classification": "trap",
     "category": "trap"
+  },
+  {
+    "name": "Progressive Limit (Cloud)",
+    "code": 300620,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Barret)",
+    "code": 300621,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Tifa)",
+    "code": 300622,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Aerith)",
+    "code": 300623,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Red XIII)",
+    "code": 300624,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Yuffie)",
+    "code": 300625,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Cait Sith)",
+    "code": 300626,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Vincent)",
+    "code": 300627,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
+  },
+  {
+    "name": "Progressive Limit (Cid)",
+    "code": 300628,
+    "classification": "useful",
+    "ff7_id": null,
+    "category": "limit",
+    "count": 5
   }
 ]
