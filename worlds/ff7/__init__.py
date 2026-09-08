@@ -1469,12 +1469,19 @@ class FF7World(World):
             and state.has("Glacier Map", player)
         )
 
-        # --- Northern Crater interior: Highwind + All Characters + 4 Huge Materia ---
+        # --- Northern Crater interior: Highwind + 4 Huge Materia ---
+        # The BARRIER is the Huge Materia and nothing else (changed by request
+        # 2026-09-07). The party requirement moved DEEPER, to las4_1 -- the game's
+        # own point of no return -- so the crater's own checks are reachable with
+        # the materia alone and only the final descent wants a full party.
+        # Gold Saucer enforces it there by locking walkmesh triangle 81 on entry
+        # whenever the party byte is clear, so the way on is physically absent.
+        # Highwind stays: it is how you physically reach the crater, not part of
+        # the barrier.
         world_map.connect(sub_regions["Whirlwind Maze"]).access_rule = _has("Highwind")
         world_map.connect(sub_regions["Northern Cave"]).access_rule = (
             lambda state: (
                 state.has("Highwind", player)
-                and state.has_all(_PARTY_MEMBER_ITEMS, player)
                 and state.has_all(_GOAL_HUGE_MATERIA, player)
             )
         )
@@ -1643,9 +1650,10 @@ class FF7World(World):
                 world_map.locations.append(boss_loc)
 
         victory_loc = FF7Location(player, self.victory_location_name, None, world_map)
-        # Gate the goal so winning requires real endgame progression: the
-        # Highwind (Northern Crater access), the full party (all 6 recruited),
-        # and all 4 Huge Materia.
+        # The goal still wants everything, but the two halves are now enforced in
+        # different places in game: the Huge Materia lower the barrier, and the
+        # full party is checked at las4_1, the point of no return. Logic keeps
+        # them together here because beating Sephiroth requires passing both.
         victory_loc.access_rule = lambda state: (
             state.has("Highwind", player)
             and state.has_all(_PARTY_MEMBER_ITEMS, player)

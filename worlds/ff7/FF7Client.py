@@ -73,11 +73,23 @@ SAVEMAP_LEN        = 0x10F4
 # entrance reads Var[3][131] and bounces the player out while it is 0.
 #   bank 3 base = 0x0CA4, Var[3][131] = 0x0CA4 + 0x83 = 0x0D27
 CRATER_LOCK_OFFSET = 0x0D27
+# The BARRIER is the four Huge Materia (plus the Highwind, which is simply how
+# you get there). The six characters moved OUT of this set on 2026-09-07 and are
+# now checked at las4_0, the point of no return -- see PARTY_GATE_OFFSET below.
 CRATER_REQUIRED_ITEMS = frozenset({
     "Highwind",
-    "Barret", "Tifa", "Aerith", "Red XIII", "Cait Sith", "Cid",
     "Huge Materia (Fort Condor)", "Huge Materia (Corel)",
     "Huge Materia (Underwater)", "Huge Materia (Rocket)",
+})
+# Party gate for las4_0. Same bank as the crater lock, next byte along:
+#   bank 3 base = 0x0CA4, Var[3][132] = 0x0CA4 + 0x84 = 0x0D28
+# The client sets it to 1 once the canonical six are recruited; the Gold Saucer
+# field gate injected into las4_0 reads it and refuses the descent while it is 0.
+# Deliberately a SEPARATE byte from the crater lock: the two requirements are now
+# enforced at different points in the game, and one flag cannot express that.
+PARTY_GATE_OFFSET = 0x0D28
+PARTY_GATE_REQUIRED_ITEMS = frozenset({
+    "Barret", "Tifa", "Aerith", "Red XIII", "Cait Sith", "Cid",
 })
 GAME_MOMENT_OFFSET = 0x0BA4   # uint16 LE "mprogress" Main Progress var
 GAME_MOMENT_GOAL   = 3000     # (legacy; mprogress actually caps at 1999, see below)
@@ -1201,50 +1213,55 @@ class FF7CommandProcessor(ClientCommandProcessor):
         return True
 
     def _cmd_gomode(self) -> bool:
-        """Show what you still need to lower the Northern Crater barrier — the
-        Highwind, the full party and all four Huge Materia."""
+        """Show what you still need to finish the game — the Huge Materia that
+        lower the Northern Crater barrier, and the party las4_0 demands."""
         received = getattr(self.ctx, "_received_item_names", set())
-        # Grouped so the output reads like a checklist rather than one long line.
-        groups = (
-            ("Highwind",     ["Highwind"]),
-            ("Party",        ["Barret", "Tifa", "Aerith", "Red XIII",
-                              "Cait Sith", "Cid"]),
-            ("Huge Materia", ["Huge Materia (Fort Condor)", "Huge Materia (Corel)",
-                              "Huge Materia (Underwater)", "Huge Materia (Rocket)"]),
-        )
 
         def _short(n: str) -> str:
             if n.startswith("Huge Materia ("):
                 return n[len("Huge Materia ("):-1]
             return n
 
-        have_all = CRATER_REQUIRED_ITEMS.issubset(received)
-        total   = len(CRATER_REQUIRED_ITEMS)
-        got     = len(CRATER_REQUIRED_ITEMS & set(received))
-        logger.info(f"[gomode] Northern Crater barrier: {got}/{total} goal items"
-                    + ("  ** GO MODE — the barrier is down **" if have_all else ""))
-        for title, names in groups:
-            owned   = [n for n in names if n in received]
-            missing = [n for n in names if n not in received]
-            line = f"[gomode] {title:<13} {len(owned)}/{len(names)}"
-            if missing:
-                line += "   missing: " + ", ".join(_short(n) for n in missing)
-            else:
-                line += "   complete"
-            logger.info(line)
+        # TWO gates since 2026-09-07, checked at different points in the game.
+        # Reporting them separately matters: a player with every Huge Materia can
+        # lower the barrier and explore the crater, and still be turned back at
+        # the point of no return for want of a character. One combined number
+        # would tell them they were ready when they were not.
+        gates = (
+            ("Northern Crater barrier", CRATER_REQUIRED_ITEMS, CRATER_LOCK_OFFSET,
+             (("Highwind",     ["Highwind"]),
+              ("Huge Materia", ["Huge Materia (Fort Condor)", "Huge Materia (Corel)",
+                                "Huge Materia (Underwater)", "Huge Materia (Rocket)"]))),
+            ("Point of no return", PARTY_GATE_REQUIRED_ITEMS, PARTY_GATE_OFFSET,
+             (("Party", ["Barret", "Tifa", "Aerith", "Red XIII",
+                         "Cait Sith", "Cid"]),)),
+        )
 
-        # The gate byte is what the field actually reads, so surface any
-        # disagreement rather than letting the player trust the checklist alone.
         pm = getattr(self.ctx, "pm", None)
-        if pm is not None:
-            try:
-                live = pm.read_uchar(SAVEMAP_BASE + CRATER_LOCK_OFFSET)
-                if bool(live) != have_all:
-                    logger.info(f"[gomode] (in-game gate byte is {live} — it syncs "
-                                "on the next delivery tick)")
-            except Exception as exc:
-                logger.debug(f"[gomode] gate read failed: {exc}")
-        else:
+        for title, required, offset, groups in gates:
+            have_all = required.issubset(received)
+            got = len(required & set(received))
+            logger.info(f"[gomode] {title}: {got}/{len(required)}"
+                        + ("   ** open **" if have_all else ""))
+            for gtitle, names in groups:
+                owned   = [n for n in names if n in received]
+                missing = [n for n in names if n not in received]
+                line = f"[gomode]   {gtitle:<13} {len(owned)}/{len(names)}"
+                line += ("   missing: " + ", ".join(_short(n) for n in missing)
+                         if missing else "   complete")
+                logger.info(line)
+            # The gate byte is what the game actually reads, so surface any
+            # disagreement rather than letting the player trust the checklist.
+            if pm is not None:
+                try:
+                    live = pm.read_uchar(SAVEMAP_BASE + offset)
+                    if bool(live) != have_all:
+                        logger.info(f"[gomode]   (in-game gate byte is {live} — it "
+                                    "syncs on the next delivery tick)")
+                except Exception as exc:
+                    logger.debug(f"[gomode] gate read failed: {exc}")
+
+        if pm is None:
             logger.info("[gomode] (game not attached — showing AP-received items only)")
         return True
 
@@ -2537,18 +2554,31 @@ def _seed_glacier_wakeup(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
 
 
 def _enforce_crater_lock(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
-    """Drive the savemap Northern Crater gate byte: 1 once every goal item is
-    received (Highwind + full party + 4 Huge Materia), else 0. The Gold Saucer
-    field-gate reads this and bounces the player out while it is 0."""
-    unlocked = CRATER_REQUIRED_ITEMS.issubset(ctx._received_item_names)
-    try:
-        addr = SAVEMAP_BASE + CRATER_LOCK_OFFSET
-        if pm.read_uchar(addr) != (1 if unlocked else 0):
-            pm.write_uchar(addr, 1 if unlocked else 0)
-            if unlocked:
-                logger.debug("Northern Crater unlocked — all goal items received.")
-    except Exception as exc:
-        logger.debug(f"crater lock write failed: {exc}")
+    """Drive the two endgame gate bytes.
+
+    0x0D27 crater lock : the Huge Materia (+ Highwind) lower the barrier. Read by
+                         the wm0.ev descent gate patchCraterLanding installs.
+    0x0D28 party gate  : the canonical six are recruited. Read by the las4_0 field
+                         gate, the game's own point of no return.
+
+    Split on 2026-09-07 by request: the barrier used to want the party too, which
+    put the whole endgame behind one wall. Two bytes rather than one because the
+    requirements are now checked at different points, and both are written every
+    poll so a game over or a stale save cannot leave either stuck open.
+    """
+    for offset, required, what in (
+        (CRATER_LOCK_OFFSET, CRATER_REQUIRED_ITEMS, "Northern Crater barrier"),
+        (PARTY_GATE_OFFSET, PARTY_GATE_REQUIRED_ITEMS, "las4_0 party gate"),
+    ):
+        unlocked = required.issubset(ctx._received_item_names)
+        try:
+            addr = SAVEMAP_BASE + offset
+            if pm.read_uchar(addr) != (1 if unlocked else 0):
+                pm.write_uchar(addr, 1 if unlocked else 0)
+                if unlocked:
+                    logger.debug(f"{what} unlocked — requirements met.")
+        except Exception as exc:
+            logger.debug(f"{what} write failed: {exc}")
 
 
 def _suppress_diamond_scene(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
