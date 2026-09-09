@@ -228,7 +228,7 @@
       "eals_1"
     ],
     "item_text": "Cover",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 48,
     "bit": 3
@@ -241,7 +241,7 @@
       "farm"
     ],
     "item_text": "Choco/Mog",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 48,
     "bit": 4
@@ -254,7 +254,7 @@
       "mds6_22"
     ],
     "item_text": "Sense",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 48,
     "bit": 5
@@ -280,7 +280,7 @@
       "zz7"
     ],
     "item_text": "Quadra Magic",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 49,
     "bit": 2
@@ -478,7 +478,7 @@
       "losinn"
     ],
     "item_text": "Enemy Skill",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 85,
     "bit": 0
@@ -595,7 +595,7 @@
       "q_3"
     ],
     "item_text": "Double Cut",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 86,
     "bit": 1
@@ -621,7 +621,7 @@
       "las0_5"
     ],
     "item_text": "HP Absorb",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 86,
     "bit": 3
@@ -712,7 +712,7 @@
       "kuro_3"
     ],
     "item_text": "Morph",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 112,
     "bit": 0
@@ -725,7 +725,7 @@
       "kuro_1"
     ],
     "item_text": "Luck Plus",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 112,
     "bit": 1
@@ -946,7 +946,7 @@
       "mtcrl_4"
     ],
     "item_text": "Transform",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 116,
     "bit": 2
@@ -1115,7 +1115,7 @@
       "datiao_8"
     ],
     "item_text": "Steal-As-Well",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 141,
     "bit": 1
@@ -1142,7 +1142,7 @@
       "bonevil"
     ],
     "item_text": "W-Item",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 141,
     "bit": 4
@@ -1207,7 +1207,7 @@
       "tower5"
     ],
     "item_text": "Leviathan",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 142,
     "bit": 1
@@ -1484,21 +1484,21 @@
       "las4_0"
     ],
     "item_text": "Shield",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 147,
     "bit": 5
   },
   {
-    "name": "Inside Northern Cave - W-Magic #1",
+    "name": "Inside Northern Cave - W-Magic",
     "code": 200367,
-    "map": "las0_4",
+    "map": "las2_4",
     "maps": [
-      "las0_4",
+      "las2_4",
       "las4_0"
     ],
     "item_text": "W-Magic",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 147,
     "bit": 7
@@ -1564,7 +1564,7 @@
       "itown1b"
     ],
     "item_text": "Contain",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 179,
     "bit": 0
@@ -3838,7 +3838,7 @@
       "zz6"
     ],
     "item_text": "HP <-> MP",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 49,
     "bit": 1
@@ -4309,7 +4309,7 @@
       "bonevil"
     ],
     "item_text": "Phoenix",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 168,
     "bit": 5
@@ -4335,7 +4335,7 @@
       "hyou13_2"
     ],
     "item_text": "Alexander",
-    "category": "standard",
+    "category": "materia",
     "bank": 1,
     "address": 199,
     "bit": 4
@@ -4792,7 +4792,7 @@
       "trnad_2"
     ],
     "item_text": "Neo Bahamut",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 2,
     "bit": 0
@@ -4884,7 +4884,7 @@
       "anfrst_2"
     ],
     "item_text": "Typhon",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 37,
     "bit": 2
@@ -4910,7 +4910,7 @@
       "q_4"
     ],
     "item_text": "Hades",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 81,
     "bit": 3
@@ -5067,17 +5067,17 @@
       "kuro_82"
     ],
     "item_text": "Bahamut",
-    "category": "standard",
+    "category": "materia",
     "bank": 13,
     "address": 113,
     "bit": 1
   },
   {
-    "name": "Northern Cave - Counter",
+    "name": "Inside Northern Cave - Counter",
     "code": 310096,
-    "map": "las0_4",
+    "map": "las2_4",
     "maps": [
-      "las0_4",
+      "las2_4",
       "las4_0"
     ],
     "item_text": "Counter",

@@ -3336,9 +3336,33 @@ _CHR_LIMITS = 0x22; _CHR_KILLS = 0x24          # learned-limit bitmask / kills+u
 # (one for level 4): L1 = bits 0-2, L2 = 3-5, L3 = 6-8, L4 = bit 9.
 _LIMIT_L1_1_BIT   = 0x0001   # everyone has it from the start; never cleared
 _LIMIT_L4_BIT     = 0x0200   # taught by the manual item - not ours to touch
-# The five steps an AP "Progressive Limit" grants, in order.
-_LIMIT_STEP_BITS  = (1, 3, 4, 6, 7)   # 1-2, 2-1, 2-2, 3-1, 3-2
+# The steps an AP "Progressive Limit" grants, in order. NOT the same for
+# everyone: two characters simply do not have the standard seven limits, and
+# granting a bit for a limit that does not exist leaves the gauge filling on an
+# entry the game cannot draw. Reported from play 2026-09-09.
+#
+#   most characters  two techniques per level for levels 1-3, plus a level 4
+#                    from a manual item -- so AP grants 1-2, 2-1, 2-2, 3-1, 3-2
+#   Vincent          ONE limit per level (Galian Beast / Death Gigas /
+#                    Hellmasker / Chaos), so only the level-firsts exist. Level 1
+#                    is free and level 4 is his Chaos manual, leaving 2-1 and 3-1
+#   Cait Sith        TWO limits in total, Dice and Slots. No level 3, no level 4,
+#                    and no level-4 manual item exists for him anywhere in the
+#                    game -- there are 8 manuals for 9 characters. That leaves
+#                    exactly one step, 2-1 (Slots)
+_LIMIT_STEPS_DEFAULT  = (1, 3, 4, 6, 7)   # 1-2, 2-1, 2-2, 3-1, 3-2
+_LIMIT_STEPS_VINCENT  = (3, 6)            # 2-1, 3-1
+_LIMIT_STEPS_CAIT     = (3,)              # 2-1 (Slots)
 _LIMIT_LEVEL_FIRST_BIT = {1: 0, 2: 3, 3: 6, 4: 9}
+
+
+def _limit_steps_for(cid: int) -> tuple:
+    """Which limit bits Archipelago may grant this character, in order."""
+    if cid == 6:      # Cait Sith
+        return _LIMIT_STEPS_CAIT
+    if cid == 7:      # Vincent
+        return _LIMIT_STEPS_VINCENT
+    return _LIMIT_STEPS_DEFAULT
 
 _PROGRESSIVE_LIMIT_CIDS = {
     "Progressive Limit (Cloud)":     0,
@@ -3372,7 +3396,8 @@ def _granted_limit_steps(ctx: "FF7Context") -> Dict[int, int]:
     return counts
 
 
-def _limit_mask_and_level(granted: int, current: int) -> Tuple[int, int]:
+def _limit_mask_and_level(granted: int, current: int,
+                          steps: tuple = _LIMIT_STEPS_DEFAULT) -> Tuple[int, int]:
     """The learned-limit mask and highest selectable level for `granted` steps.
 
     Pure so the bit layout can be tested without a running game. `current` is the
@@ -3380,12 +3405,16 @@ def _limit_mask_and_level(granted: int, current: int) -> Tuple[int, int]:
     comes from the manual item, not from us, and clearing it would confiscate an
     Omnislash the player legitimately owns.
 
+    `steps` is the character's own ladder - see _limit_steps_for. Vincent and
+    Cait Sith have shorter ones, and granting them a bit outside it would set a
+    limit the game has no technique for.
+
     Level 1-1 (bit 0) is always set, so a character with nothing granted still
     has a working limit rather than a gauge that fills and does nothing.
     """
     allowed = _LIMIT_L1_1_BIT
-    for i in range(max(0, min(granted, len(_LIMIT_STEP_BITS)))):
-        allowed |= 1 << _LIMIT_STEP_BITS[i]
+    for i in range(max(0, min(granted, len(steps)))):
+        allowed |= 1 << steps[i]
     allowed |= current & _LIMIT_L4_BIT
     highest = max(lvl for lvl, bit in _LIMIT_LEVEL_FIRST_BIT.items()
                   if allowed & (1 << bit))
@@ -3420,7 +3449,8 @@ def _apply_limit_grants(pm: "pymem.Pymem", ctx: "FF7Context") -> None:
         rec = SAVEMAP_BASE + _CHARS_OFFSET + cid * _CHAR_RECORD_SIZE
         try:
             current = pm.read_ushort(rec + _CHR_LIMITS)
-            allowed, highest = _limit_mask_and_level(counts.get(cid, 0), current)
+            allowed, highest = _limit_mask_and_level(counts.get(cid, 0), current,
+                                                     _limit_steps_for(cid))
             if current != allowed:
                 pm.write_ushort(rec + _CHR_LIMITS, allowed)
 

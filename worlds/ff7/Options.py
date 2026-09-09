@@ -186,15 +186,19 @@ class ShopSlotsPerShop(Range):
 class ProgressiveLimits(DefaultOnToggle):
     """Limit breaks come from Archipelago instead of from killing things.
 
-    On (default): the pool holds five copies of "Progressive Limit" for each of
-    the nine playable characters, and each copy teaches that character their
-    next limit in order —
+    On (default): the pool holds copies of "Progressive Limit" for each of the
+    nine playable characters, and each copy teaches that character their next
+    limit in order —
 
       1. Level 1-2
       2. Level 2-1
       3. Level 2-2
       4. Level 3-1
       5. Level 3-2
+
+    Two characters get fewer, because they simply have fewer limits: Vincent has
+    one per level (Galian Beast, Death Gigas, Hellmasker, Chaos), so he gets 2;
+    Cait Sith has only Dice and Slots and no level 4 at all, so he gets 1.
 
     The client also STOPS the game teaching them the usual way, so kill counts
     and limit-use counts no longer unlock anything. Without that the items would

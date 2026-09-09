@@ -212,3 +212,4 @@ worlds/ff7/test/test_progressive_chocobos.py
 worlds/ff7/test/test_temple.py
 worlds/ff7/test/test_traversal_gates.py
 worlds/ff7/test/test_weapon_kills.py
+worlds/ff7/test/test_progressive_limits.py

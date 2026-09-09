@@ -418,6 +418,10 @@ FREE_ROAM_REGION_MAP: dict[str, str] = {
     "las1_3":     "Northern Cave",
     "las2_2":     "Northern Cave",
     "las2_3":     "Northern Cave",
+    # las2_4 holds the Counter and W-Magic materia. It was missing from this
+    # table entirely, so both locations had been filed against las0_4 -- a
+    # field with no SMTRA opcodes at all. See locations.json.
+    "las2_4":     "Northern Cave",
     "las3_1":     "Northern Cave",
     "las3_2":     "Northern Cave",
     "las3_3":     "Northern Cave",
@@ -1483,6 +1487,14 @@ class FF7World(World):
             lambda state: (
                 state.has("Highwind", player)
                 and state.has_all(_GOAL_HUGE_MATERIA, player)
+                # ...and a real squad, exactly as the Gelnika and the Underwater
+                # Reactor want one (request 2026-09-08). The crater's interior is
+                # deep-endgame content and a solo Cloud has no business in it; the
+                # Huge Materia say you are ALLOWED in, party size says you are
+                # equipped for it. Counted, not named, so Vincent and Yuffie
+                # qualify - this is about combat strength, unlike the point of no
+                # return at las4_1, which wants the canonical six by name.
+                and _squad(state)
             )
         )
 
