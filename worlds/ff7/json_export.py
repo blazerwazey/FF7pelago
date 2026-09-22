@@ -250,8 +250,9 @@ class FF7JSONExporter:
             # World
             "free_roam":             bool(opts.free_roam),
             "town_gating":           bool(opts.town_gating),
-            # Goal
-            "victory_condition":     int(opts.victory_condition),
+            # Goal (victory_condition retired as a player option; goals drives
+            # completion. GoldSaucer only needs defeat_sephiroth=0 for save setup.)
+            "victory_condition":     0,
             "death_link":            bool(opts.death_link),
         }
 

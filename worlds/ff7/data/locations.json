@@ -3818,6 +3818,19 @@
     "bit": 3
   },
   {
+    "name": "Defeat Diamond Weapon",
+    "code": 300440,
+    "map": "wm0",
+    "maps": [
+      "wm0"
+    ],
+    "item_text": "Boss: Diamond Weapon",
+    "category": "boss",
+    "bank": 1,
+    "address": 123,
+    "bit": 1
+  },
+  {
     "name": "Aerith's House 2f. - Phoenix Down",
     "code": 310000,
     "map": "ealin_1",

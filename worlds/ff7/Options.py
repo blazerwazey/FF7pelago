@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from Options import Choice, Range, Toggle, DefaultOnToggle, DeathLink, PerGameCommonOptions
+from Options import Choice, OptionSet, Range, Toggle, DefaultOnToggle, DeathLink, PerGameCommonOptions
 
 
 # ---------------------------------------------------------------------------
@@ -79,12 +79,16 @@ class StartingEquipmentTier(Range):
 # Goal
 # ---------------------------------------------------------------------------
 
-class VictoryCondition(Choice):
-    """Goal required to complete the seed."""
-    display_name = "Victory Condition"
-    option_defeat_sephiroth = 0
-    # option_escape_midgar = 1
-    default = option_defeat_sephiroth
+class Goals(OptionSet):
+    """The goals required to complete the seed - ALL selected are required.
+
+    defeat_sephiroth: beat the Northern Crater final battle.
+    all_weapons: defeat all four WEAPONs (Diamond, Ultimate, Ruby,
+    Emerald), spawned by the progressive WEAPON Arrival item.
+    (all_weapons requires Free Roam and forces weapon_fight_checks on.)"""
+    display_name = "Goals"
+    valid_keys = frozenset({"defeat_sephiroth", "all_weapons"})
+    default = frozenset({"defeat_sephiroth"})
 
 
 class FreeRoam(Toggle):
@@ -546,7 +550,7 @@ class FF7Options(PerGameCommonOptions):
     town_gating: TownGating
 
     # Goal
-    victory_condition: VictoryCondition
+    goals: Goals
 
     # Traps
     trap_fill_percent: TrapFillPercent

@@ -2812,6 +2812,13 @@
     "count": 1
   },
   {
+    "name": "WEAPON Arrival",
+    "code": 300620,
+    "classification": "progression",
+    "category": "key_item",
+    "count": 4
+  },
+  {
     "name": "Vincent",
     "code": 300617,
     "classification": "progression",

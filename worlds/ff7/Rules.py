@@ -42,8 +42,30 @@ def apply_rules(world: "FF7World") -> None:
     else:
         _apply_linear_rules(world)
 
+    # Completion: every selected goal must be logically satisfiable. Future
+    # goals: add a part function here keyed by its Goals option key.
+    player = world.player
+    goals = set(world.options.goals.value)
+
+    def _weapons_part(state: CollectionState) -> bool:
+        from . import _PARTY_MEMBER_ITEMS
+        return (
+            state.has("WEAPON Arrival", player, 4)
+            and state.has("Highwind", player)
+            and state.has("Submarine", player)
+            and state.has_from_list(_PARTY_MEMBER_ITEMS, player, 2)
+        )
+
+    goal_parts = {
+        "defeat_sephiroth": lambda state: state.has(world.victory_item_name, player),
+        "all_weapons": _weapons_part,
+    }
+    active = [goal_parts[g] for g in goals if g in goal_parts]
+    if not active:
+        active = [goal_parts["defeat_sephiroth"]]
+
     world.multiworld.completion_condition[world.player] = (
-        lambda state: state.has(world.victory_item_name, world.player)
+        lambda state: all(part(state) for part in active)
     )
 
 

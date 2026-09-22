@@ -124,7 +124,9 @@ Final Fantasy VII:
 
   weapon_fight_checks:
     # Include the optional Weapon superbosses as check locations (Free Roam).
-    # When on, defeating Ultimate, Ruby, and Emerald Weapon each award a check.
+    # When on, defeating Diamond, Ultimate, Ruby, and Emerald Weapon each award
+    # a check. The Weapons spawn one at a time from the progressive
+    # WEAPON Arrival item (1st Diamond, 2nd Ultimate, 3rd Ruby, 4th Emerald).
     'false': 0
     'true': 50
 
@@ -175,9 +177,14 @@ Final Fantasy VII:
   ################
   # Goal Options #
   ################
-  victory_condition:
-    # Goal required to complete the seed.
-    defeat_sephiroth: 50
+  goals:
+    # The goals required to complete the seed - ALL selected are required.
+    # defeat_sephiroth: beat the Northern Crater final battle.
+    # all_weapons: defeat all four WEAPONs (Diamond, Ultimate, Ruby,
+    #   Emerald), spawned by the progressive WEAPON Arrival item.
+    #   (all_weapons requires free_roam and forces weapon_fight_checks on.)
+    # Example for both: ['defeat_sephiroth', 'all_weapons']
+    ['defeat_sephiroth']
 
   death_link:
     # When you die, everyone who enabled death link dies. Of course, the reverse is true too.
